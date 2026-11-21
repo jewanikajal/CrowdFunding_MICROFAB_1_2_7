@@ -1,0 +1,24 @@
+{
+  "tag": "v3_sync_150",
+  "tps": 150,
+  "submitted": 4500,
+  "sourceCommitted": 3756,
+  "sourceFailed": 744,
+  "sourceErrors": {
+    "10 ABORTED: failed to collect enough transaction endorsement": 290,
+    "2 UNKNOWN: too many requests for /gateway.Gateway, exceeding": 454
+  },
+  "sourceThroughput": 120.7,
+  "sourceLatAvg": 2.213,
+  "sourceLatP95": 3.553,
+  "relayed": 3756,
+  "targetPresent": 3756,
+  "targetIntact": 3756,
+  "missing": 0,
+  "endToEndThroughput": 22.9,
+  "syncLagAvg": 70.469,
+  "syncLagP50": 72.212,
+  "syncLagP95": 127.015,
+  "syncLagMax": 133.222,
+  "idempotentReplaysObserved": 0
+}
