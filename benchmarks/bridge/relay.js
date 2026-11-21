@@ -23,7 +23,8 @@ const { connect, signers, hash, checkpointers } = require('@hyperledger/fabric-g
 
 const cfg = JSON.parse(process.argv[2] || '{}');
 const ORG = cfg.org || 'PlatformOrg';
-const CONC = cfg.concurrency || 64;
+const BATCH = cfg.batch || 1; // >1: group outbox keys into ApplySyncBatch transactions
+const CONC = cfg.concurrency || (BATCH > 1 ? 5000 : 64);
 const dom = (o) => `${o.toLowerCase()}.example.com`;
 const DIRS = [
   { name: 'gov->inv', src: ['governance-validation-channel', 'governance'], dst: ['investment-execution-channel', 'investment'],
@@ -46,7 +47,42 @@ function gateway() {
   });
 }
 
+// ---- batched mode: one ApplySyncBatch tx per <= BATCH keys, flushed every 100 ms
+const queues = new Map();
+function enqueue(dst, dir, srcChannel, key, ev) {
+  if (!queues.has(dir.name)) {
+    const q = { items: [], dst, dir, srcChannel };
+    queues.set(dir.name, q);
+    setInterval(() => flush(q), 100);
+  }
+  return new Promise((resolve) => queues.get(dir.name).items.push({ key, ev, resolve }));
+}
+async function flush(q) {
+  while (q.items.length) {
+    const batch = q.items.splice(0, BATCH);
+    (async () => {
+      for (let attempt = 1; attempt <= 30; attempt++) {
+        try {
+          const res = JSON.parse(Buffer.from(await q.dst.submit('DataBridgeContract:ApplySyncBatch', {
+            arguments: [q.srcChannel, JSON.stringify(batch.map((b) => b.key))], endorsingOrganizations: q.dir.endorsers,
+          })).toString());
+          const now = Date.now();
+          for (const b of batch) {
+            stats.write(JSON.stringify({ dir: q.dir.name, key: b.key, srcTx: b.ev.transactionId, srcBlock: Number(b.ev.blockNumber), appliedMs: now, result: res[b.key], attempts: attempt, batch: batch.length }) + '\n');
+            b.resolve();
+          }
+          return;
+        } catch (e) {
+          await sleep(Math.min(200 * attempt, 2000));
+          if (attempt === 30) for (const b of batch) { stats.write(JSON.stringify({ dir: q.dir.name, key: b.key, failed: (e.message || '').slice(0, 200) }) + '\n'); b.resolve(); }
+        }
+      }
+    })();
+  }
+}
+
 async function applyOne(dst, dir, srcChannel, key, ev) {
+  if (BATCH > 1) return enqueue(dst, dir, srcChannel, key, ev);
   for (let attempt = 1; attempt <= 30; attempt++) {
     try {
       const res = Buffer.from(await dst.submit('DataBridgeContract:ApplySync', {

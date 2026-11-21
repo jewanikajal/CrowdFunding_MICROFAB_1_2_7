@@ -62,10 +62,39 @@ func (d *DataBridgeContract) ReadOutbox(ctx contractapi.TransactionContextInterf
 // ApplySync applies one outbox entry from sourceChannel to this channel. Endorsers fetch the
 // entry themselves from the source ledger, so the caller (relay) cannot inject data.
 func (d *DataBridgeContract) ApplySync(ctx contractapi.TransactionContextInterface, sourceChannel string, key string) (string, error) {
-	stub := ctx.GetStub()
-	if sourceChannel == stub.GetChannelID() {
+	if sourceChannel == ctx.GetStub().GetChannelID() {
 		return "", fmt.Errorf("source channel must differ from target channel")
 	}
+	return applyOne(ctx, sourceChannel, key)
+}
+
+// ApplySyncBatch applies up to 200 outbox entries in one transaction (same verification per entry).
+// Amortises endorsement/ordering/validation cost; returns the per-key results as JSON.
+func (d *DataBridgeContract) ApplySyncBatch(ctx contractapi.TransactionContextInterface, sourceChannel string, keysJSON string) (string, error) {
+	if sourceChannel == ctx.GetStub().GetChannelID() {
+		return "", fmt.Errorf("source channel must differ from target channel")
+	}
+	var keys []string
+	if err := json.Unmarshal([]byte(keysJSON), &keys); err != nil {
+		return "", fmt.Errorf("keysJSON: %v", err)
+	}
+	if len(keys) == 0 || len(keys) > 200 {
+		return "", fmt.Errorf("batch must contain 1..200 keys")
+	}
+	res := make(map[string]string, len(keys))
+	for _, k := range keys {
+		r, err := applyOne(ctx, sourceChannel, k)
+		if err != nil {
+			return "", fmt.Errorf("%s: %v", k, err) // all-or-nothing: relay retries the batch
+		}
+		res[k] = r
+	}
+	b, _ := json.Marshal(res)
+	return string(b), nil
+}
+
+func applyOne(ctx contractapi.TransactionContextInterface, sourceChannel string, key string) (string, error) {
+	stub := ctx.GetStub()
 	marker := "SYNCED_" + key
 	if done, _ := stub.GetState(marker); done != nil {
 		return "ALREADY_APPLIED", nil // idempotent: duplicate relays / replays are harmless
