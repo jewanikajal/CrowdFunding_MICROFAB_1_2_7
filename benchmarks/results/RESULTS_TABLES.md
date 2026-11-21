@@ -329,3 +329,23 @@
 | single | S-A15 | Denial of service | No client input can crash the chaincode | Any client (any org) | MintTokens to a not-yet-existing account | **VULNERABLE** | 10 ABORTED: failed to endorse transaction, see attached details for more info / InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction 738d88ad922642e9b18b3754889c7b6c09c215 |
 | single | S-P1 | Privacy leakage | Aadhaar & income visible only to InvestorOrg (PDC) | StartupOrg client (non-member) | qscc GetBlockByTxID and search block bytes for Aadhaar/income | **VULNERABLE** | Aadhaar 4321-5cn1-8765 and income found in plaintext in block (tx args) |
 | single | S-P2 | Privacy leakage | Non-members cannot read InvestorPrivateData | StartupOrg client | InvestorContract:GetMyInvestments (range read of InvestorPrivateData) via StartupOrg peer | **MITIGATED** | 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, failed to query investments: GET_STATE_BY_RANGE failed: transaction ID: e76f601d4d6f6ee9a284f118f33eedb15496c63e3bfbf920e43697822dbba786: tx cr |
+| bridge_v3 | B-T1 | Cross-channel bridge | Relay injects a fabricated outbox entry | malicious relay / channel member | Relay injects a fabricated outbox entry | **MITIGATED** | 10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info / chaincode response 500, cannot verify outbox entry on governance-validation-channel: outbox entry OUTBOX_fakemwqb3lqz_Pl |
+| bridge_v3 | B-T2 | Cross-channel bridge | Direct write via DataBridgeContract:StoreData | malicious relay / channel member | Direct write via DataBridgeContract:StoreData | **MITIGATED** | 10 ABORTED: failed to endorse transaction, see attached details for more info / chaincode response 500, StoreData is disabled in v3; cross-channel writes use the verified outbox/ApplySync path |
+| bridge_v3 | B-T3 | Cross-channel bridge | Replayed ApplySync applies the record twice | malicious relay / channel member | Replayed ApplySync applies the record twice | **MITIGATED** | first=APPLIED, replay=ALREADY_APPLIED |
+| bridge_v3 | B-T4 | Cross-channel bridge | Endorser without source-channel access applies an entry | malicious relay / channel member | Endorser without source-channel access applies an entry | **MITIGATED** | 10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info / chaincode response 500, cannot verify outbox entry on governance-validation-channel:  |
+
+## Cross-channel synchronisation (governance -> investment)
+
+| Run | Offered TPS | Source committed | Relayed | Present on target | Missing | Source TPS | End-to-end TPS | Sync lag avg (s) | p50 | p95 | max | Idempotent replays |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v2_baseline_25 | 25 | 750/750 | 0 | 0 | 750 | 24.4 | 0 | None | None | None | None | 0 |
+| v3_crash_50 | 50 | 1490/1500 | 1490 | 1490 | 0 | 48.2 | 17.3 | 38.78 | 40.334 | 53.123 | 55.396 | 80 |
+| v3_sync_10 | 10 | 300/300 | 300 | 300 | 0 | 9.6 | 9.5 | 1.931 | 2.315 | 2.497 | 2.499 | 0 |
+| v3_sync_25 | 25 | 749/750 | 749 | 749 | 0 | 23.9 | 21.9 | 2.301 | 2.432 | 3.316 | 3.869 | 0 |
+| v3_sync_50 | 50 | 1492/1500 | 1492 | 1492 | 0 | 48.8 | 23.3 | 17.765 | 17.699 | 31.274 | 33.508 | 0 |
+| v3_sync_100 | 100 | 2965/3000 | 2965 | 2965 | 0 | 96.8 | 24.2 | 47.445 | 48.491 | 87.329 | 92.074 | 0 |
+| v3_sync_150 | 150 | 3756/4500 | 3756 | 3756 | 0 | 120.7 | 22.9 | 70.469 | 72.212 | 127.015 | 133.222 | 0 |
+| v3batch_sync_25 | 25 | 749/750 | 749 | 749 | 0 | 24 | 23.4 | 2.309 | 2.761 | 2.915 | 3.08 | 0 |
+| v3batch_sync_50 | 50 | 1479/1500 | 1479 | 1479 | 0 | 48.3 | 44.7 | 2.983 | 3.268 | 4.482 | 4.487 | 0 |
+| v3batch_sync_100 | 100 | 2905/3000 | 2905 | 2905 | 0 | 93.4 | 75.1 | 14.195 | 15.022 | 21.76 | 23.057 | 0 |
+| v3batch_sync_150 | 150 | 3646/4500 | 3646 | 3646 | 0 | 116.4 | 78.9 | 23.864 | 25.385 | 32.265 | 33.037 | 0 |
