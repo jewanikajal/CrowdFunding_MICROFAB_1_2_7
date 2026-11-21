@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 2000,
+  "succeeded": 1898,
+  "failed": 102,
+  "sendRate": 99.9,
+  "throughput": 91.7,
+  "latAvg": 1.939,
+  "latMin": 0.669,
+  "latP50": 1.927,
+  "latP95": 2.958,
+  "latP99": 3.272,
+  "latMax": 3.512,
+  "startMs": 1795256693797.018,
+  "endMs": 1795256714505.1284,
+  "errors": {
+    "ENDORSE_MISMATCH": 102
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 29.7,
+      "cpuPeakPct": 41.0,
+      "memAvgMB": 655.9,
+      "memPeakMB": 675.9,
+      "netRxMBps": 0.744,
+      "netTxMBps": 0.371
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 135.8,
+      "cpuPeakPct": 171.8,
+      "memAvgMB": 579.4,
+      "memPeakMB": 672.9,
+      "netRxMBps": 4.523,
+      "netTxMBps": 3.049
+    },
+    "couchdb": {
+      "cpuAvgPct": 101.1,
+      "cpuPeakPct": 157.9,
+      "memAvgMB": 224.4,
+      "memPeakMB": 228.9,
+      "netRxMBps": 0.245,
+      "netTxMBps": 0.197
+    },
+    "orderer": {
+      "cpuAvgPct": 12.8,
+      "cpuPeakPct": 19.5,
+      "memAvgMB": 62.9,
+      "memPeakMB": 73.9,
+      "netRxMBps": 0.578,
+      "netTxMBps": 2.244
+    },
+    "loadgen": {
+      "cpuAvgPct": 61.3,
+      "cpuPeakPct": 75.9,
+      "memAvgMB": 293.2,
+      "memPeakMB": 357.8,
+      "netRxMBps": -0.293,
+      "netTxMBps": -0.395
+    },
+    "host": {
+      "cpuAvgPct": 91.3,
+      "cpuPeakPct": 99.0,
+      "memUsedPeakMB": 2832.5
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OutOf(4,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E5",
+  "name": "E5_e4_token_100"
+}
