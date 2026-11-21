@@ -53,12 +53,18 @@ const pct = (a, p) => (a.length ? +a[Math.min(a.length - 1, Math.floor(p / 100 *
   }
   // independent verification on the target ledger
   let present = 0, intact = 0;
-  await Promise.all([...want.values()].map(async (r) => {
-    try {
-      const v = JSON.parse(Buffer.from(await inv.evaluateTransaction('DataBridgeContract:ReadData', 'PlatformPrivateData', `VALIDATOR_DECISION_${r.id}`)).toString());
-      present++; if (v.walletId === r.id || v.WalletID === r.id || JSON.stringify(v).includes(r.id)) intact++;
-    } catch { /* missing */ }
-  }));
+  // verify in bounded batches (the gateway rejects > 500 concurrent requests), with retries
+  const all = [...want.values()];
+  for (let b = 0; b < all.length; b += 50) {
+    await Promise.all(all.slice(b, b + 50).map(async (r) => {
+      for (let t = 0; t < 3; t++) {
+        try {
+          const v = Buffer.from(await inv.evaluateTransaction('DataBridgeContract:ReadData', 'PlatformPrivateData', `VALIDATOR_DECISION_${r.id}`)).toString();
+          present++; if (v.includes(r.id)) intact++; return;
+        } catch (e) { if (/not found/.test(e.message + (e.details || []).map((d) => d.message).join(''))) return; await sleep(300); }
+      }
+    }));
+  }
   const lags = [...applied.entries()].map(([k, a]) => (a.appliedMs - want.get(k).c) / 1000).sort((a, b) => a - b);
   const srcLat = okRecs.map((r) => (r.c - r.s) / 1000).sort((a, b) => a - b);
   const lastApplied = Math.max(0, ...[...applied.values()].map((a) => a.appliedMs));
