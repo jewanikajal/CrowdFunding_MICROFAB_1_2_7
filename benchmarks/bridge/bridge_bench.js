@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Cross-channel synchronisation benchmark.
- * Submits N governance-channel PlatformContract:CreateWallet txs at a fixed rate; each one writes
+ * Submits N governance-channel PlatformContract:RecordValidatorDecision txs at a fixed rate; each one writes
  * PlatformPrivateData (homed on the investment channel) -> outbox -> relay -> ApplySync.
  * Measures source latency/throughput, sync lag (source commit -> target commit) and verifies that
  * every record arrived intact on the investment channel.
@@ -29,7 +29,7 @@ const pct = (a, p) => (a.length ? +a[Math.min(a.length - 1, Math.floor(p / 100 *
     const id = `W${run}_${i}`, s = Date.now();
     ps.push((async () => {
       try {
-        const c = await gov.submitAsync('PlatformContract:CreateWallet', { arguments: [id, `user${i}`, 'INVESTOR', '1000'] });
+        const c = await gov.submitAsync('PlatformContract:RecordValidatorDecision', { arguments: [id, `CAMP_${i}`, `VAL_${i}`, 'hash', 'true', '90', 'rh'] });
         const st = await c.getStatus();
         recs.push({ id, tx: c.getTransactionId(), s, c: Date.now(), ok: st.successful, code: st.code });
       } catch (e) { recs.push({ id, s, c: Date.now(), ok: false, err: (e.message || '').slice(0, 120) }); }
@@ -39,7 +39,7 @@ const pct = (a, p) => (a.length ? +a[Math.min(a.length - 1, Math.floor(p / 100 *
   const srcDone = Date.now();
   const okRecs = recs.filter((r) => r.ok);
   // wait for the relay to apply everything
-  const want = new Map(okRecs.map((r) => [`OUTBOX_${r.tx}_PlatformPrivateData_WALLET_${r.id}`, r]));
+  const want = new Map(okRecs.map((r) => [`OUTBOX_${r.tx}_PlatformPrivateData_VALIDATOR_DECISION_${r.id}`, r]));
   const applied = new Map();
   const deadline = Date.now() + (cfg.waitSec || 180) * 1000;
   while (Date.now() < deadline) {
@@ -55,7 +55,7 @@ const pct = (a, p) => (a.length ? +a[Math.min(a.length - 1, Math.floor(p / 100 *
   let present = 0, intact = 0;
   await Promise.all([...want.values()].map(async (r) => {
     try {
-      const v = JSON.parse(Buffer.from(await inv.evaluateTransaction('DataBridgeContract:ReadData', 'PlatformPrivateData', `WALLET_${r.id}`)).toString());
+      const v = JSON.parse(Buffer.from(await inv.evaluateTransaction('DataBridgeContract:ReadData', 'PlatformPrivateData', `VALIDATOR_DECISION_${r.id}`)).toString());
       present++; if (v.walletId === r.id || v.WalletID === r.id || JSON.stringify(v).includes(r.id)) intact++;
     } catch { /* missing */ }
   }));

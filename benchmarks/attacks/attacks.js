@@ -53,6 +53,12 @@ async function submit(org, ch, cc, fn, args, opts = {}) {
   } catch (e) { return { committed: false, error: errText(e) }; }
 }
 
+// setup helper: retry (multi-endorser setup can hit time.Now() endorsement mismatches)
+async function setup(org, ch, cc, fn, args, opts = {}) {
+  let r; for (let i = 0; i < 5; i++) { r = await submit(org, ch, cc, fn, args, opts); if (r.committed) return r; }
+  return r;
+}
+
 async function evaluate(org, ch, cc, fn, args, opts = {}) {
   const c = gateway(org, opts).getNetwork(ch).getContract(cc);
   try { return { ok: true, result: Buffer.from(await c.evaluateTransaction(fn, ...args.map(String))).toString() }; } catch (e) { return { ok: false, error: errText(e) }; }
@@ -76,7 +82,8 @@ async function common(ch, cc, gch, gcc, label) {
   const tok = 'PAYMENT_TOKEN';
   await submit('PlatformOrg', ch, cc, 'TokenContract:InitializeToken', [tok, 'Payment Token', 2, 1000000, 0]);
 
-  // A1 unauthorised minting by a non-Platform org
+  // A1 unauthorised minting by a non-Platform org (account created first: MintTokens to a new account crashes, see A15)
+  await submit('InvestorOrg', ch, cc, 'TokenContract:CreateTokenAccount', [`INV_attacker_${RID}`, 'attacker', 'INVESTOR', '{}']);
   const a1 = await submit('InvestorOrg', ch, cc, 'TokenContract:MintTokens', [tok, `INV_attacker_${RID}`, 1e9]);
   const bal1 = await evaluate('InvestorOrg', ch, cc, 'TokenContract:GetTokenAccount', [`INV_attacker_${RID}`]);
   record(`${label}-A1`, 'Unauthorised funding', 'Only PlatformOrg can mint tokens', 'InvestorOrg client', 'TokenContract:MintTokens(1e9) to own account',
@@ -86,11 +93,14 @@ async function common(ch, cc, gch, gcc, label) {
   const a2 = await submit('StartupOrg', ch, cc, 'TokenContract:CreateTokenAccount', [`STARTUP_rich_${RID}`, 'attacker', 'STARTUP', JSON.stringify({ [tok]: 5e8 })]);
   record(`${label}-A2`, 'Unauthorised funding', 'Balances can only originate from Platform mint/transfer', 'StartupOrg client', 'CreateTokenAccount with initialBalance {PAYMENT_TOKEN: 5e8}', a2.committed, ev(a2));
 
+  await submit('PlatformOrg', ch, cc, 'TokenContract:MintTokens', [tok, 'PLATFORM', 1000000]);
+  await submit('StartupOrg', ch, cc, 'TokenContract:CreateTokenAccount', [`STARTUP_thief_${RID}`, 'thief', 'STARTUP', '{}']);
   // A3 spend from the PLATFORM treasury as a non-Platform org
   const a3 = await submit('StartupOrg', ch, cc, 'TokenContract:TransferTokens', [`TX_${RID}_a3`, tok, 'PLATFORM', `STARTUP_thief_${RID}`, 1000, 'INR', 'theft', '']);
   record(`${label}-A3`, 'Unauthorised funding', 'Only PlatformOrg can move PLATFORM treasury funds', 'StartupOrg client', 'TransferTokens(from=PLATFORM, 1000)', a3.committed, ev(a3));
 
   // A4 intra-org theft: investor A spends investor B's balance (both InvestorOrg members)
+  await submit('PlatformOrg', ch, cc, 'TokenContract:CreateTokenAccount', [`INV_victim_${RID}`, 'victim', 'INVESTOR', '{}']);
   await submit('PlatformOrg', ch, cc, 'TokenContract:MintTokens', [tok, `INV_victim_${RID}`, 5000]);
   const a4 = await submit('InvestorOrg', ch, cc, 'TokenContract:TransferTokens', [`TX_${RID}_a4`, tok, `INV_victim_${RID}`, `INV_attacker_${RID}`, 5000, 'INR', 'theft', '']);
   record(`${label}-A4`, 'Unauthorised funding', 'Investors can only spend their own balance', 'InvestorOrg client (different investor)', 'TransferTokens(from=INV_victim)', a4.committed, ev(a4));
@@ -138,6 +148,7 @@ async function common(ch, cc, gch, gcc, label) {
     won2 !== 1, { committed: won2 });
 
   // A12 replay of an already-committed signed transaction envelope
+  await submit('PlatformOrg', ch, cc, 'TokenContract:CreateTokenAccount', [`INV_replay_${RID}`, 'r', 'INVESTOR', '{}']);
   const rp = await submit('PlatformOrg', ch, cc, 'TokenContract:MintTokens', [tok, `INV_replay_${RID}`, 100]);
   let replay;
   try {
@@ -146,8 +157,9 @@ async function common(ch, cc, gch, gcc, label) {
     replay = { committed: st2.successful, code: st2.code };
   } catch (e) { replay = { committed: false, error: errText(e) }; }
   const balR = await evaluate('PlatformOrg', ch, cc, 'TokenContract:GetTokenAccount', [`INV_replay_${RID}`]);
-  record(`${label}-A12`, 'Replay', 'A signed transaction cannot be replayed', 'Network attacker with captured envelope', 'Re-submit identical signed envelope',
-    replay.committed, `${replay.committed ? 'replayed VALID' : (replay.error || `invalidated code ${replay.code} (25=DUPLICATE_TXID? see Fabric TxValidationCode)`)}; balance ${balR.ok ? balR.result.slice(0, 120) : balR.error}`);
+  let rbal = null; try { const j = JSON.parse(balR.result); rbal = (j.balances || j.Balances)[tok]; } catch { /* */ }
+  record(`${label}-A12`, 'Replay', 'A signed transaction cannot be replayed', 'Network attacker with captured envelope', 'Re-submit identical signed envelope (balance 100 -> 200 if replay succeeded)',
+    rbal !== 100, `original=${ev(rp)}; replay submit: ${replay.error || 'accepted by orderer; commit-status lookup returns the ORIGINAL tx (same txID)'}; balance after replay = ${rbal}`);
 
   // A13 forged identity: self-signed certificate claiming InvestorOrgMSP
   const forged = makeForgedIdentity('InvestorOrgMSP');
@@ -155,6 +167,12 @@ async function common(ch, cc, gch, gcc, label) {
   record(`${label}-A13`, 'Identity spoofing', 'Only CA-issued identities can transact', 'Outsider with self-signed cert claiming InvestorOrgMSP',
     'MintTokens with forged certificate', a13.committed, ev(a13));
 
+  // A15 denial of service: MintTokens to a NEW account dereferences a nil account (read-your-writes is not
+  // supported in Fabric) -> Go panic -> chaincode process exits on the endorsing peer
+  const a15 = await submit('InvestorOrg', ch, cc, 'TokenContract:MintTokens', [tok, `INV_new_${RID}`, 1]);
+  record(`${label}-A15`, 'Denial of service', 'No client input can crash the chaincode', 'Any client (any org)',
+    'MintTokens to a not-yet-existing account', /stream terminated|could not launch|connection/i.test(a15.error || ''), ev(a15));
+  await new Promise((r) => setTimeout(r, 8000)); // let the chaincode container restart
   return { invId, camp };
 }
 
@@ -191,14 +209,15 @@ async function dual() {
   const GCH = 'governance-validation-channel', GCC = 'governance', ICH = 'investment-execution-channel', ICC = 'investment';
   await common(ICH, ICC, GCH, GCC, 'D');
 
-  // C1 cross-channel WRITE from governance chaincode into an investment-channel collection
-  const w = `WALLET_${RID}`;
-  const c1 = await submit('PlatformOrg', GCH, GCC, 'PlatformContract:CreateWallet', [w, 'user1', 'INVESTOR', 1000]);
-  const c1r = await evaluate('PlatformOrg', ICH, ICC, 'DataBridgeContract:ReadData', ['PlatformPrivateData', `WALLET_${w}`]);
-  const c1r2 = await evaluate('PlatformOrg', ICH, ICC, 'DataBridgeContract:ReadData', ['PlatformPrivateData', w]);
+  // C1 cross-channel WRITE: governance PlatformContract:RecordValidatorDecision writes PlatformPrivateData (homed on investment)
+  const rec = `REC_${RID}`;
+  const c1 = await submit('PlatformOrg', GCH, GCC, 'PlatformContract:RecordValidatorDecision', [rec, 'CAMP_X', 'VAL_X', 'hash', 'true', 90, 'rh']);
+  await new Promise((r) => setTimeout(r, 3000));
+  const c1r = await evaluate('PlatformOrg', ICH, ICC, 'DataBridgeContract:ReadData', ['PlatformPrivateData', `VALIDATOR_DECISION_${rec}`]);
+  const c1g = await evaluate('PlatformOrg', GCH, GCC, 'DataBridgeContract:ReadData', ['PlatformPrivateData', `VALIDATOR_DECISION_${rec}`]);
   record('D-C1', 'Cross-channel consistency', 'Governance -> investment writes are persisted (CrossChannelPut)', 'n/a (functional)',
-    'governance PlatformContract:CreateWallet then read on investment channel', !(c1r.ok || c1r2.ok) && c1.committed,
-    `governance tx: ${ev(c1)}; investment-channel read: ${c1r.ok ? c1r.result.slice(0, 80) : c1r.error} / ${c1r2.ok ? c1r2.result.slice(0, 80) : c1r2.error}`);
+    'governance RecordValidatorDecision, then read the record on the investment channel', c1.committed && !c1r.ok,
+    `governance tx: ${ev(c1)}; record on investment channel: ${c1r.ok ? 'PRESENT' : 'ABSENT (' + c1r.error.slice(-60) + ')'}; on governance channel: ${c1g.ok ? 'present' : 'absent'}`);
 
   // A14 unauthenticated write backdoor: DataBridgeContract:StoreData is a public transaction
   const victimKey = `INVESTOR_PRIV_INV_dup_${RID}`;
@@ -233,7 +252,10 @@ async function malicious(policyLabel) {
   const CH = 'crowdfunding-channel', CC = 'crowdfunding', tok = 'PAYMENT_TOKEN';
   await submit('PlatformOrg', CH, CC, 'TokenContract:InitializeToken', [tok, 'Payment Token', 2, 1000000, 0]);
   const acct = `STARTUP_broke_${RID}`;
-  await submit('PlatformOrg', CH, CC, 'TokenContract:CreateTokenAccount', [acct, 'x', 'STARTUP', '{}'], { endorsers: ['PlatformOrgMSP', 'InvestorOrgMSP'] });
+  for (const a of [acct, `STARTUP_sink_${RID}`, `STARTUP_sink2_${RID}`]) {
+    const r = await setup('PlatformOrg', CH, CC, 'TokenContract:CreateTokenAccount', [a, 'x', 'STARTUP', '{}'], { endorsers: ['PlatformOrgMSP', 'InvestorOrgMSP'] });
+    if (!r.committed) console.log('setup failed', a, r.error);
+  }
   const only = await submit('StartupOrg', CH, CC, 'TokenContract:TransferTokens', [`TX_${RID}_m1`, tok, acct, `STARTUP_sink_${RID}`, 1e9, 'INR', 'overdraft', ''], { endorsers: ['StartupOrgMSP'] });
   const both = await submit('StartupOrg', CH, CC, 'TokenContract:TransferTokens', [`TX_${RID}_m2`, tok, acct, `STARTUP_sink2_${RID}`, 1e9, 'INR', 'overdraft', ''], { endorsers: ['StartupOrgMSP', 'PlatformOrgMSP'] });
   const bal = await evaluate('PlatformOrg', CH, CC, 'TokenContract:GetTokenAccount', [`STARTUP_sink_${RID}`]);

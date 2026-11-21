@@ -108,7 +108,7 @@ deploy() {
     local o h
     for o in $(orgs_of "$ch"); do for h in $(peers_of "$o"); do
       local s; s=$(short_of "$h")
-      docker run -d --name "$s-$cc" --hostname "$s-$cc" --network cfnet -v "$HERE/work/bin":/bin-cc:ro \
+      docker run -d --restart unless-stopped --name "$s-$cc" --hostname "$s-$cc" --network cfnet -v "$HERE/work/bin":/bin-cc:ro \
         -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID="$pkg" "hyperledger/fabric-baseos:$TAG" "/bin-cc/$cc${CC_SUFFIX:-}" >/dev/null
       cli "$o" "$h" peer lifecycle chaincode install "/w/$cc.tgz" >/dev/null 2>&1 || true
     done; done

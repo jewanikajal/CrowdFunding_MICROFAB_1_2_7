@@ -77,11 +77,11 @@ def table(title, rows, extra_cols=()):
                         "errors": err_str(r)})
 
 
-def line(ax, rows, y, label, i, ls="-"):
+def line(ax, rows, y, label, i, ls="-", end_label=True):
     if not rows: return
     xs = [r["targetTps"] for r in rows]; ys = [y(r) for r in rows]
     ax.plot(xs, ys, ls, color=C[i], marker=MK[i], label=label)
-    ax.annotate(label, (xs[-1], ys[-1]), xytext=(4, 0), textcoords="offset points", color=INK2, fontsize=8, va="center")
+    if end_label: ax.annotate(label, (xs[-1], ys[-1]), xytext=(4, 0), textcoords="offset points", color=INK2, fontsize=8, va="center")
 
 
 def save(fig, name):
@@ -124,8 +124,8 @@ if get("E2_dual_startup"):
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.8))
     for i, (pre, lab) in enumerate([("E1_single_startup", "CreateStartup single (PDC)"), ("E2_dual_startup", "CreateStartup dual (gov., 2 endorsers)"),
                                     ("E1_single_invest", "MakeInvestment single (PDC)"), ("E2_dual_invest", "MakeInvestment dual (inv.)")]):
-        line(a1, get(pre), lambda r: r["throughput"], lab, i)
-        line(a2, get(pre), lambda r: 100 - succ_rate(r), lab, i)
+        line(a1, get(pre), lambda r: r["throughput"], lab, i, end_label=False)
+        line(a2, get(pre), lambda r: 100 - succ_rate(r), lab, i, end_label=False)
     a1.set_xlabel("Offered load (TPS)"); a1.set_ylabel("Committed throughput (TPS)"); a1.set_title("Single vs dual channel", color=INK, loc="left")
     a2.set_xlabel("Offered load (TPS)"); a2.set_ylabel("Failed transactions (%)"); a2.set_title("Failure rate", color=INK, loc="left")
     a1.legend(fontsize=7); save(fig, "fig_e2_single_vs_dual.png")

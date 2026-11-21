@@ -27,7 +27,7 @@ run single single
 # compromise StartupOrg: swap its chaincode server for the tampered build (same package ID)
 PKG=$(cat work/net/pkgid_crowdfunding)
 docker rm -f peer0startuporg-crowdfunding >/dev/null
-docker run -d --name peer0startuporg-crowdfunding --hostname peer0startuporg-crowdfunding --network cfnet -v "$PWD/work/bin":/bin-cc:ro \
+docker run -d --restart unless-stopped --name peer0startuporg-crowdfunding --hostname peer0startuporg-crowdfunding --network cfnet -v "$PWD/work/bin":/bin-cc:ro \
   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID="$PKG" hyperledger/fabric-baseos:2.5 /bin-cc/crowdfunding_malicious >/dev/null
 sleep 3
 run malicious-OR malicious_or
