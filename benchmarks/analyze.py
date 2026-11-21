@@ -217,16 +217,23 @@ if sec:
 br = [json.load(open(f)) for f in sorted(glob.glob(os.path.join(RES, "bridge", "v*_*.json"))) if "tamper" not in f]
 if br:
     md.append("\n## Cross-channel synchronisation (governance -> investment)\n\n| Run | Offered TPS | Source committed | Relayed | Present on target | Missing | Source TPS | End-to-end TPS | Sync lag avg (s) | p50 | p95 | max | Idempotent replays |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|")
-    for b in sorted(br, key=lambda b: (b["tag"].split("_")[0], b["tag"])):
+    for b in sorted(br, key=lambda b: (b["tag"].rsplit("_", 1)[0], b["tps"])):
         md.append(f"| {b['tag']} | {b['tps']} | {b['sourceCommitted']}/{b['submitted']} | {b['relayed']} | {b['targetPresent']} | {b['missing']} | {b['sourceThroughput']} | {b['endToEndThroughput']} | {b['syncLagAvg']} | {b['syncLagP50']} | {b['syncLagP95']} | {b['syncLagMax']} | {b['idempotentReplaysObserved']} |")
-    v3 = sorted([b for b in br if b["tag"].startswith("v3_sync")], key=lambda b: b["tps"])
-    if v3:
-        fig, ax = plt.subplots(figsize=(5.6, 3.6))
-        xs = [b["tps"] for b in v3]
-        for i, (k, lab) in enumerate([("syncLagP50", "p50"), ("syncLagP95", "p95"), ("syncLagMax", "max")]):
-            ax.plot(xs, [b[k] for b in v3], color=C[i], marker=MK[i], label=lab)
-        ax.set_xlabel("Offered load on governance channel (TPS)"); ax.set_ylabel("Sync lag: source commit -> target commit (s)")
-        ax.set_title("v3 outbox/relay synchronisation lag", color=INK, loc="left"); ax.legend(fontsize=8); ax.set_ylim(0, None)
+    series = [("v3_sync", "per-entry ApplySync"), ("v3batch_sync", "batched ApplySyncBatch (<=100)")]
+    if any(b["tag"].startswith("v3_sync") for b in br):
+        fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.6))
+        for i, (pre, lab) in enumerate(series):
+            rows = sorted([b for b in br if b["tag"].startswith(pre + "_")], key=lambda b: b["tps"])
+            if not rows: continue
+            xs = [b["tps"] for b in rows]
+            a1.plot(xs, [b["syncLagAvg"] for b in rows], color=C[i], marker=MK[i], label=f"{lab} (avg)")
+            a1.plot(xs, [b["syncLagP95"] for b in rows], ":", color=C[i], marker=MK[i], label=f"{lab} (p95)")
+            a2.plot(xs, [b["endToEndThroughput"] for b in rows], color=C[i], marker=MK[i], label=lab)
+        a2.plot([10, 150], [10, 150], ":", color=INK2, lw=1); a2.annotate("ideal", (100, 108), color=INK2, fontsize=8)
+        a1.set_xlabel("Offered load on governance channel (TPS)"); a1.set_ylabel("Sync lag, source commit -> target commit (s)")
+        a1.set_title("Cross-channel sync lag", color=INK, loc="left"); a1.set_ylim(0, None); a1.legend(fontsize=7)
+        a2.set_xlabel("Offered load on governance channel (TPS)"); a2.set_ylabel("Records synced per second")
+        a2.set_title("End-to-end sync throughput", color=INK, loc="left"); a2.set_ylim(0, None); a2.legend(fontsize=7)
         save(fig, "fig_bridge_lag.png")
 
 open(os.path.join(RES, "RESULTS_TABLES.md"), "w").write("\n".join(md) + "\n")

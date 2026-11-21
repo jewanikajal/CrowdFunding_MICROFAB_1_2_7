@@ -178,7 +178,40 @@ Design (code in `contracts/*/cross_channel.go`, `contracts/*/data_bridge.go`, re
 
 ### 3.3 Measured synchronisation performance and correctness
 
-BRIDGE_RESULTS_PLACEHOLDER
+Workload: governance `PlatformContract:RecordValidatorDecision` (governance policy `AND(Validator,Platform)`),
+each writing one record homed on the investment channel. 30 s of load per rate, relay operated by PlatformOrg.
+"Present/intact" is verified independently by reading every record back from the investment ledger.
+
+| Run | Offered TPS | Source committed | Present & intact on investment channel | Missing | End-to-end sync TPS | Sync lag avg / p95 / max (s) |
+|---|---|---|---|---|---|---|
+| **v2 (paper)** | 25 | 750 / 750 | **0** | **750** | 0 | — |
+| v3 per-entry | 10 | 300 / 300 | 300 | 0 | 9.5 | 1.9 / 2.5 / 2.5 |
+| v3 per-entry | 25 | 749 / 750 | 749 | 0 | 21.9 | 2.3 / 3.3 / 3.9 |
+| v3 per-entry | 50 | 1,492 / 1,500 | 1,492 | 0 | 23.3 | 17.8 / 31.3 / 33.5 |
+| v3 per-entry | 100 | 2,965 / 3,000 | 2,965 | 0 | 24.2 | 47.4 / 87.3 / 92.1 |
+| v3 per-entry | 150 | 3,756 / 4,500 | 3,756 | 0 | 22.9 | 70.5 / 127.0 / 133.2 |
+| **v3 batched (≤100/tx)** | 25 | 749 / 750 | 749 | 0 | 23.4 | **2.3 / 2.9 / 3.1** |
+| **v3 batched** | 50 | 1,479 / 1,500 | 1,479 | 0 | 44.7 | **3.0 / 4.5 / 4.5** |
+| **v3 batched** | 100 | 2,905 / 3,000 | 2,905 | 0 | 75.1 | 14.2 / 21.8 / 23.1 |
+| **v3 batched** | 150 | 3,646 / 4,500 | 3,646 | 0 | 78.9 | 23.9 / 32.3 / 33.0 |
+| v3 relay crash (killed at 10 s, restarted at 30 s) | 50 | 1,490 / 1,500 | 1,490 | 0 | 17.3 | 38.8 / 53.1 / 55.4 |
+
+Figure: `fig_bridge_lag.png`. Source-side failures are not bridge failures: they are the `time.Now()`
+endorsement mismatches of the governance channel's two-endorser policy (§2.4) and gateway overload at 150 TPS.
+
+Findings
+* **Correctness: 0 lost, 0 corrupted, 0 duplicated records** across 19,531 relayed records, including a relay
+  crash (80 entries were re-relayed after restart and absorbed idempotently as `ALREADY_APPLIED`).
+* **Latency**: ≈ 2–3 s (about one block on each channel) while the relay keeps up; the per-entry relay saturates
+  at ≈ 23 records/s, batching raises that to ≈ 79 records/s (3.4×) and keeps lag at 3 s up to 50 TPS.
+  The remaining limit is the investment channel's own write capacity on the shared 4-vCPU host.
+* **Security of the bridge** (`bridge/tamper.js`, all MITIGATED): B-T1 relay injects a fabricated outbox key →
+  rejected (`cannot verify outbox entry`); B-T2 direct write via `StoreData` → rejected (disabled);
+  B-T3 replay of an applied entry → `ALREADY_APPLIED`, no state change; B-T4 apply endorsed by a peer not
+  joined to the source channel → rejected.
+* Limitations to state in the paper: consistency is eventual (bounded by the lag above); a malicious relay can
+  delay but not forge; liveness requires at least one honest relay (anyone can run one); target endorsers must
+  be members of both channels (here Validator and Platform).
 
 ---
 
