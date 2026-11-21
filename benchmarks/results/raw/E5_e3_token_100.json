@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 2000,
+  "succeeded": 1927,
+  "failed": 73,
+  "sendRate": 99.8,
+  "throughput": 93,
+  "latAvg": 1.726,
+  "latMin": 0.568,
+  "latP50": 1.713,
+  "latP95": 2.663,
+  "latP99": 2.819,
+  "latMax": 2.891,
+  "startMs": 1795256588211.016,
+  "endMs": 1795256608923.3496,
+  "errors": {
+    "ENDORSE_MISMATCH": 73
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 27.2,
+      "cpuPeakPct": 59.1,
+      "memAvgMB": 632.6,
+      "memPeakMB": 635.1,
+      "netRxMBps": 0.582,
+      "netTxMBps": 0.301
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 119.2,
+      "cpuPeakPct": 151.7,
+      "memAvgMB": 512.4,
+      "memPeakMB": 564.0,
+      "netRxMBps": 3.79,
+      "netTxMBps": 2.443
+    },
+    "couchdb": {
+      "cpuAvgPct": 87.3,
+      "cpuPeakPct": 152.7,
+      "memAvgMB": 197.3,
+      "memPeakMB": 200.8,
+      "netRxMBps": 0.211,
+      "netTxMBps": 0.164
+    },
+    "orderer": {
+      "cpuAvgPct": 12.7,
+      "cpuPeakPct": 16.2,
+      "memAvgMB": 61.7,
+      "memPeakMB": 76.6,
+      "netRxMBps": 0.506,
+      "netTxMBps": 1.946
+    },
+    "loadgen": {
+      "cpuAvgPct": 63.0,
+      "cpuPeakPct": 72.2,
+      "memAvgMB": 316.9,
+      "memPeakMB": 356.2,
+      "netRxMBps": 0.274,
+      "netTxMBps": 0.395
+    },
+    "host": {
+      "cpuAvgPct": 82.1,
+      "cpuPeakPct": 96.4,
+      "memUsedPeakMB": 2690.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OutOf(3,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E5",
+  "name": "E5_e3_token_100"
+}
