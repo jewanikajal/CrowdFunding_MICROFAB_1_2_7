@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 4227,
+  "failed": 1773,
+  "sendRate": 299.1,
+  "throughput": 202.4,
+  "latAvg": 1.735,
+  "latMin": 0.678,
+  "latP50": 1.687,
+  "latP95": 2.717,
+  "latP99": 3.071,
+  "latMax": 3.285,
+  "startMs": 1795255974499.0276,
+  "endMs": 1795255995378.6802,
+  "errors": {
+    "GATEWAY_OVERLOAD": 1773
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 12.7,
+      "cpuPeakPct": 28.1,
+      "memAvgMB": 571.8,
+      "memPeakMB": 583.9,
+      "netRxMBps": 0.41,
+      "netTxMBps": 0.196
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 101.1,
+      "cpuPeakPct": 160.4,
+      "memAvgMB": 684.1,
+      "memPeakMB": 744.6,
+      "netRxMBps": 4.77,
+      "netTxMBps": 2.353
+    },
+    "couchdb": {
+      "cpuAvgPct": 83.8,
+      "cpuPeakPct": 156.8,
+      "memAvgMB": 209.1,
+      "memPeakMB": 223.3,
+      "netRxMBps": 0.332,
+      "netTxMBps": 0.222
+    },
+    "orderer": {
+      "cpuAvgPct": 20.1,
+      "cpuPeakPct": 34.5,
+      "memAvgMB": 71.4,
+      "memPeakMB": 92.1,
+      "netRxMBps": 0.757,
+      "netTxMBps": 2.893
+    },
+    "loadgen": {
+      "cpuAvgPct": 102.9,
+      "cpuPeakPct": 146.4,
+      "memAvgMB": 388.8,
+      "memPeakMB": 397.0,
+      "netRxMBps": 0.437,
+      "netTxMBps": 0.755
+    },
+    "host": {
+      "cpuAvgPct": 85.3,
+      "cpuPeakPct": 98.8,
+      "memUsedPeakMB": 2869.1
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E4",
+  "name": "E4_o1_token_300"
+}
