@@ -1,0 +1,89 @@
+{
+  "workload": "invest",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 2555,
+  "failed": 3445,
+  "sendRate": 298.2,
+  "throughput": 125.1,
+  "latAvg": 3.099,
+  "latMin": 0.3,
+  "latP50": 3.122,
+  "latP95": 4.127,
+  "latP99": 4.385,
+  "latMax": 4.884,
+  "startMs": 1795254249314.0312,
+  "endMs": 1795254269733.0881,
+  "errors": {
+    "GATEWAY_OVERLOAD": 3445
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 10.3,
+      "cpuPeakPct": 22.4,
+      "memAvgMB": 759.6,
+      "memPeakMB": 761.1,
+      "netRxMBps": 0.307,
+      "netTxMBps": 0.208
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 93.6,
+      "cpuPeakPct": 159.3,
+      "memAvgMB": 846.9,
+      "memPeakMB": 895.2,
+      "netRxMBps": 3.792,
+      "netTxMBps": 1.981
+    },
+    "couchdb": {
+      "cpuAvgPct": 116.6,
+      "cpuPeakPct": 220.8,
+      "memAvgMB": 319.9,
+      "memPeakMB": 354.8,
+      "netRxMBps": 0.471,
+      "netTxMBps": 0.295
+    },
+    "orderer": {
+      "cpuAvgPct": 12.8,
+      "cpuPeakPct": 30.7,
+      "memAvgMB": 97.3,
+      "memPeakMB": 125.8,
+      "netRxMBps": 0.54,
+      "netTxMBps": 2.093
+    },
+    "loadgen": {
+      "cpuAvgPct": 103.3,
+      "cpuPeakPct": 161.3,
+      "memAvgMB": 379.1,
+      "memPeakMB": 381.5,
+      "netRxMBps": 0.292,
+      "netTxMBps": 0.562
+    },
+    "host": {
+      "cpuAvgPct": 89.6,
+      "cpuPeakPct": 99.5,
+      "memUsedPeakMB": 3298.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_invest_300"
+}

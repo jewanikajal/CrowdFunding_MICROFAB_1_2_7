@@ -1,0 +1,89 @@
+{
+  "workload": "query",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 4000,
+  "workers": 4,
+  "submitted": 80000,
+  "succeeded": 19405,
+  "failed": 60595,
+  "sendRate": 3616,
+  "throughput": 699.7,
+  "latAvg": 14.001,
+  "latMin": 0.878,
+  "latP50": 15.861,
+  "latP95": 21.003,
+  "latP99": 21.833,
+  "latMax": 22.819,
+  "startMs": 1795254560273.02,
+  "endMs": 1795254588005.9058,
+  "errors": {
+    "GATEWAY_OVERLOAD": 60595
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 14.4,
+      "cpuPeakPct": 35.1,
+      "memAvgMB": 746.3,
+      "memPeakMB": 754.6,
+      "netRxMBps": 1.088,
+      "netTxMBps": 0.31
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 89.1,
+      "cpuPeakPct": 192.8,
+      "memAvgMB": 1208.9,
+      "memPeakMB": 1711.5,
+      "netRxMBps": 3.997,
+      "netTxMBps": 1.31
+    },
+    "couchdb": {
+      "cpuAvgPct": 2.4,
+      "cpuPeakPct": 10.0,
+      "memAvgMB": 254.0,
+      "memPeakMB": 259.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "orderer": {
+      "cpuAvgPct": 0.1,
+      "cpuPeakPct": 1.1,
+      "memAvgMB": 61.6,
+      "memPeakMB": 61.6,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "loadgen": {
+      "cpuAvgPct": 256.3,
+      "cpuPeakPct": 348.0,
+      "memAvgMB": 1570.9,
+      "memPeakMB": 2318.9,
+      "netRxMBps": 0.166,
+      "netTxMBps": 3.225
+    },
+    "host": {
+      "cpuAvgPct": 96.9,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 5934.1
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_query_4000"
+}

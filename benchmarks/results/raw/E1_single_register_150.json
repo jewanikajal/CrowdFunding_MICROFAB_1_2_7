@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 150,
+  "workers": 4,
+  "submitted": 4500,
+  "succeeded": 2800,
+  "failed": 1700,
+  "sendRate": 149.7,
+  "throughput": 86.3,
+  "latAvg": 4.191,
+  "latMin": 1.149,
+  "latP50": 4.327,
+  "latP95": 5.927,
+  "latP99": 6.474,
+  "latMax": 7.114,
+  "startMs": 1795252790174.022,
+  "endMs": 1795252822613.0293,
+  "errors": {
+    "GATEWAY_OVERLOAD": 1700
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 6.4,
+      "cpuPeakPct": 18.8,
+      "memAvgMB": 546.9,
+      "memPeakMB": 567.1,
+      "netRxMBps": 0.211,
+      "netTxMBps": 0.133
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 132.6,
+      "cpuPeakPct": 266.3,
+      "memAvgMB": 592.0,
+      "memPeakMB": 642.9,
+      "netRxMBps": 2.659,
+      "netTxMBps": 1.46
+    },
+    "couchdb": {
+      "cpuAvgPct": 133.2,
+      "cpuPeakPct": 230.6,
+      "memAvgMB": 263.8,
+      "memPeakMB": 276.6,
+      "netRxMBps": 0.367,
+      "netTxMBps": 0.293
+    },
+    "orderer": {
+      "cpuAvgPct": 10.7,
+      "cpuPeakPct": 26.2,
+      "memAvgMB": 61.0,
+      "memPeakMB": 68.4,
+      "netRxMBps": 0.369,
+      "netTxMBps": 1.429
+    },
+    "loadgen": {
+      "cpuAvgPct": 55.4,
+      "cpuPeakPct": 94.8,
+      "memAvgMB": 360.0,
+      "memPeakMB": 373.2,
+      "netRxMBps": 0.283,
+      "netTxMBps": 0.479
+    },
+    "host": {
+      "cpuAvgPct": 89.8,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 2656.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_register_150"
+}

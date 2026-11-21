@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3956,
+  "failed": 44,
+  "sendRate": 199.5,
+  "throughput": 189.1,
+  "latAvg": 1.017,
+  "latMin": 0.103,
+  "latP50": 0.792,
+  "latP95": 2.659,
+  "latP99": 2.982,
+  "latMax": 3.259,
+  "startMs": 1795257065422.0151,
+  "endMs": 1795257086338.9827,
+  "errors": {
+    "GATEWAY_OVERLOAD": 44
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 9.7,
+      "cpuPeakPct": 19.9,
+      "memAvgMB": 549.9,
+      "memPeakMB": 551.7,
+      "netRxMBps": 0.335,
+      "netTxMBps": 0.154
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 97.7,
+      "cpuPeakPct": 117.4,
+      "memAvgMB": 367.6,
+      "memPeakMB": 403.3,
+      "netRxMBps": 4.138,
+      "netTxMBps": 2.047
+    },
+    "couchdb": {
+      "cpuAvgPct": 116.5,
+      "cpuPeakPct": 158.2,
+      "memAvgMB": 172.9,
+      "memPeakMB": 178.8,
+      "netRxMBps": 0.318,
+      "netTxMBps": 0.223
+    },
+    "orderer": {
+      "cpuAvgPct": 19.8,
+      "cpuPeakPct": 25.9,
+      "memAvgMB": 53.5,
+      "memPeakMB": 73.0,
+      "netRxMBps": 0.678,
+      "netTxMBps": 2.6
+    },
+    "loadgen": {
+      "cpuAvgPct": 94.6,
+      "cpuPeakPct": 109.8,
+      "memAvgMB": 368.1,
+      "memPeakMB": 371.9,
+      "netRxMBps": 0.366,
+      "netTxMBps": 0.611
+    },
+    "host": {
+      "cpuAvgPct": 88.6,
+      "cpuPeakPct": 98.3,
+      "memUsedPeakMB": 2440.3
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "500ms",
+    "batchSize": 50,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E6",
+  "name": "E6_bt500ms_bs50_token_200"
+}

@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 500,
+  "workers": 4,
+  "submitted": 10000,
+  "succeeded": 7714,
+  "failed": 2286,
+  "sendRate": 490.9,
+  "throughput": 230.4,
+  "latAvg": 15.913,
+  "latMin": 2.184,
+  "latP50": 16.997,
+  "latP95": 22.464,
+  "latP99": 23.74,
+  "latMax": 27.451,
+  "startMs": 1795253693593.0203,
+  "endMs": 1795253727079.377,
+  "errors": {
+    "GATEWAY_OVERLOAD": 2286
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 7.3,
+      "cpuPeakPct": 25.3,
+      "memAvgMB": 566.9,
+      "memPeakMB": 571.9,
+      "netRxMBps": 0.417,
+      "netTxMBps": 0.172
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 114.4,
+      "cpuPeakPct": 162.0,
+      "memAvgMB": 868.9,
+      "memPeakMB": 965.1,
+      "netRxMBps": 5.272,
+      "netTxMBps": 2.561
+    },
+    "couchdb": {
+      "cpuAvgPct": 114.8,
+      "cpuPeakPct": 179.8,
+      "memAvgMB": 317.3,
+      "memPeakMB": 351.0,
+      "netRxMBps": 0.389,
+      "netTxMBps": 0.266
+    },
+    "orderer": {
+      "cpuAvgPct": 22.3,
+      "cpuPeakPct": 57.9,
+      "memAvgMB": 75.4,
+      "memPeakMB": 90.2,
+      "netRxMBps": 0.837,
+      "netTxMBps": 3.265
+    },
+    "loadgen": {
+      "cpuAvgPct": 95.0,
+      "cpuPeakPct": 146.5,
+      "memAvgMB": 495.7,
+      "memPeakMB": 691.6,
+      "netRxMBps": 0.668,
+      "netTxMBps": 1.107
+    },
+    "host": {
+      "cpuAvgPct": 93.2,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 3318.1
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_token_500"
+}

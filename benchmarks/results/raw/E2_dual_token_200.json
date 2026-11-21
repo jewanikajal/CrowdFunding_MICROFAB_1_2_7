@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3416,
+  "failed": 584,
+  "sendRate": 199.6,
+  "throughput": 164.4,
+  "latAvg": 2.062,
+  "latMin": 0.741,
+  "latP50": 2.029,
+  "latP95": 3.104,
+  "latP99": 3.345,
+  "latMax": 3.475,
+  "startMs": 1795254391431.017,
+  "endMs": 1795254412214.1404,
+  "errors": {
+    "GATEWAY_OVERLOAD": 584
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 14.5,
+      "cpuPeakPct": 32.7,
+      "memAvgMB": 793.1,
+      "memPeakMB": 806.2,
+      "netRxMBps": 0.347,
+      "netTxMBps": 0.172
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 99.8,
+      "cpuPeakPct": 164.7,
+      "memAvgMB": 833.8,
+      "memPeakMB": 881.3,
+      "netRxMBps": 3.904,
+      "netTxMBps": 1.956
+    },
+    "couchdb": {
+      "cpuAvgPct": 79.6,
+      "cpuPeakPct": 171.5,
+      "memAvgMB": 268.7,
+      "memPeakMB": 275.9,
+      "netRxMBps": 0.273,
+      "netTxMBps": 0.182
+    },
+    "orderer": {
+      "cpuAvgPct": 20.5,
+      "cpuPeakPct": 37.3,
+      "memAvgMB": 80.4,
+      "memPeakMB": 103.1,
+      "netRxMBps": 0.627,
+      "netTxMBps": 2.387
+    },
+    "loadgen": {
+      "cpuAvgPct": 97.3,
+      "cpuPeakPct": 130.5,
+      "memAvgMB": 377.2,
+      "memPeakMB": 381.3,
+      "netRxMBps": 0.368,
+      "netTxMBps": 0.607
+    },
+    "host": {
+      "cpuAvgPct": 81.7,
+      "cpuPeakPct": 98.7,
+      "memUsedPeakMB": 3236.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_token_200"
+}

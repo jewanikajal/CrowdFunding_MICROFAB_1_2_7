@@ -1,0 +1,181 @@
+[
+  {
+    "id": "D-A1",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can mint tokens",
+    "attacker": "InvestorOrg client",
+    "action": "TokenContract:MintTokens(1e9) to own account",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx 175dfd6470d8; balance now {\"PAYMENT_TOKEN\":1000000000}"
+  },
+  {
+    "id": "D-A2",
+    "category": "Unauthorised funding",
+    "claim": "Balances can only originate from Platform mint/transfer",
+    "attacker": "StartupOrg client",
+    "action": "CreateTokenAccount with initialBalance {PAYMENT_TOKEN: 5e8}",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx c95d27b3508f"
+  },
+  {
+    "id": "D-A3",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can move PLATFORM treasury funds",
+    "attacker": "StartupOrg client",
+    "action": "TransferTokens(from=PLATFORM, 1000)",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, unauthorized: only PlatformOrg can transfer from PLATFORM account"
+  },
+  {
+    "id": "D-A4",
+    "category": "Unauthorised funding",
+    "claim": "Investors can only spend their own balance",
+    "attacker": "InvestorOrg client (different investor)",
+    "action": "TransferTokens(from=INV_victim)",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx a5196fc3723f"
+  },
+  {
+    "id": "D-A5",
+    "category": "Unauthorised funding",
+    "claim": "Investments only into existing, approved campaigns",
+    "attacker": "InvestorOrg client",
+    "action": "MakeInvestment(campaign=CAMP_DOES_NOT_EXIST)",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx a7b9ca950596"
+  },
+  {
+    "id": "D-A6",
+    "category": "Unauthorised funding",
+    "claim": "Only investors can commit investments",
+    "attacker": "StartupOrg client",
+    "action": "MakeInvestment on behalf of INV_victim",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx bb278f35d35c"
+  },
+  {
+    "id": "D-A7",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can open a validation",
+    "attacker": "StartupOrg client",
+    "action": "ValidatorContract:ValidateCampaign on own campaign",
+    "outcome": "VULNERABLE",
+    "evidence": "setup: createCampaign=true submit=true; committed VALID tx 5834f563d6b2"
+  },
+  {
+    "id": "D-A8",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can approve a campaign",
+    "attacker": "StartupOrg client",
+    "action": "ValidatorContract:ApproveOrRejectCampaign(APPROVED, score 99)",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx d672d7f5757e"
+  },
+  {
+    "id": "D-A9",
+    "category": "Duplicate registration",
+    "claim": "An investor ID can be registered once",
+    "attacker": "InvestorOrg client",
+    "action": "RegisterInvestor twice, sequentially",
+    "outcome": "MITIGATED",
+    "evidence": "first=committed VALID tx b77bcb9aa409; second=10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: chaincode response 500, investor INV_dup_mwqa8ab1 already exists"
+  },
+  {
+    "id": "D-A10",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate registrations: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel RegisterInvestor with same ID",
+    "outcome": "MITIGATED",
+    "evidence": {
+      "committed": 1,
+      "outcomes": {
+        "code_11": 19,
+        "VALID": 1
+      }
+    }
+  },
+  {
+    "id": "D-A11",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate investment IDs: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel MakeInvestment with same ID",
+    "outcome": "MITIGATED",
+    "evidence": {
+      "committed": 1
+    }
+  },
+  {
+    "id": "D-A12",
+    "category": "Replay",
+    "claim": "A signed transaction cannot be replayed",
+    "attacker": "Network attacker with captured envelope",
+    "action": "Re-submit identical signed envelope (balance 100 -> 200 if replay succeeded)",
+    "outcome": "MITIGATED",
+    "evidence": "original=committed VALID tx f8d9549b30e1; replay submit: accepted by orderer; commit-status lookup returns the ORIGINAL tx (same txID); balance after replay = 100"
+  },
+  {
+    "id": "D-A13",
+    "category": "Identity spoofing",
+    "claim": "Only CA-issued identities can transact",
+    "attacker": "Outsider with self-signed cert claiming InvestorOrgMSP",
+    "action": "MintTokens with forged certificate",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error validating proposal: access denied: channel [investment-execution-channel] creator org [InvestorOrgMSP]"
+  },
+  {
+    "id": "D-A15",
+    "category": "Denial of service",
+    "claim": "No client input can crash the chaincode",
+    "attacker": "Any client (any org)",
+    "action": "MintTokens to a not-yet-existing account",
+    "outcome": "MITIGATED",
+    "evidence": "committed VALID tx 67317f1921b2"
+  },
+  {
+    "id": "D-C1",
+    "category": "Cross-channel consistency",
+    "claim": "Governance -> investment writes are persisted (CrossChannelPut)",
+    "attacker": "n/a (functional)",
+    "action": "governance RecordValidatorDecision, then read the record on the investment channel",
+    "outcome": "VULNERABLE",
+    "evidence": "governance tx: committed VALID tx cfed8cc0049b; record on investment channel: ABSENT (t found: PlatformPrivateData_VALIDATOR_DECISION_REC_mwqa8ab1); on governance channel: absent"
+  },
+  {
+    "id": "D-A14",
+    "category": "Unauthorised write",
+    "claim": "Only the owning org can modify its records",
+    "attacker": "StartupOrg client",
+    "action": "DataBridgeContract:StoreData overwriting an investor's private record",
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx 17ac11c1351d; record now: {\"aadharNumber\":\"OVERWRITTEN\",\"annualIncome\":0,\"investorId\":\"INV_dup\"}"
+  },
+  {
+    "id": "D-C2",
+    "category": "Cross-channel consistency",
+    "claim": "Investment channel can read governance data for every org",
+    "attacker": "n/a (functional)",
+    "action": "investment StartupContract:GetStartup via StartupOrg peer vs InvestorOrg peer",
+    "outcome": "VULNERABLE",
+    "evidence": "via StartupOrg peer: OK; via InvestorOrg peer: 2 UNKNOWN: | InvestorOrgMSP@peer0.investororg.example.com:7051: chaincode response 500, failed to read startup: cross-channel get failed on governance-validation-channel/governance: "
+  },
+  {
+    "id": "D-P3",
+    "category": "Privacy leakage",
+    "claim": "Aadhaar & income visible only to InvestorOrg",
+    "attacker": "StartupOrg client",
+    "action": "DataBridgeContract:ReadData(InvestorPrivateData, INVESTOR_PRIV_<id>)",
+    "outcome": "VULNERABLE",
+    "evidence": "{\"aadharNumber\":\"4321-8ab1-8765\",\"annualIncome\":45000000,\"investorId\":\"INV_priv_mwqa8ab1\"}"
+  },
+  {
+    "id": "D-P1",
+    "category": "Privacy leakage",
+    "claim": "Aadhaar not recorded in shared blocks",
+    "attacker": "StartupOrg client",
+    "action": "qscc GetBlockByTxID, search block",
+    "outcome": "VULNERABLE",
+    "evidence": "Aadhaar found in block (args + public write-set)"
+  }
+]

@@ -1,0 +1,89 @@
+{
+  "workload": "startup",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 500,
+  "workers": 4,
+  "submitted": 10000,
+  "succeeded": 1438,
+  "failed": 8562,
+  "sendRate": 495,
+  "throughput": 58.1,
+  "latAvg": 11.144,
+  "latMin": 3.962,
+  "latP50": 11.031,
+  "latP95": 16.969,
+  "latP99": 17.937,
+  "latMax": 21.128,
+  "startMs": 1795253488711.017,
+  "endMs": 1795253513441.296,
+  "errors": {
+    "GATEWAY_OVERLOAD": 8562
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 5.9,
+      "cpuPeakPct": 15.6,
+      "memAvgMB": 577.3,
+      "memPeakMB": 577.9,
+      "netRxMBps": 0.367,
+      "netTxMBps": 0.167
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 124.5,
+      "cpuPeakPct": 217.3,
+      "memAvgMB": 714.2,
+      "memPeakMB": 757.5,
+      "netRxMBps": 3.533,
+      "netTxMBps": 1.898
+    },
+    "couchdb": {
+      "cpuAvgPct": 124.8,
+      "cpuPeakPct": 171.7,
+      "memAvgMB": 289.7,
+      "memPeakMB": 301.4,
+      "netRxMBps": 0.327,
+      "netTxMBps": 0.271
+    },
+    "orderer": {
+      "cpuAvgPct": 7.8,
+      "cpuPeakPct": 25.2,
+      "memAvgMB": 60.9,
+      "memPeakMB": 78.6,
+      "netRxMBps": 0.418,
+      "netTxMBps": 1.63
+    },
+    "loadgen": {
+      "cpuAvgPct": 98.3,
+      "cpuPeakPct": 154.2,
+      "memAvgMB": 428.6,
+      "memPeakMB": 509.6,
+      "netRxMBps": 0.544,
+      "netTxMBps": 0.944
+    },
+    "host": {
+      "cpuAvgPct": 94.2,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 2923.0
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_startup_500"
+}

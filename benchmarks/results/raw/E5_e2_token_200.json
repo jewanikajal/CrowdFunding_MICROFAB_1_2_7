@@ -1,0 +1,90 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 2980,
+  "failed": 1020,
+  "sendRate": 199.3,
+  "throughput": 143.8,
+  "latAvg": 2.361,
+  "latMin": 0.479,
+  "latP50": 2.35,
+  "latP95": 3.572,
+  "latP99": 3.872,
+  "latMax": 4.084,
+  "startMs": 1795256514629.017,
+  "endMs": 1795256535354.5774,
+  "errors": {
+    "ENDORSE_MISMATCH": 125,
+    "GATEWAY_OVERLOAD": 895
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 23.0,
+      "cpuPeakPct": 44.1,
+      "memAvgMB": 603.0,
+      "memPeakMB": 629.4,
+      "netRxMBps": 0.661,
+      "netTxMBps": 0.32
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 124.2,
+      "cpuPeakPct": 184.0,
+      "memAvgMB": 625.2,
+      "memPeakMB": 697.7,
+      "netRxMBps": 4.902,
+      "netTxMBps": 2.954
+    },
+    "couchdb": {
+      "cpuAvgPct": 96.9,
+      "cpuPeakPct": 153.6,
+      "memAvgMB": 205.0,
+      "memPeakMB": 211.6,
+      "netRxMBps": 0.308,
+      "netTxMBps": 0.227
+    },
+    "orderer": {
+      "cpuAvgPct": 15.0,
+      "cpuPeakPct": 27.5,
+      "memAvgMB": 72.3,
+      "memPeakMB": 93.3,
+      "netRxMBps": 0.676,
+      "netTxMBps": 2.63
+    },
+    "loadgen": {
+      "cpuAvgPct": 82.2,
+      "cpuPeakPct": 109.8,
+      "memAvgMB": 371.3,
+      "memPeakMB": 377.0,
+      "netRxMBps": 0.388,
+      "netTxMBps": 0.608
+    },
+    "host": {
+      "cpuAvgPct": 90.1,
+      "cpuPeakPct": 99.5,
+      "memUsedPeakMB": 2908.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OutOf(2,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E5",
+  "name": "E5_e2_token_200"
+}

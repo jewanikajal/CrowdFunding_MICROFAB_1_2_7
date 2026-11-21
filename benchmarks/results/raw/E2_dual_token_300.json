@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 3833,
+  "failed": 2167,
+  "sendRate": 298.4,
+  "throughput": 174.5,
+  "latAvg": 2.34,
+  "latMin": 0.762,
+  "latP50": 2.198,
+  "latP95": 3.602,
+  "latP99": 4.026,
+  "latMax": 4.778,
+  "startMs": 1795254419985.0173,
+  "endMs": 1795254441950.527,
+  "errors": {
+    "GATEWAY_OVERLOAD": 2167
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 11.5,
+      "cpuPeakPct": 23.1,
+      "memAvgMB": 763.1,
+      "memPeakMB": 766.4,
+      "netRxMBps": 0.4,
+      "netTxMBps": 0.185
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 104.5,
+      "cpuPeakPct": 168.5,
+      "memAvgMB": 895.2,
+      "memPeakMB": 934.3,
+      "netRxMBps": 4.498,
+      "netTxMBps": 2.242
+    },
+    "couchdb": {
+      "cpuAvgPct": 91.5,
+      "cpuPeakPct": 201.8,
+      "memAvgMB": 272.0,
+      "memPeakMB": 281.8,
+      "netRxMBps": 0.32,
+      "netTxMBps": 0.216
+    },
+    "orderer": {
+      "cpuAvgPct": 19.5,
+      "cpuPeakPct": 29.1,
+      "memAvgMB": 89.6,
+      "memPeakMB": 120.9,
+      "netRxMBps": 0.694,
+      "netTxMBps": 2.699
+    },
+    "loadgen": {
+      "cpuAvgPct": 98.8,
+      "cpuPeakPct": 151.3,
+      "memAvgMB": 404.1,
+      "memPeakMB": 450.1,
+      "netRxMBps": 0.435,
+      "netTxMBps": 0.742
+    },
+    "host": {
+      "cpuAvgPct": 87.1,
+      "cpuPeakPct": 99.3,
+      "memUsedPeakMB": 3281.1
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_token_300"
+}

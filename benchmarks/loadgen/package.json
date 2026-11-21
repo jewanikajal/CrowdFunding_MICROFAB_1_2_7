@@ -1,0 +1,2 @@
+{ "name": "blockassist-loadgen", "version": "1.0.0", "private": true, "type": "commonjs",
+  "dependencies": { "@grpc/grpc-js": "1.12.6", "@hyperledger/fabric-gateway": "1.7.1" } }

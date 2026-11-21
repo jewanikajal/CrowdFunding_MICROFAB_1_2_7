@@ -1,0 +1,90 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 2228,
+  "failed": 1772,
+  "sendRate": 197.1,
+  "throughput": 95.3,
+  "latAvg": 7.451,
+  "latMin": 2.301,
+  "latP50": 7.675,
+  "latP95": 12.05,
+  "latP99": 13.638,
+  "latMax": 16.547,
+  "startMs": 1795256722475.0166,
+  "endMs": 1795256745845.5889,
+  "errors": {
+    "ENDORSE_MISMATCH": 1742,
+    "GATEWAY_OVERLOAD": 30
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 21.8,
+      "cpuPeakPct": 41.0,
+      "memAvgMB": 697.3,
+      "memPeakMB": 711.7,
+      "netRxMBps": 1.145,
+      "netTxMBps": 0.489
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 140.8,
+      "cpuPeakPct": 174.3,
+      "memAvgMB": 694.1,
+      "memPeakMB": 745.9,
+      "netRxMBps": 5.487,
+      "netTxMBps": 4.126
+    },
+    "couchdb": {
+      "cpuAvgPct": 127.7,
+      "cpuPeakPct": 162.9,
+      "memAvgMB": 251.7,
+      "memPeakMB": 285.5,
+      "netRxMBps": 0.374,
+      "netTxMBps": 0.328
+    },
+    "orderer": {
+      "cpuAvgPct": 9.1,
+      "cpuPeakPct": 24.8,
+      "memAvgMB": 67.7,
+      "memPeakMB": 97.7,
+      "netRxMBps": 0.589,
+      "netTxMBps": 2.33
+    },
+    "loadgen": {
+      "cpuAvgPct": 59.5,
+      "cpuPeakPct": 104.1,
+      "memAvgMB": 367.8,
+      "memPeakMB": 384.2,
+      "netRxMBps": 0.363,
+      "netTxMBps": 0.569
+    },
+    "host": {
+      "cpuAvgPct": 95.7,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 3001.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OutOf(4,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E5",
+  "name": "E5_e4_token_200"
+}

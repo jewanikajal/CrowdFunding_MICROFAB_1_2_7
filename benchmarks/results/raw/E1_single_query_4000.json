@@ -1,0 +1,89 @@
+{
+  "workload": "query",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 4000,
+  "workers": 4,
+  "submitted": 80000,
+  "succeeded": 31610,
+  "failed": 48390,
+  "sendRate": 3874.4,
+  "throughput": 1066.8,
+  "latAvg": 13.554,
+  "latMin": 0.423,
+  "latP50": 14.341,
+  "latP95": 23.619,
+  "latP99": 24.254,
+  "latMax": 26.485,
+  "startMs": 1795253844795.012,
+  "endMs": 1795253874427.005,
+  "errors": {
+    "GATEWAY_OVERLOAD": 48390
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 17.6,
+      "cpuPeakPct": 40.1,
+      "memAvgMB": 562.3,
+      "memPeakMB": 575.1,
+      "netRxMBps": 1.635,
+      "netTxMBps": 0.454
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 105.4,
+      "cpuPeakPct": 209.9,
+      "memAvgMB": 1100.0,
+      "memPeakMB": 1444.9,
+      "netRxMBps": 3.871,
+      "netTxMBps": 1.924
+    },
+    "couchdb": {
+      "cpuAvgPct": 2.4,
+      "cpuPeakPct": 9.4,
+      "memAvgMB": 291.1,
+      "memPeakMB": 297.0,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "orderer": {
+      "cpuAvgPct": 0.1,
+      "cpuPeakPct": 1.4,
+      "memAvgMB": 45.0,
+      "memPeakMB": 79.2,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "loadgen": {
+      "cpuAvgPct": 225.1,
+      "cpuPeakPct": 321.3,
+      "memAvgMB": 1477.2,
+      "memPeakMB": 2293.8,
+      "netRxMBps": 0.195,
+      "netTxMBps": 2.946
+    },
+    "host": {
+      "cpuAvgPct": 94.2,
+      "cpuPeakPct": 99.7,
+      "memUsedPeakMB": 5228.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_query_4000"
+}

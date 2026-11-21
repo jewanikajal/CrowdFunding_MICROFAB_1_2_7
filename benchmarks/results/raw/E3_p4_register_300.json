@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 1741,
+  "failed": 4259,
+  "sendRate": 299.5,
+  "throughput": 72.6,
+  "latAvg": 5.494,
+  "latMin": 3.31,
+  "latP50": 5.374,
+  "latP95": 7.907,
+  "latP99": 8.755,
+  "latMax": 9.621,
+  "startMs": 1795254724141.0215,
+  "endMs": 1795254748119.4739,
+  "errors": {
+    "GATEWAY_OVERLOAD": 4259
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 6.0,
+      "cpuPeakPct": 24.0,
+      "memAvgMB": 548.9,
+      "memPeakMB": 558.3,
+      "netRxMBps": 0.234,
+      "netTxMBps": 0.141
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 135.8,
+      "cpuPeakPct": 281.2,
+      "memAvgMB": 630.5,
+      "memPeakMB": 679.1,
+      "netRxMBps": 2.927,
+      "netTxMBps": 1.567
+    },
+    "couchdb": {
+      "cpuAvgPct": 133.2,
+      "cpuPeakPct": 295.6,
+      "memAvgMB": 289.9,
+      "memPeakMB": 313.3,
+      "netRxMBps": 0.383,
+      "netTxMBps": 0.306
+    },
+    "orderer": {
+      "cpuAvgPct": 6.6,
+      "cpuPeakPct": 24.7,
+      "memAvgMB": 59.5,
+      "memPeakMB": 68.3,
+      "netRxMBps": 0.375,
+      "netTxMBps": 1.462
+    },
+    "loadgen": {
+      "cpuAvgPct": 59.8,
+      "cpuPeakPct": 107.1,
+      "memAvgMB": 375.9,
+      "memPeakMB": 386.1,
+      "netRxMBps": 0.268,
+      "netTxMBps": 0.507
+    },
+    "host": {
+      "cpuAvgPct": 91.3,
+      "cpuPeakPct": 99.6,
+      "memUsedPeakMB": 2813.5
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E3",
+  "name": "E3_p4_register_300"
+}

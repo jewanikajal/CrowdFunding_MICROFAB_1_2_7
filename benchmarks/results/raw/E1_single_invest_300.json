@@ -1,0 +1,89 @@
+{
+  "workload": "invest",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 1438,
+  "failed": 4562,
+  "sendRate": 299.4,
+  "throughput": 61.3,
+  "latAvg": 6.681,
+  "latMin": 3.272,
+  "latP50": 5.89,
+  "latP95": 11.299,
+  "latP99": 12.479,
+  "latMax": 13.353,
+  "startMs": 1795253248816.017,
+  "endMs": 1795253272271.2996,
+  "errors": {
+    "GATEWAY_OVERLOAD": 4562
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 4.8,
+      "cpuPeakPct": 17.7,
+      "memAvgMB": 576.9,
+      "memPeakMB": 577.2,
+      "netRxMBps": 0.232,
+      "netTxMBps": 0.154
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 135.6,
+      "cpuPeakPct": 273.0,
+      "memAvgMB": 638.8,
+      "memPeakMB": 686.1,
+      "netRxMBps": 2.799,
+      "netTxMBps": 1.564
+    },
+    "couchdb": {
+      "cpuAvgPct": 137.0,
+      "cpuPeakPct": 209.9,
+      "memAvgMB": 274.5,
+      "memPeakMB": 286.6,
+      "netRxMBps": 0.379,
+      "netTxMBps": 0.285
+    },
+    "orderer": {
+      "cpuAvgPct": 7.2,
+      "cpuPeakPct": 22.9,
+      "memAvgMB": 64.6,
+      "memPeakMB": 74.4,
+      "netRxMBps": 0.335,
+      "netTxMBps": 1.308
+    },
+    "loadgen": {
+      "cpuAvgPct": 68.3,
+      "cpuPeakPct": 110.5,
+      "memAvgMB": 375.2,
+      "memPeakMB": 379.8,
+      "netRxMBps": 0.294,
+      "netTxMBps": 0.538
+    },
+    "host": {
+      "cpuAvgPct": 93.6,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 2752.1
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_invest_300"
+}
