@@ -1,0 +1,87 @@
+{
+  "workload": "invest",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 2000,
+  "succeeded": 2000,
+  "failed": 0,
+  "sendRate": 100.1,
+  "throughput": 94.2,
+  "latAvg": 2.68,
+  "latMin": 1.149,
+  "latP50": 2.655,
+  "latP95": 3.951,
+  "latP99": 4.605,
+  "latMax": 4.825,
+  "startMs": 1795253156891.0193,
+  "endMs": 1795253178114.3604,
+  "errors": {},
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 8.1,
+      "cpuPeakPct": 17.1,
+      "memAvgMB": 566.7,
+      "memPeakMB": 581.1,
+      "netRxMBps": 0.185,
+      "netTxMBps": 0.129
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 139.8,
+      "cpuPeakPct": 250.4,
+      "memAvgMB": 402.3,
+      "memPeakMB": 502.0,
+      "netRxMBps": 2.45,
+      "netTxMBps": 1.369
+    },
+    "couchdb": {
+      "cpuAvgPct": 105.3,
+      "cpuPeakPct": 166.2,
+      "memAvgMB": 202.8,
+      "memPeakMB": 231.3,
+      "netRxMBps": 0.352,
+      "netTxMBps": 0.255
+    },
+    "orderer": {
+      "cpuAvgPct": 10.8,
+      "cpuPeakPct": 20.6,
+      "memAvgMB": 37.4,
+      "memPeakMB": 47.9,
+      "netRxMBps": 0.357,
+      "netTxMBps": 1.363
+    },
+    "loadgen": {
+      "cpuAvgPct": 54.0,
+      "cpuPeakPct": 70.6,
+      "memAvgMB": 322.6,
+      "memPeakMB": 361.4,
+      "netRxMBps": 0.207,
+      "netTxMBps": 0.329
+    },
+    "host": {
+      "cpuAvgPct": 85.5,
+      "cpuPeakPct": 99.3,
+      "memUsedPeakMB": 2538.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_invest_100"
+}

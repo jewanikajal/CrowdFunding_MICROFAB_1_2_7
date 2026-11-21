@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 500,
+  "workers": 4,
+  "submitted": 15000,
+  "succeeded": 1433,
+  "failed": 13567,
+  "sendRate": 494.5,
+  "throughput": 39.2,
+  "latAvg": 9.487,
+  "latMin": 5.617,
+  "latP50": 9.083,
+  "latP95": 14.238,
+  "latP99": 15.553,
+  "latMax": 16.452,
+  "startMs": 1795252911846.017,
+  "endMs": 1795252948422.8274,
+  "errors": {
+    "GATEWAY_OVERLOAD": 13567
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 4.4,
+      "cpuPeakPct": 14.0,
+      "memAvgMB": 550.2,
+      "memPeakMB": 550.5,
+      "netRxMBps": 0.288,
+      "netTxMBps": 0.169
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 136.4,
+      "cpuPeakPct": 340.7,
+      "memAvgMB": 699.2,
+      "memPeakMB": 755.5,
+      "netRxMBps": 3.139,
+      "netTxMBps": 1.696
+    },
+    "couchdb": {
+      "cpuAvgPct": 138.4,
+      "cpuPeakPct": 348.6,
+      "memAvgMB": 295.7,
+      "memPeakMB": 329.1,
+      "netRxMBps": 0.366,
+      "netTxMBps": 0.295
+    },
+    "orderer": {
+      "cpuAvgPct": 7.7,
+      "cpuPeakPct": 41.4,
+      "memAvgMB": 65.6,
+      "memPeakMB": 85.6,
+      "netRxMBps": 0.338,
+      "netTxMBps": 1.319
+    },
+    "loadgen": {
+      "cpuAvgPct": 75.2,
+      "cpuPeakPct": 154.4,
+      "memAvgMB": 475.6,
+      "memPeakMB": 534.7,
+      "netRxMBps": 0.414,
+      "netTxMBps": 0.857
+    },
+    "host": {
+      "cpuAvgPct": 95.1,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 2970.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_register_500"
+}

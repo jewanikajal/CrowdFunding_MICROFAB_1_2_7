@@ -1,0 +1,13 @@
+name,tag,workload,channel,peers,orderers,batch,policy,offered,throughput,success_pct,lat_avg,lat_p95,host_cpu,host_mem_peak_mb,errors
+E1_single_register_25,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",25,23.9,100.0,1.452,2.375,34.5,2171.1,-
+E1_single_register_50,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",50,48.2,100.0,1.726,2.637,54.7,2412.8,-
+E1_single_register_100,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",100,89.3,96.97,3.142,4.988,85.2,2602.5,GATEWAY_OVERLOAD 91
+E1_single_register_150,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",150,86.3,62.22,4.191,5.927,89.8,2656.6,GATEWAY_OVERLOAD 1700
+E1_single_register_200,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",200,69.7,38.3,5.672,8.747,93.6,2699.4,GATEWAY_OVERLOAD 3702
+E1_single_register_300,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",300,57.6,21.9,6.968,9.828,94.4,2791.4,GATEWAY_OVERLOAD 7029
+E1_single_register_500,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",500,39.2,9.55,9.487,14.238,95.1,2970.2,GATEWAY_OVERLOAD 13567
+E1_single_register_1000,E1,register,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",1000,29.3,6.99,40.858,49.013,97.1,3554.2,GATEWAY_OVERLOAD 27902
+E1_single_invest_25,E1,invest,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",25,23.4,100.0,1.548,2.514,46.1,2628.1,-
+E1_single_invest_50,E1,invest,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",50,47.8,100.0,1.917,2.842,62.2,2500.1,-
+E1_single_invest_100,E1,invest,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",100,94.2,100.0,2.68,3.951,85.5,2538.6,-
+E1_single_invest_150,E1,invest,crowdfunding-channel,4,1,2s/500,"OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",150,70.9,59.6,5.638,9.647,92.5,2782.0,GATEWAY_OVERLOAD 1212

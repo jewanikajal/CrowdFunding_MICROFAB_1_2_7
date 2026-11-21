@@ -1,0 +1,25 @@
+package main
+
+// Added by benchmarks/build_chaincode.sh (NOT part of the original source):
+// runs the unchanged contracts as an external "chaincode-as-a-service" so that
+// chaincode containers can be pinned 1:1 to peers in multi-peer topologies.
+import (
+	"os"
+
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+)
+
+func startCC(cc *contractapi.ContractChaincode) error {
+	addr := os.Getenv("CHAINCODE_SERVER_ADDRESS")
+	if addr == "" {
+		return cc.Start()
+	}
+	server := &shim.ChaincodeServer{
+		CCID:     os.Getenv("CHAINCODE_ID"),
+		Address:  addr,
+		CC:       cc,
+		TLSProps: shim.TLSProperties{Disabled: true},
+	}
+	return server.Start()
+}

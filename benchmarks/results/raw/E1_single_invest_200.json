@@ -1,0 +1,89 @@
+{
+  "workload": "invest",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 1954,
+  "failed": 2046,
+  "sendRate": 199.7,
+  "throughput": 85.4,
+  "latAvg": 4.484,
+  "latMin": 1.333,
+  "latP50": 4.551,
+  "latP95": 6.213,
+  "latP99": 6.483,
+  "latMax": 6.9,
+  "startMs": 1795253218165.0173,
+  "endMs": 1795253241053.3064,
+  "errors": {
+    "GATEWAY_OVERLOAD": 2046
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 5.9,
+      "cpuPeakPct": 16.6,
+      "memAvgMB": 578.0,
+      "memPeakMB": 581.4,
+      "netRxMBps": 0.208,
+      "netTxMBps": 0.14
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 131.2,
+      "cpuPeakPct": 289.1,
+      "memAvgMB": 591.2,
+      "memPeakMB": 651.3,
+      "netRxMBps": 2.751,
+      "netTxMBps": 1.514
+    },
+    "couchdb": {
+      "cpuAvgPct": 129.2,
+      "cpuPeakPct": 316.7,
+      "memAvgMB": 265.7,
+      "memPeakMB": 285.6,
+      "netRxMBps": 0.387,
+      "netTxMBps": 0.283
+    },
+    "orderer": {
+      "cpuAvgPct": 8.7,
+      "cpuPeakPct": 23.9,
+      "memAvgMB": 48.6,
+      "memPeakMB": 71.1,
+      "netRxMBps": 0.369,
+      "netTxMBps": 1.439
+    },
+    "loadgen": {
+      "cpuAvgPct": 57.3,
+      "cpuPeakPct": 97.7,
+      "memAvgMB": 362.2,
+      "memPeakMB": 375.2,
+      "netRxMBps": 0.243,
+      "netTxMBps": 0.436
+    },
+    "host": {
+      "cpuAvgPct": 90.0,
+      "cpuPeakPct": 99.5,
+      "memUsedPeakMB": 2776.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_invest_200"
+}

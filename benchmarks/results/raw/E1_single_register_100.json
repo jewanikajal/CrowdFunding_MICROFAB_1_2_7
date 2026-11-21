@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 3000,
+  "succeeded": 2909,
+  "failed": 91,
+  "sendRate": 100,
+  "throughput": 89.3,
+  "latAvg": 3.142,
+  "latMin": 1.545,
+  "latP50": 3.035,
+  "latP95": 4.988,
+  "latP99": 5.724,
+  "latMax": 6.031,
+  "startMs": 1795252750075.016,
+  "endMs": 1795252782643.8757,
+  "errors": {
+    "GATEWAY_OVERLOAD": 91
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 7.2,
+      "cpuPeakPct": 16.9,
+      "memAvgMB": 566.2,
+      "memPeakMB": 566.3,
+      "netRxMBps": 0.19,
+      "netTxMBps": 0.123
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 129.9,
+      "cpuPeakPct": 259.3,
+      "memAvgMB": 510.4,
+      "memPeakMB": 599.6,
+      "netRxMBps": 2.44,
+      "netTxMBps": 1.343
+    },
+    "couchdb": {
+      "cpuAvgPct": 125.4,
+      "cpuPeakPct": 249.2,
+      "memAvgMB": 242.4,
+      "memPeakMB": 256.1,
+      "netRxMBps": 0.346,
+      "netTxMBps": 0.276
+    },
+    "orderer": {
+      "cpuAvgPct": 10.9,
+      "cpuPeakPct": 20.0,
+      "memAvgMB": 50.9,
+      "memPeakMB": 68.4,
+      "netRxMBps": 0.353,
+      "netTxMBps": 1.365
+    },
+    "loadgen": {
+      "cpuAvgPct": 50.1,
+      "cpuPeakPct": 82.9,
+      "memAvgMB": 345.4,
+      "memPeakMB": 368.7,
+      "netRxMBps": 0.258,
+      "netTxMBps": 0.411
+    },
+    "host": {
+      "cpuAvgPct": 85.2,
+      "cpuPeakPct": 99.5,
+      "memUsedPeakMB": 2602.5
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_register_100"
+}
