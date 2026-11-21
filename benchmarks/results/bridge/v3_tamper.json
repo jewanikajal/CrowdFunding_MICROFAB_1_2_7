@@ -1,0 +1,26 @@
+[
+  {
+    "id": "B-T1",
+    "test": "Relay injects a fabricated outbox entry",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | chaincode response 500, cannot verify outbox entry on governance-validation-channel: outbox entry OUTBOX_fakemwqb3lqz_Pl"
+  },
+  {
+    "id": "B-T2",
+    "test": "Direct write via DataBridgeContract:StoreData",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | chaincode response 500, StoreData is disabled in v3; cross-channel writes use the verified outbox/ApplySync path"
+  },
+  {
+    "id": "B-T3",
+    "test": "Replayed ApplySync applies the record twice",
+    "outcome": "MITIGATED",
+    "evidence": "first=APPLIED, replay=ALREADY_APPLIED"
+  },
+  {
+    "id": "B-T4",
+    "test": "Endorser without source-channel access applies an entry",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | chaincode response 500, cannot verify outbox entry on governance-validation-channel: "
+  }
+]
