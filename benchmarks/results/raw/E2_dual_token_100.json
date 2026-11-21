@@ -1,0 +1,87 @@
+{
+  "workload": "token",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 2000,
+  "succeeded": 2000,
+  "failed": 0,
+  "sendRate": 99.8,
+  "throughput": 96.7,
+  "latAvg": 1.528,
+  "latMin": 0.416,
+  "latP50": 1.526,
+  "latP95": 2.432,
+  "latP99": 2.577,
+  "latMax": 2.697,
+  "startMs": 1795254333897.0183,
+  "endMs": 1795254354573.7441,
+  "errors": {},
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 11.4,
+      "cpuPeakPct": 23.5,
+      "memAvgMB": 784.0,
+      "memPeakMB": 786.2,
+      "netRxMBps": 0.201,
+      "netTxMBps": 0.108
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 71.6,
+      "cpuPeakPct": 102.5,
+      "memAvgMB": 640.9,
+      "memPeakMB": 692.6,
+      "netRxMBps": 2.192,
+      "netTxMBps": 1.109
+    },
+    "couchdb": {
+      "cpuAvgPct": 49.3,
+      "cpuPeakPct": 91.7,
+      "memAvgMB": 266.4,
+      "memPeakMB": 273.2,
+      "netRxMBps": 0.149,
+      "netTxMBps": 0.1
+    },
+    "orderer": {
+      "cpuAvgPct": 14.5,
+      "cpuPeakPct": 17.5,
+      "memAvgMB": 69.6,
+      "memPeakMB": 76.8,
+      "netRxMBps": 0.355,
+      "netTxMBps": 1.333
+    },
+    "loadgen": {
+      "cpuAvgPct": 67.2,
+      "cpuPeakPct": 82.5,
+      "memAvgMB": 309.5,
+      "memPeakMB": 347.1,
+      "netRxMBps": 0.2,
+      "netTxMBps": 0.327
+    },
+    "host": {
+      "cpuAvgPct": 57.2,
+      "cpuPeakPct": 70.7,
+      "memUsedPeakMB": 2954.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_token_100"
+}
