@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 2847,
+  "failed": 3153,
+  "sendRate": 284.3,
+  "throughput": 39.6,
+  "latAvg": 41.81,
+  "latMin": 6.002,
+  "latP50": 41.114,
+  "latP95": 57.774,
+  "latP99": 60.546,
+  "latMax": 65.068,
+  "startMs": 1795255069751.0237,
+  "endMs": 1795255141728.0525,
+  "errors": {
+    "GATEWAY_OVERLOAD": 3153
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 2.2,
+      "cpuPeakPct": 17.0,
+      "memAvgMB": 1091.7,
+      "memPeakMB": 1111.8,
+      "netRxMBps": 0.109,
+      "netTxMBps": 0.063
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 163.8,
+      "cpuPeakPct": 327.2,
+      "memAvgMB": 1186.1,
+      "memPeakMB": 1288.8,
+      "netRxMBps": 3.999,
+      "netTxMBps": 2.611
+    },
+    "couchdb": {
+      "cpuAvgPct": 174.5,
+      "cpuPeakPct": 310.3,
+      "memAvgMB": 534.9,
+      "memPeakMB": 545.6,
+      "netRxMBps": 0.386,
+      "netTxMBps": 0.306
+    },
+    "orderer": {
+      "cpuAvgPct": 4.0,
+      "cpuPeakPct": 11.4,
+      "memAvgMB": 60.7,
+      "memPeakMB": 86.3,
+      "netRxMBps": 0.202,
+      "netTxMBps": 1.545
+    },
+    "loadgen": {
+      "cpuAvgPct": 30.6,
+      "cpuPeakPct": 103.5,
+      "memAvgMB": 375.0,
+      "memPeakMB": 455.9,
+      "netRxMBps": 0.19,
+      "netTxMBps": 0.32
+    },
+    "host": {
+      "cpuAvgPct": 97.9,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 4239.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 2,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 8
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E3",
+  "name": "E3_p8_register_300"
+}
