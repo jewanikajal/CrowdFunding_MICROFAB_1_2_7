@@ -1,0 +1,20 @@
+[
+  {
+    "id": "M-OR-1",
+    "category": "Malicious endorser",
+    "claim": "A single compromised org cannot forge ledger state",
+    "attacker": "StartupOrg peer running tampered chaincode (no balance check)",
+    "action": "Overdraft transfer of 1e9 from a zero-balance account, endorsed only by StartupOrg [policy OR]",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, sender account not found: token account STARTUP_broke_mwq9tkso does not exist; recipient balance: 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, token account STARTUP_sink_mwq9tkso does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: error in simulation: failed to execute transaction 06e0b21f90023d4b0c43e890b7e7b694e8a0e46628ed1f6ada7d40c3fb5aaf55: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78d"
+  },
+  {
+    "id": "M-OR-2",
+    "category": "Malicious endorser",
+    "claim": "Honest co-endorser blocks forged state",
+    "attacker": "same",
+    "action": "Same transfer endorsed by StartupOrg + honest PlatformOrg [policy OR]",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, sender account not found: token account STARTUP_broke_mwq9tkso does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: error in simulation: failed to execute transaction c2653bd61b72188b78bcd6123c8ecc0ee414ee6d373f2"
+  }
+]
