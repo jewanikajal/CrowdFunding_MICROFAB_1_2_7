@@ -49,7 +49,7 @@ function gateway() {
 async function applyOne(dst, dir, srcChannel, key, ev) {
   for (let attempt = 1; attempt <= 30; attempt++) {
     try {
-      const res = Buffer.from(await dst.submitTransaction('DataBridgeContract:ApplySync', {
+      const res = Buffer.from(await dst.submit('DataBridgeContract:ApplySync', {
         arguments: [srcChannel, key], endorsingOrganizations: dir.endorsers,
       })).toString();
       stats.write(JSON.stringify({ dir: dir.name, key, srcTx: ev.transactionId, srcBlock: Number(ev.blockNumber), appliedMs: Date.now(), result: res, attempts: attempt }) + '\n');

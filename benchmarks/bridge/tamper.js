@@ -19,21 +19,21 @@ const err = (e) => [e.message].concat((e.details || []).map((d) => d.message)).j
   const inv = p.getNetwork('investment-execution-channel').getContract('investment');
   const invS = s.getNetwork('investment-execution-channel').getContract('investment');
   // T1 relay forges an outbox key that was never written on the source channel
-  try { await inv.submitTransaction('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', `OUTBOX_fake${rid}_PlatformPrivateData_VALIDATOR_DECISION_evil`], endorsingOrganizations: E });
+  try { await inv.submit('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', `OUTBOX_fake${rid}_PlatformPrivateData_VALIDATOR_DECISION_evil`], endorsingOrganizations: E });
     rec('B-T1', 'Relay injects a fabricated outbox entry', true, 'accepted'); } catch (e) { rec('B-T1', 'Relay injects a fabricated outbox entry', false, err(e)); }
   // T2 direct write through the v2 StoreData backdoor
-  try { await invS.submitTransaction('DataBridgeContract:StoreData', { arguments: ['PlatformPrivateData', `WALLET_evil${rid}`, '{"balance":1e12}'] });
+  try { await invS.submit('DataBridgeContract:StoreData', { arguments: ['PlatformPrivateData', `WALLET_evil${rid}`, '{"balance":1e12}'] });
     rec('B-T2', 'Direct write via DataBridgeContract:StoreData', true, 'accepted'); } catch (e) { rec('B-T2', 'Direct write via DataBridgeContract:StoreData', false, err(e)); }
   // T3 replay an already-applied entry: must be a no-op
   const id = `Wt${rid}`;
   const c = await gov.submitAsync('PlatformContract:RecordValidatorDecision', { arguments: [id, 'C', 'V', 'h', 'true', '90', 'rh'] }); await c.getStatus();
   const key = `OUTBOX_${c.getTransactionId()}_PlatformPrivateData_VALIDATOR_DECISION_${id}`;
   let first = '', second = '';
-  for (let i = 0; i < 20 && !first; i++) { try { first = Buffer.from(await inv.submitTransaction('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key], endorsingOrganizations: E })).toString(); } catch { await new Promise((r) => setTimeout(r, 500)); } }
-  try { second = Buffer.from(await inv.submitTransaction('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key], endorsingOrganizations: E })).toString(); } catch (e) { second = err(e); }
+  for (let i = 0; i < 20 && !first; i++) { try { first = Buffer.from(await inv.submit('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key], endorsingOrganizations: E })).toString(); } catch { await new Promise((r) => setTimeout(r, 500)); } }
+  try { second = Buffer.from(await inv.submit('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key], endorsingOrganizations: E })).toString(); } catch (e) { second = err(e); }
   rec('B-T3', 'Replayed ApplySync applies the record twice', second === 'APPLIED', `first=${first}, replay=${second}`);
   // T4 ApplySync endorsed by an org NOT joined to the source channel cannot verify -> rejected
-  try { await inv.submitTransaction('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key + 'x'], endorsingOrganizations: ['InvestorOrgMSP'] });
+  try { await inv.submit('DataBridgeContract:ApplySync', { arguments: ['governance-validation-channel', key + 'x'], endorsingOrganizations: ['InvestorOrgMSP'] });
     rec('B-T4', 'Endorser without source-channel access applies an entry', true, 'accepted'); } catch (e) { rec('B-T4', 'Endorser without source-channel access applies an entry', false, err(e)); }
   fs.writeFileSync(process.argv[2], JSON.stringify(out, null, 2)); p.close(); s.close(); process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });
