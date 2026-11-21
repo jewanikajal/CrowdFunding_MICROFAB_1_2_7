@@ -1,0 +1,20 @@
+[
+  {
+    "id": "M-K2-1",
+    "category": "Malicious endorser",
+    "claim": "A single compromised org cannot forge ledger state",
+    "attacker": "StartupOrg peer running tampered chaincode (no balance check)",
+    "action": "Overdraft transfer of 1e9 from a zero-balance account, endorsed only by StartupOrg [policy K2]",
+    "outcome": "MITIGATED",
+    "evidence": "invalidated: code 10; recipient balance: {\"accountId\":\"STARTUP_sink_mwqa734z\",\"owner\":\"x\",\"ownerType\":\"STARTUP\",\"balances\":{},\"frozenAmount\":{},\"createdAt\":\"2026"
+  },
+  {
+    "id": "M-K2-2",
+    "category": "Malicious endorser",
+    "claim": "Honest co-endorser blocks forged state",
+    "attacker": "same",
+    "action": "Same transfer endorsed by StartupOrg + honest PlatformOrg [policy K2]",
+    "outcome": "MITIGATED",
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | PlatformOrgMSP@peer0.platformorg.example.com:7051: chaincode response 500, insufficient balance. Available: 0.00, Required: 1000000000.00"
+  }
+]
