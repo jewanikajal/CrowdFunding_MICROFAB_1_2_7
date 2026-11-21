@@ -6,7 +6,7 @@
     "attacker": "StartupOrg peer running tampered chaincode (no balance check)",
     "action": "Overdraft transfer of 1e9 from a zero-balance account, endorsed only by StartupOrg [policy OR]",
     "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, sender account not found: token account STARTUP_broke_mwq9tkso does not exist; recipient balance: 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, token account STARTUP_sink_mwq9tkso does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: error in simulation: failed to execute transaction 06e0b21f90023d4b0c43e890b7e7b694e8a0e46628ed1f6ada7d40c3fb5aaf55: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78d"
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: error in simulation: failed to execute transaction d2714ae18efe308b73ffa9c1d85327442f5504d7f0154bb0741ede06431d5ff9: error sending: chaincode stream terminated; recipient balance: 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, token account STARTUP_sink_mwqa1dhp does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: chaincode response 500, token account STARTUP_sink_mwqa1dhp does not exist"
   },
   {
     "id": "M-OR-2",
@@ -15,6 +15,6 @@
     "attacker": "same",
     "action": "Same transfer endorsed by StartupOrg + honest PlatformOrg [policy OR]",
     "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, sender account not found: token account STARTUP_broke_mwq9tkso does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: error in simulation: failed to execute transaction c2653bd61b72188b78bcd6123c8ecc0ee414ee6d373f2"
+    "evidence": "10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: error in simulation: failed to execute transaction 38ef43a08630bb4e9633b98781cfc3a557f82be2b5d4e58a68886a260a1e2b20: could not launch chaincode crowdfunding_1.0:b385315a2260586e7a9b1e4e3942e767f9d04cd0788271c39dac900c74155b4d: connection to crowdfundi"
   }
 ]

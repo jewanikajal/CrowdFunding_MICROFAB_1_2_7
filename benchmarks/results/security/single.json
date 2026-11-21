@@ -5,8 +5,8 @@
     "claim": "Only PlatformOrg can mint tokens",
     "attacker": "InvestorOrg client",
     "action": "TokenContract:MintTokens(1e9) to own account",
-    "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction c06ea93a1dbebe05adf1a5a8c202f7a589f6479504b00eea962d78ec89bb2338: error sending: chaincode stream terminated; balance now 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, token account INV_attacker_mwq9t95p does not exist | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction a07c5ea7ec51811648d207895caa23e0f4f7399849d799429fbdbfc74311f6d8: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78d"
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx 12fda4c7b6bc; balance now {\"PAYMENT_TOKEN\":1000000000}"
   },
   {
     "id": "S-A2",
@@ -15,7 +15,7 @@
     "attacker": "StartupOrg client",
     "action": "CreateTokenAccount with initialBalance {PAYMENT_TOKEN: 5e8}",
     "outcome": "VULNERABLE",
-    "evidence": "committed VALID tx daa3a04f4e57"
+    "evidence": "committed VALID tx 6d5e309a1488"
   },
   {
     "id": "S-A3",
@@ -32,8 +32,8 @@
     "claim": "Investors can only spend their own balance",
     "attacker": "InvestorOrg client (different investor)",
     "action": "TransferTokens(from=INV_victim)",
-    "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction 45edb9a1adc37d5665c10e4e86f83c8776271f587a86e41962657f0a007df01f: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78dd7f49f: connection to crowdfunding_1.0:d3f03f926c1"
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx eef359c2f1f7"
   },
   {
     "id": "S-A5",
@@ -41,8 +41,8 @@
     "claim": "Investments only into existing, approved campaigns",
     "attacker": "InvestorOrg client",
     "action": "MakeInvestment(campaign=CAMP_DOES_NOT_EXIST)",
-    "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction bdfbb0246c48a2309a6cb12fe8c5e89f942578b88e16d6e5c4c947bbf6280f1e: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78dd7f49f: connection to crowdfunding_1.0:d3f03f926c1"
+    "outcome": "VULNERABLE",
+    "evidence": "committed VALID tx d5d258d1aef6"
   },
   {
     "id": "S-A6",
@@ -51,7 +51,7 @@
     "attacker": "StartupOrg client",
     "action": "MakeInvestment on behalf of INV_victim",
     "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, failed to track investment: PUT_STATE failed: transaction ID: 5de4a1f23a863749741ad3bb0a967c298d11f96ba6977b48db3869222b4e499c: tx creator does not have write access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorP"
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, failed to track investment: PUT_STATE failed: transaction ID: 61718b14b96a1ddcb5ae77509fcbdd6175db5a10c8cd1da2328d775c49b720ed: tx creator does not have write access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorP"
   },
   {
     "id": "S-A7",
@@ -60,7 +60,7 @@
     "attacker": "StartupOrg client",
     "action": "ValidatorContract:ValidateCampaign on own campaign",
     "outcome": "MITIGATED",
-    "evidence": "setup: createCampaign=true submit=true; 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, failed to store validation: PUT_STATE failed: transaction ID: 35605c4102872c7ead75530f271f25319a345084cfb525455ae50a54355302a1: tx creator does not have write access permission on privatedata in chaincodeName:crowdfunding collectionName: Validator"
+    "evidence": "setup: createCampaign=true submit=true; 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, failed to store validation: PUT_STATE failed: transaction ID: 02f0540a1e3c153b9ac2d784eef5fbf7a0812689b2d24cd3737666a00897a317: tx creator does not have write access permission on privatedata in chaincodeName:crowdfunding collectionName: Validator"
   },
   {
     "id": "S-A8",
@@ -69,7 +69,7 @@
     "attacker": "StartupOrg client",
     "action": "ValidatorContract:ApproveOrRejectCampaign(APPROVED, score 99)",
     "outcome": "MITIGATED",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, validation not found: GET_STATE failed: transaction ID: 73677b19d3eed00fd393d3030ad7040df4f9e705e8ae5a993600d17eda79459d: tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: ValidatorPrivate"
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP@peer0.startuporg.example.com:7051: chaincode response 500, validation not found: GET_STATE failed: transaction ID: 44c9c516ccdbc8b0849ae5b31ce58aa0045569d963a6fcd593b6c233b0ea7660: tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: ValidatorPrivate"
   },
   {
     "id": "S-A9",
@@ -78,7 +78,7 @@
     "attacker": "InvestorOrg client",
     "action": "RegisterInvestor twice, sequentially",
     "outcome": "MITIGATED",
-    "evidence": "first=10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction f1a850057466e7744809da4b60244ba98a3a30e38037bb6fa8097085a3badc0b: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78dd7f49f: connection to crowdfunding_1.0:d3f03f926c1; second=10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction e0c996d29f2dceb8dd6f240c09f602e3a9799d5aac75a4709915f03f307ebb97: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78dd7f49f: connection to crowdfunding_1.0:d3f03f926c1"
+    "evidence": "first=committed VALID tx 9684d54e7756; second=10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: chaincode response 500, investor INV_dup_mwqa0ba6 already exists"
   },
   {
     "id": "S-A10",
@@ -86,11 +86,12 @@
     "claim": "Concurrent duplicate registrations: exactly one wins",
     "attacker": "InvestorOrg client",
     "action": "20 parallel RegisterInvestor with same ID",
-    "outcome": "VULNERABLE",
+    "outcome": "MITIGATED",
     "evidence": {
-      "committed": 0,
+      "committed": 1,
       "outcomes": {
-        "rejected": 20
+        "code_11": 19,
+        "VALID": 1
       }
     }
   },
@@ -100,9 +101,9 @@
     "claim": "Concurrent duplicate investment IDs: exactly one wins",
     "attacker": "InvestorOrg client",
     "action": "20 parallel MakeInvestment with same ID",
-    "outcome": "VULNERABLE",
+    "outcome": "MITIGATED",
     "evidence": {
-      "committed": 0
+      "committed": 1
     }
   },
   {
@@ -110,9 +111,9 @@
     "category": "Replay",
     "claim": "A signed transaction cannot be replayed",
     "attacker": "Network attacker with captured envelope",
-    "action": "Re-submit identical signed envelope",
+    "action": "Re-submit identical signed envelope (balance 100 -> 200 if replay succeeded)",
     "outcome": "MITIGATED",
-    "evidence": "Missing envelope; balance 2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, token account INV_replay_mwq9t95p does not exist | PlatformOrgMSP@peer0.platformorg.example.com:7051: error in simulation: failed to execute transaction a3a5759cfeab8ac22f4627cbb1d2e767e9f3a63bf06575c5b1b9a694c3db52f2: could not launch chaincode crowdfunding_1.0:d3f03f926c10f6524c3c7d7f748c8ac666a1f1270ccaf0d2b2f616f78dd7"
+    "evidence": "original=committed VALID tx 3cd8542df067; replay submit: accepted by orderer; commit-status lookup returns the ORIGINAL tx (same txID); balance after replay = 100"
   },
   {
     "id": "S-A13",
@@ -124,13 +125,22 @@
     "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error validating proposal: access denied: channel [crowdfunding-channel] creator org [InvestorOrgMSP]"
   },
   {
+    "id": "S-A15",
+    "category": "Denial of service",
+    "claim": "No client input can crash the chaincode",
+    "attacker": "Any client (any org)",
+    "action": "MintTokens to a not-yet-existing account",
+    "outcome": "VULNERABLE",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP@peer0.investororg.example.com:7051: error in simulation: failed to execute transaction 094f8243cc0bfc3fed6520e5165eeb442fd3fa10cb43dc990b55ff64b4dbd92a: error sending: chaincode stream terminated"
+  },
+  {
     "id": "S-P1",
     "category": "Privacy leakage",
     "claim": "Aadhaar & income visible only to InvestorOrg (PDC)",
     "attacker": "StartupOrg client (non-member)",
     "action": "qscc GetBlockByTxID and search block bytes for Aadhaar/income",
-    "outcome": "MITIGATED",
-    "evidence": "Failure: Inconsistent type in JSPB repeated field array. Got undefined expected object"
+    "outcome": "VULNERABLE",
+    "evidence": "Aadhaar 4321-0ba6-8765 and income found in plaintext in block (tx args)"
   },
   {
     "id": "S-P2",
@@ -139,6 +149,6 @@
     "attacker": "StartupOrg client",
     "action": "InvestorContract:GetMyInvestments (range read of InvestorPrivateData) via StartupOrg peer",
     "outcome": "MITIGATED",
-    "evidence": "2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, failed to query investments: GET_STATE_BY_RANGE failed: transaction ID: 4ddc881d5fe4394ecb83b0e43094205d03fd6ec0884d326a40ebdf19d50479fd: tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData | StartupOrgMSP@peer0.startuporg.example.com:7051: chain"
+    "evidence": "2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, failed to query investments: GET_STATE_BY_RANGE failed: transaction ID: 85884c2e7408487274d38256c587d2151e5c588ca658c2aa4dbebca97f02d1b0: tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData | StartupOrgMSP@peer0.startuporg.example.com:7051: chain"
   }
 ]
