@@ -103,7 +103,9 @@ async function run(cfg) {
   if (!r.committed || !r2.committed) positive(`${L}-POS1b`, 'CreateCampaign / SubmitForValidation', false, `${ev(r)} / ${ev(r2)}`);
   r = await submit(V('User1'), GCH, GCC, 'ValidatorContract:ValidateCampaign', [val, camp, 'VALIDATOR1', 'subhash', '[]']);
   const ap = await submit(V('User1'), GCH, GCC, 'ValidatorContract:ApproveOrRejectCampaign', [val, camp, 'APPROVED', 8.5, 3.2, 'LOW', '["ok"]', '[]', '']);
-  positive(`${L}-POS2`, 'Validator validates and approves the campaign', r.committed && ap.committed, `${ev(r)} / ${ev(ap)}`);
+  let svp = { committed: true, txId: 'n/a-single' };
+  if (GCH !== ICH) svp = await submit(V('User1'), GCH, GCC, 'ValidatorContract:ShareValidationToPlatform', [val, camp]); // dual-channel workflow step
+  positive(`${L}-POS2`, 'Validator validates and approves the campaign', r.committed && ap.committed && svp.committed, `${ev(r)} / ${ev(ap)}${GCH !== ICH ? ' / share-to-platform ' + ev(svp) : ''}`);
   const gc = await evaluate(S('User1'), GCH, GCC, 'StartupContract:GetCampaign', [camp]);
   let vhash = null; try { vhash = findHash(JSON.parse(gc.result)); } catch { /* */ }
   const sh = await submit(S('User1'), GCH, GCC, 'StartupContract:ShareCampaignToPlatform', [camp, vhash || 'missing']);

@@ -213,6 +213,27 @@ if sec:
         e = r["evidence"] if isinstance(r["evidence"], str) else json.dumps(r["evidence"])
         md.append(f"| {r['suite']} | {r['id']} | {r['category']} | {r['claim']} | {r['attacker']} | {r['action']} | **{r['outcome']}** | {e[:220].replace('|', '/')} |")
 
+# ---------------------------------------------------------------- security after hardening
+hs = []
+for f in sorted(glob.glob(os.path.join(RES, "security_hardened", "*.json"))):
+    if "conflict" in f: continue
+    for r in json.load(open(f)): r["suite"] = "hardened_" + os.path.basename(f)[:-5]; hs.append(r)
+if hs:
+    md.append("\n## Security after hardening (crowdfundingv2_hardened, dual-channel v3) + positive controls\n\n| Suite | ID | Category | Property / honest step | Attacker | Outcome | Evidence |\n|---|---|---|---|---|---|---|")
+    for r in hs:
+        e = r["evidence"] if isinstance(r["evidence"], str) else json.dumps(r["evidence"])
+        md.append(f"| {r['suite']} | {r['id']} | {r['category']} | {r['claim']} | {r['attacker']} | **{r['outcome']}** | {e[:200].replace('|', '/')} |")
+
+# ---------------------------------------------------------------- hardening performance cost
+for wl, base, lab in [("register_h", "E1_single_register", "RegisterInvestor"), ("token_h", "E1_single_token", "CreateTokenAccount")]:
+    rows = get(f"H_single_{wl}")
+    if rows:
+        md.append(f"\n### Cost of hardening - {lab} (original E1 vs hardened, same topology)\n\n| Offered TPS | Original TPS | Original success % | Original latency (s) | Hardened TPS | Hardened success % | Hardened latency (s) |\n|---|---|---|---|---|---|---|")
+        orig = {r["targetTps"]: r for r in get(base)}
+        for h in rows:
+            o = orig.get(h["targetTps"])
+            md.append(f"| {h['targetTps']:g} | {o['throughput'] if o else '-'} | {f'{succ_rate(o):.1f}' if o else '-'} | {o['latAvg'] if o else '-'} | {h['throughput']} | {succ_rate(h):.1f} | {h['latAvg']} |")
+
 # ---------------------------------------------------------------- bridge
 br = [json.load(open(f)) for f in sorted(glob.glob(os.path.join(RES, "bridge", "v*_*.json"))) if "tamper" not in f]
 if br:

@@ -1,0 +1,271 @@
+[
+  {
+    "id": "HD-POS1",
+    "category": "Positive control (honest path)",
+    "claim": "Startup creates startup + campaign and submits for validation",
+    "attacker": "-",
+    "action": "Startup creates startup + campaign and submits for validation",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 169d76ebf7bf"
+  },
+  {
+    "id": "HD-POS1b",
+    "category": "Positive control (honest path)",
+    "claim": "CreateCampaign / SubmitForValidation",
+    "attacker": "-",
+    "action": "CreateCampaign / SubmitForValidation",
+    "outcome": "FAIL",
+    "evidence": "9 FAILED_PRECONDITION: no combination of peers can be derived which satisfy the endorsement policy: no peer combination can satisfy the endorsement policy / 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP: chaincode response 500, campaign not found: <nil>"
+  },
+  {
+    "id": "HD-POS2",
+    "category": "Positive control (honest path)",
+    "claim": "Validator validates and approves the campaign",
+    "attacker": "-",
+    "action": "Validator validates and approves the campaign",
+    "outcome": "FAIL",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | ValidatorOrgMSP: chaincode response 500, validation request not found: <nil> / 10 ABORTED: failed to endorse transaction, see attached details for more info | ValidatorOrgMSP: chaincode response 500, validation not found: <nil>"
+  },
+  {
+    "id": "HD-POS3",
+    "category": "Positive control (honest path)",
+    "claim": "Startup shares and Platform publishes the approved campaign",
+    "attacker": "-",
+    "action": "Startup shares and Platform publishes the approved campaign",
+    "outcome": "FAIL",
+    "evidence": "hash=2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, campaign CAMP_mwrxbmcy does not exist | StartupOrgMSP: chaincode response 500, campaign CAMP_mwrxbmcy does not exist; share: 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP: chaincode response 500, campaign not found: <nil>; publish: 10 ABORTED: failed to endorse transaction, see attached details for more info | PlatformOrgMSP: chaincode response 500, campaign not found in StartupPlatformCollection. Startup must share campaign first: <nil>"
+  },
+  {
+    "id": "HD-POS3b",
+    "category": "Positive control (honest path)",
+    "claim": "Published campaign is bridged to the investment channel (v3 relay)",
+    "attacker": "-",
+    "action": "Published campaign is bridged to the investment channel (v3 relay)",
+    "outcome": "FAIL",
+    "evidence": "visible to InvestorOrg after 60.7 s"
+  },
+  {
+    "id": "HD-POS4",
+    "category": "Positive control (honest path)",
+    "claim": "Investor registers with KYC in the transient map",
+    "attacker": "-",
+    "action": "Investor registers with KYC in the transient map",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx caef8ae58d65"
+  },
+  {
+    "id": "HD-POS5",
+    "category": "Positive control (honest path)",
+    "claim": "Investor invests in the published campaign",
+    "attacker": "-",
+    "action": "Investor invests in the published campaign",
+    "outcome": "FAIL",
+    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP: chaincode response 500, campaign CAMP_mwrxbmcy is not published/open for investment"
+  },
+  {
+    "id": "HD-POS6",
+    "category": "Positive control (honest path)",
+    "claim": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
+    "attacker": "-",
+    "action": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
+    "outcome": "PASS",
+    "evidence": "create committed VALID tx 36764bbb24e3 / committed VALID tx a325dd58643e; mint committed VALID tx 35ec90361c4e; transfer committed VALID tx 08746044278e; startup balance 1000"
+  },
+  {
+    "id": "HD-A1",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can mint tokens",
+    "attacker": "InvestorOrg client",
+    "action": "MintTokens(1e9) to own account",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller InvestorOrgMSP is not authorised (requires PlatformOrgMSP)"
+  },
+  {
+    "id": "HD-A2",
+    "category": "Unauthorised funding",
+    "claim": "Balances can only originate from Platform mint/transfer",
+    "attacker": "StartupOrg client",
+    "action": "CreateTokenAccount with initialBalance 5e8",
+    "outcome": "MITIGATED",
+    "evidence": "non-zero opening balance for PAYMENT_TOKEN: access denied: caller StartupOrgMSP is not authorised (requires PlatformOrgMSP)"
+  },
+  {
+    "id": "HD-A3",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can move PLATFORM treasury funds",
+    "attacker": "StartupOrg client",
+    "action": "TransferTokens(from=PLATFORM)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: account PLATFORM is platform-custodied"
+  },
+  {
+    "id": "HD-A4",
+    "category": "Unauthorised funding",
+    "claim": "Investors can only spend their own balance",
+    "attacker": "InvestorOrg User1 (account owned by User2)",
+    "action": "TransferTokens(from=victim account)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller does not control account INV_acct_mwrxbmcy"
+  },
+  {
+    "id": "HD-A5",
+    "category": "Unauthorised funding",
+    "claim": "Investments only into existing, approved campaigns",
+    "attacker": "InvestorOrg client",
+    "action": "MakeInvestment(campaign=CAMP_DOES_NOT_EXIST)",
+    "outcome": "MITIGATED",
+    "evidence": "not published/open for investment"
+  },
+  {
+    "id": "HD-A6",
+    "category": "Unauthorised funding",
+    "claim": "Only investors can commit investments",
+    "attacker": "StartupOrg client",
+    "action": "MakeInvestment on behalf of an investor",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires InvestorOrgMSP)"
+  },
+  {
+    "id": "HD-A6b",
+    "category": "Unauthorised funding",
+    "claim": "An investor cannot invest in the name of another investor",
+    "attacker": "InvestorOrg User1 (investor registered by User2)",
+    "action": "MakeInvestment as INV_honest",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mwrxbmcy"
+  },
+  {
+    "id": "HD-A7",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can open a validation",
+    "attacker": "StartupOrg client",
+    "action": "ValidateCampaign on own campaign",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP)"
+  },
+  {
+    "id": "HD-A8",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can approve a campaign",
+    "attacker": "StartupOrg client",
+    "action": "ApproveOrRejectCampaign(APPROVED)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP)"
+  },
+  {
+    "id": "HD-A9",
+    "category": "Duplicate registration",
+    "claim": "An investor ID can be registered once",
+    "attacker": "InvestorOrg User1",
+    "action": "RegisterInvestor with an existing ID",
+    "outcome": "MITIGATED",
+    "evidence": "already exists"
+  },
+  {
+    "id": "HD-A10",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate registrations: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel RegisterInvestor (same ID)",
+    "outcome": "MITIGATED",
+    "evidence": {
+      "committed": 1,
+      "outcomes": {
+        "code_11": 19,
+        "VALID": 1
+      }
+    }
+  },
+  {
+    "id": "HD-A11",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate investment IDs: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel MakeInvestment (same ID, published campaign)",
+    "outcome": "VULNERABLE",
+    "evidence": {
+      "committed": 0
+    }
+  },
+  {
+    "id": "HD-A12",
+    "category": "Replay",
+    "claim": "A signed transaction cannot be replayed",
+    "attacker": "Network attacker",
+    "action": "Re-submit identical signed mint envelope (4100 -> 4200 if replayed)",
+    "outcome": "MITIGATED",
+    "evidence": "balance after replay = 4100; accepted by orderer, commit-status lookup returns original tx"
+  },
+  {
+    "id": "HD-A13",
+    "category": "Identity spoofing",
+    "claim": "Only CA-issued identities can transact",
+    "attacker": "Outsider, self-signed cert",
+    "action": "MintTokens with forged certificate",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: channel [investment-execution-channel] creator org [InvestorOrgMSP]"
+  },
+  {
+    "id": "HD-A15",
+    "category": "Denial of service",
+    "claim": "No client input can crash the chaincode",
+    "attacker": "Any client",
+    "action": "MintTokens to a not-yet-existing account",
+    "outcome": "MITIGATED",
+    "evidence": "committed VALID (account created in memory, no crash)"
+  },
+  {
+    "id": "HD-P1",
+    "category": "Privacy leakage",
+    "claim": "Aadhaar & income not recorded in shared blocks",
+    "attacker": "StartupOrg client",
+    "action": "qscc GetBlockByTxID on the registration tx, search for Aadhaar/income",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (5125 bytes); Aadhaar and income NOT present"
+  },
+  {
+    "id": "HD-P1b",
+    "category": "Privacy leakage",
+    "claim": "KYC cannot be submitted as plaintext arguments",
+    "attacker": "careless client",
+    "action": "RegisterInvestor with KYC in args",
+    "outcome": "MITIGATED",
+    "evidence": "KYC data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"kyc\""
+  },
+  {
+    "id": "HD-A14",
+    "category": "Unauthorised write",
+    "claim": "Only the owning org can modify its records",
+    "attacker": "StartupOrg client",
+    "action": "DataBridgeContract:StoreData overwrite",
+    "outcome": "MITIGATED",
+    "evidence": "disabled in v3; cross-channel writes use the verified outbox/ApplySync path"
+  },
+  {
+    "id": "HD-P3",
+    "category": "Privacy leakage",
+    "claim": "Aadhaar & income visible only to InvestorOrg",
+    "attacker": "StartupOrg client",
+    "action": "ReadData(InvestorPrivateData, INVESTOR_PRIV_<id>)",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:investment collectionName: InvestorPrivateData"
+  },
+  {
+    "id": "HD-POS7",
+    "category": "Positive control (honest path)",
+    "claim": "InvestorOrg can still read its own private KYC record (real PDC)",
+    "attacker": "-",
+    "action": "InvestorOrg can still read its own private KYC record (real PDC)",
+    "outcome": "PASS",
+    "evidence": "readable by owner org"
+  },
+  {
+    "id": "HD-C1",
+    "category": "Cross-channel consistency",
+    "claim": "Governance -> investment writes are persisted",
+    "attacker": "n/a (functional)",
+    "action": "RecordValidatorDecision, then read on investment channel",
+    "outcome": "MITIGATED",
+    "evidence": "governance: committed VALID tx 54ddc3dee75d; on investment channel after 3.1 s: PRESENT"
+  }
+]

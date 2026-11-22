@@ -6,16 +6,7 @@
     "attacker": "-",
     "action": "Startup creates startup + campaign and submits for validation",
     "outcome": "PASS",
-    "evidence": "committed VALID tx 169d76ebf7bf"
-  },
-  {
-    "id": "HD-POS1b",
-    "category": "Positive control (honest path)",
-    "claim": "CreateCampaign / SubmitForValidation",
-    "attacker": "-",
-    "action": "CreateCampaign / SubmitForValidation",
-    "outcome": "FAIL",
-    "evidence": "9 FAILED_PRECONDITION: no combination of peers can be derived which satisfy the endorsement policy: no peer combination can satisfy the endorsement policy / 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP: chaincode response 500, campaign not found: <nil>"
+    "evidence": "committed VALID tx 729717b9c846"
   },
   {
     "id": "HD-POS2",
@@ -23,8 +14,8 @@
     "claim": "Validator validates and approves the campaign",
     "attacker": "-",
     "action": "Validator validates and approves the campaign",
-    "outcome": "FAIL",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | ValidatorOrgMSP: chaincode response 500, validation request not found: <nil> / 10 ABORTED: failed to endorse transaction, see attached details for more info | ValidatorOrgMSP: chaincode response 500, validation not found: <nil>"
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 46c4fafe7db5 / committed VALID tx af6cdc106508 / share-to-platform committed VALID tx a9585db06b0f"
   },
   {
     "id": "HD-POS3",
@@ -32,8 +23,8 @@
     "claim": "Startup shares and Platform publishes the approved campaign",
     "attacker": "-",
     "action": "Startup shares and Platform publishes the approved campaign",
-    "outcome": "FAIL",
-    "evidence": "hash=2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, campaign CAMP_mwrxbmcy does not exist | StartupOrgMSP: chaincode response 500, campaign CAMP_mwrxbmcy does not exist; share: 10 ABORTED: failed to endorse transaction, see attached details for more info | StartupOrgMSP: chaincode response 500, campaign not found: <nil>; publish: 10 ABORTED: failed to endorse transaction, see attached details for more info | PlatformOrgMSP: chaincode response 500, campaign not found in StartupPlatformCollection. Startup must share campaign first: <nil>"
+    "outcome": "PASS",
+    "evidence": "hash=7483c7884fb2; share: committed VALID tx 3022011f964b; publish: committed VALID tx 72551af0ce1a"
   },
   {
     "id": "HD-POS3b",
@@ -41,8 +32,8 @@
     "claim": "Published campaign is bridged to the investment channel (v3 relay)",
     "attacker": "-",
     "action": "Published campaign is bridged to the investment channel (v3 relay)",
-    "outcome": "FAIL",
-    "evidence": "visible to InvestorOrg after 60.7 s"
+    "outcome": "PASS",
+    "evidence": "visible to InvestorOrg after 3.1 s"
   },
   {
     "id": "HD-POS4",
@@ -51,7 +42,7 @@
     "attacker": "-",
     "action": "Investor registers with KYC in the transient map",
     "outcome": "PASS",
-    "evidence": "committed VALID tx caef8ae58d65"
+    "evidence": "committed VALID tx 6730dec57401"
   },
   {
     "id": "HD-POS5",
@@ -59,8 +50,8 @@
     "claim": "Investor invests in the published campaign",
     "attacker": "-",
     "action": "Investor invests in the published campaign",
-    "outcome": "FAIL",
-    "evidence": "10 ABORTED: failed to endorse transaction, see attached details for more info | InvestorOrgMSP: chaincode response 500, campaign CAMP_mwrxbmcy is not published/open for investment"
+    "outcome": "PASS",
+    "evidence": "committed VALID tx a20215f9ad36"
   },
   {
     "id": "HD-POS6",
@@ -69,7 +60,7 @@
     "attacker": "-",
     "action": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
     "outcome": "PASS",
-    "evidence": "create committed VALID tx 36764bbb24e3 / committed VALID tx a325dd58643e; mint committed VALID tx 35ec90361c4e; transfer committed VALID tx 08746044278e; startup balance 1000"
+    "evidence": "create committed VALID tx 3dc4516922c0 / committed VALID tx ee53f0bc7e6b; mint committed VALID tx d56f3d0af51b; transfer committed VALID tx 584578441586; startup balance 1000"
   },
   {
     "id": "HD-A1",
@@ -105,7 +96,7 @@
     "attacker": "InvestorOrg User1 (account owned by User2)",
     "action": "TransferTokens(from=victim account)",
     "outcome": "MITIGATED",
-    "evidence": "access denied: caller does not control account INV_acct_mwrxbmcy"
+    "evidence": "access denied: caller does not control account INV_acct_mwrxj960"
   },
   {
     "id": "HD-A5",
@@ -132,7 +123,7 @@
     "attacker": "InvestorOrg User1 (investor registered by User2)",
     "action": "MakeInvestment as INV_honest",
     "outcome": "MITIGATED",
-    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mwrxbmcy"
+    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mwrxj960"
   },
   {
     "id": "HD-A7",
@@ -182,9 +173,9 @@
     "claim": "Concurrent duplicate investment IDs: exactly one wins",
     "attacker": "InvestorOrg client",
     "action": "20 parallel MakeInvestment (same ID, published campaign)",
-    "outcome": "VULNERABLE",
+    "outcome": "MITIGATED",
     "evidence": {
-      "committed": 0
+      "committed": 1
     }
   },
   {
@@ -221,7 +212,7 @@
     "attacker": "StartupOrg client",
     "action": "qscc GetBlockByTxID on the registration tx, search for Aadhaar/income",
     "outcome": "MITIGATED",
-    "evidence": "block fetched (5125 bytes); Aadhaar and income NOT present"
+    "evidence": "block fetched (5130 bytes); Aadhaar and income NOT present"
   },
   {
     "id": "HD-P1b",
@@ -266,6 +257,6 @@
     "attacker": "n/a (functional)",
     "action": "RecordValidatorDecision, then read on investment channel",
     "outcome": "MITIGATED",
-    "evidence": "governance: committed VALID tx 54ddc3dee75d; on investment channel after 3.1 s: PRESENT"
+    "evidence": "governance: committed VALID tx e1a606c71f83; on investment channel after 3.0 s: PRESENT"
   }
 ]

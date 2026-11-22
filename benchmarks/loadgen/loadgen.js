@@ -32,6 +32,14 @@ const WORKLOADS = {
   // public-state only write; used for endorsement-policy scaling (any org can endorse)
   token: { fn: 'TokenContract:CreateTokenAccount', org: 'PlatformOrg',
     args: (id) => [`ACC_${id}`, `owner_${id}`, 'USER', '{}'] },
+  // ---- hardened chaincode variants (crowdfundingv2_hardened / v3) ----
+  // KYC in the transient map (never in the block); role guard; deterministic timestamps
+  register_h: { fn: 'InvestorContract:RegisterInvestor', org: 'InvestorOrg',
+    args: (id) => [`INV_${id}`, `Investor ${id}`, '0', '', ''],
+    transient: (id) => ({ kyc: Buffer.from(JSON.stringify({ annualIncome: 30000000, aadharNumber: '1234-5678-9012', panNumber: 'ABCDE1234F' })) }) },
+  // token ledger in the separate cftoken chaincode, OutOf(2,4) endorsement (run with --chaincode cftoken)
+  token_h: { fn: 'TokenContract:CreateTokenAccount', org: 'PlatformOrg',
+    args: (id) => [`ACC_${id}`, `owner_${id}`, 'USER', '{}'] },
   // read-only query (evaluate, not ordered)
   query: { fn: 'TokenContract:GetTokenAccount', org: 'PlatformOrg', evaluate: true,
     args: () => ['ACC_SEED'] },
@@ -80,7 +88,7 @@ async function worker(cfg) {
         if (wl.evaluate) {
           await contract.evaluateTransaction(wl.fn, ...args);
         } else {
-          const commit = await contract.submitAsync(wl.fn, { arguments: args });
+          const commit = await contract.submitAsync(wl.fn, wl.transient ? { arguments: args, transientData: wl.transient(id) } : { arguments: args });
           const st = await commit.getStatus();
           if (!st.successful) return [start, performance.now(), 0, `COMMIT_${st.code}`];
         }

@@ -334,6 +334,87 @@
 | bridge_v3 | B-T3 | Cross-channel bridge | Replayed ApplySync applies the record twice | malicious relay / channel member | Replayed ApplySync applies the record twice | **MITIGATED** | first=APPLIED, replay=ALREADY_APPLIED |
 | bridge_v3 | B-T4 | Cross-channel bridge | Endorser without source-channel access applies an entry | malicious relay / channel member | Endorser without source-channel access applies an entry | **MITIGATED** | 10 ABORTED: failed to collect enough transaction endorsements, see attached details for more info / chaincode response 500, cannot verify outbox entry on governance-validation-channel:  |
 
+## Security after hardening (crowdfundingv2_hardened, dual-channel v3) + positive controls
+
+| Suite | ID | Category | Property / honest step | Attacker | Outcome | Evidence |
+|---|---|---|---|---|---|---|
+| hardened_dual | HD-POS1 | Positive control (honest path) | Startup creates startup + campaign and submits for validation | - | **PASS** | committed VALID tx 729717b9c846 |
+| hardened_dual | HD-POS2 | Positive control (honest path) | Validator validates and approves the campaign | - | **PASS** | committed VALID tx 46c4fafe7db5 / committed VALID tx af6cdc106508 / share-to-platform committed VALID tx a9585db06b0f |
+| hardened_dual | HD-POS3 | Positive control (honest path) | Startup shares and Platform publishes the approved campaign | - | **PASS** | hash=7483c7884fb2; share: committed VALID tx 3022011f964b; publish: committed VALID tx 72551af0ce1a |
+| hardened_dual | HD-POS3b | Positive control (honest path) | Published campaign is bridged to the investment channel (v3 relay) | - | **PASS** | visible to InvestorOrg after 3.1 s |
+| hardened_dual | HD-POS4 | Positive control (honest path) | Investor registers with KYC in the transient map | - | **PASS** | committed VALID tx 6730dec57401 |
+| hardened_dual | HD-POS5 | Positive control (honest path) | Investor invests in the published campaign | - | **PASS** | committed VALID tx a20215f9ad36 |
+| hardened_dual | HD-POS6 | Positive control (honest path) | Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer | - | **PASS** | create committed VALID tx 3dc4516922c0 / committed VALID tx ee53f0bc7e6b; mint committed VALID tx d56f3d0af51b; transfer committed VALID tx 584578441586; startup balance 1000 |
+| hardened_dual | HD-A1 | Unauthorised funding | Only PlatformOrg can mint tokens | InvestorOrg client | **MITIGATED** | access denied: caller InvestorOrgMSP is not authorised (requires PlatformOrgMSP) |
+| hardened_dual | HD-A2 | Unauthorised funding | Balances can only originate from Platform mint/transfer | StartupOrg client | **MITIGATED** | non-zero opening balance for PAYMENT_TOKEN: access denied: caller StartupOrgMSP is not authorised (requires PlatformOrgMSP) |
+| hardened_dual | HD-A3 | Unauthorised funding | Only PlatformOrg can move PLATFORM treasury funds | StartupOrg client | **MITIGATED** | access denied: account PLATFORM is platform-custodied |
+| hardened_dual | HD-A4 | Unauthorised funding | Investors can only spend their own balance | InvestorOrg User1 (account owned by User2) | **MITIGATED** | access denied: caller does not control account INV_acct_mwrxj960 |
+| hardened_dual | HD-A5 | Unauthorised funding | Investments only into existing, approved campaigns | InvestorOrg client | **MITIGATED** | not published/open for investment |
+| hardened_dual | HD-A6 | Unauthorised funding | Only investors can commit investments | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires InvestorOrgMSP) |
+| hardened_dual | HD-A6b | Unauthorised funding | An investor cannot invest in the name of another investor | InvestorOrg User1 (investor registered by User2) | **MITIGATED** | access denied: caller is not the registered owner of investor INV_honest_mwrxj960 |
+| hardened_dual | HD-A7 | Unauthorised approval | Only ValidatorOrg can open a validation | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP) |
+| hardened_dual | HD-A8 | Unauthorised approval | Only ValidatorOrg can approve a campaign | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP) |
+| hardened_dual | HD-A9 | Duplicate registration | An investor ID can be registered once | InvestorOrg User1 | **MITIGATED** | already exists |
+| hardened_dual | HD-A10 | Duplicate registration | Concurrent duplicate registrations: exactly one wins | InvestorOrg client | **MITIGATED** | {"committed": 1, "outcomes": {"code_11": 19, "VALID": 1}} |
+| hardened_dual | HD-A11 | Duplicate registration | Concurrent duplicate investment IDs: exactly one wins | InvestorOrg client | **MITIGATED** | {"committed": 1} |
+| hardened_dual | HD-A12 | Replay | A signed transaction cannot be replayed | Network attacker | **MITIGATED** | balance after replay = 4100; accepted by orderer, commit-status lookup returns original tx |
+| hardened_dual | HD-A13 | Identity spoofing | Only CA-issued identities can transact | Outsider, self-signed cert | **MITIGATED** | access denied: channel [investment-execution-channel] creator org [InvestorOrgMSP] |
+| hardened_dual | HD-A15 | Denial of service | No client input can crash the chaincode | Any client | **MITIGATED** | committed VALID (account created in memory, no crash) |
+| hardened_dual | HD-P1 | Privacy leakage | Aadhaar & income not recorded in shared blocks | StartupOrg client | **MITIGATED** | block fetched (5130 bytes); Aadhaar and income NOT present |
+| hardened_dual | HD-P1b | Privacy leakage | KYC cannot be submitted as plaintext arguments | careless client | **MITIGATED** | KYC data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key "kyc" |
+| hardened_dual | HD-A14 | Unauthorised write | Only the owning org can modify its records | StartupOrg client | **MITIGATED** | disabled in v3; cross-channel writes use the verified outbox/ApplySync path |
+| hardened_dual | HD-P3 | Privacy leakage | Aadhaar & income visible only to InvestorOrg | StartupOrg client | **MITIGATED** | tx creator does not have read access permission on privatedata in chaincodeName:investment collectionName: InvestorPrivateData |
+| hardened_dual | HD-POS7 | Positive control (honest path) | InvestorOrg can still read its own private KYC record (real PDC) | - | **PASS** | readable by owner org |
+| hardened_dual | HD-C1 | Cross-channel consistency | Governance -> investment writes are persisted | n/a (functional) | **MITIGATED** | governance: committed VALID tx e1a606c71f83; on investment channel after 3.0 s: PRESENT |
+| hardened_malicious | HM-1 | Malicious endorser | A single compromised org cannot forge ledger state | StartupOrg peer running tampered cftoken | **MITIGATED** | invalidated: code 10; sink balance {} |
+| hardened_malicious | HM-2 | Malicious endorser | Honest co-endorser blocks forged state | same | **MITIGATED** | insufficient balance. Available: 0.00, Required: 1000000000.00 |
+| hardened_single | HS-POS1 | Positive control (honest path) | Startup creates startup + campaign and submits for validation | - | **PASS** | committed VALID tx f0f3f8016cc0 |
+| hardened_single | HS-POS2 | Positive control (honest path) | Validator validates and approves the campaign | - | **PASS** | committed VALID tx 20d8419c5e5e / committed VALID tx 5e4ec362b0c6 |
+| hardened_single | HS-POS3 | Positive control (honest path) | Startup shares and Platform publishes the approved campaign | - | **PASS** | hash=d1fafb4083f6; share: committed VALID tx f15f950e621b; publish: committed VALID tx f2e58cad73af |
+| hardened_single | HS-POS4 | Positive control (honest path) | Investor registers with KYC in the transient map | - | **PASS** | committed VALID tx f99289fdde08 |
+| hardened_single | HS-POS5 | Positive control (honest path) | Investor invests in the published campaign | - | **PASS** | committed VALID tx 5307eea772c6 |
+| hardened_single | HS-POS6 | Positive control (honest path) | Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer | - | **PASS** | create committed VALID tx d8a2c39b5cb9 / committed VALID tx ae47018d28c3; mint committed VALID tx 1133df43955d; transfer committed VALID tx 5e22ed1acbec; startup balance 1000 |
+| hardened_single | HS-A1 | Unauthorised funding | Only PlatformOrg can mint tokens | InvestorOrg client | **MITIGATED** | access denied: caller InvestorOrgMSP is not authorised (requires PlatformOrgMSP) |
+| hardened_single | HS-A2 | Unauthorised funding | Balances can only originate from Platform mint/transfer | StartupOrg client | **MITIGATED** | non-zero opening balance for PAYMENT_TOKEN: access denied: caller StartupOrgMSP is not authorised (requires PlatformOrgMSP) |
+| hardened_single | HS-A3 | Unauthorised funding | Only PlatformOrg can move PLATFORM treasury funds | StartupOrg client | **MITIGATED** | access denied: account PLATFORM is platform-custodied |
+| hardened_single | HS-A4 | Unauthorised funding | Investors can only spend their own balance | InvestorOrg User1 (account owned by User2) | **MITIGATED** | access denied: caller does not control account INV_acct_mwrx9357 |
+| hardened_single | HS-A5 | Unauthorised funding | Investments only into existing, approved campaigns | InvestorOrg client | **MITIGATED** | not published/open for investment |
+| hardened_single | HS-A6 | Unauthorised funding | Only investors can commit investments | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires InvestorOrgMSP) |
+| hardened_single | HS-A6b | Unauthorised funding | An investor cannot invest in the name of another investor | InvestorOrg User1 (investor registered by User2) | **MITIGATED** | access denied: caller is not the registered owner of investor INV_honest_mwrx9357 |
+| hardened_single | HS-A7 | Unauthorised approval | Only ValidatorOrg can open a validation | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP) |
+| hardened_single | HS-A8 | Unauthorised approval | Only ValidatorOrg can approve a campaign | StartupOrg client | **MITIGATED** | access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP) |
+| hardened_single | HS-A9 | Duplicate registration | An investor ID can be registered once | InvestorOrg User1 | **MITIGATED** | already exists |
+| hardened_single | HS-A10 | Duplicate registration | Concurrent duplicate registrations: exactly one wins | InvestorOrg client | **MITIGATED** | {"committed": 1, "outcomes": {"code_11": 19, "VALID": 1}} |
+| hardened_single | HS-A11 | Duplicate registration | Concurrent duplicate investment IDs: exactly one wins | InvestorOrg client | **MITIGATED** | {"committed": 1} |
+| hardened_single | HS-A12 | Replay | A signed transaction cannot be replayed | Network attacker | **MITIGATED** | balance after replay = 4100; accepted by orderer, commit-status lookup returns original tx |
+| hardened_single | HS-A13 | Identity spoofing | Only CA-issued identities can transact | Outsider, self-signed cert | **MITIGATED** | access denied: channel [crowdfunding-channel] creator org [InvestorOrgMSP] |
+| hardened_single | HS-A15 | Denial of service | No client input can crash the chaincode | Any client | **MITIGATED** | committed VALID (account created in memory, no crash) |
+| hardened_single | HS-P1 | Privacy leakage | Aadhaar & income not recorded in shared blocks | StartupOrg client | **MITIGATED** | block fetched (5139 bytes); Aadhaar and income NOT present |
+| hardened_single | HS-P1b | Privacy leakage | KYC cannot be submitted as plaintext arguments | careless client | **MITIGATED** | KYC data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key "kyc" |
+| hardened_single | HS-P2 | Privacy leakage | Non-members cannot read InvestorPrivateData | StartupOrg client | **MITIGATED** | tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData |
+| hardened_single | HS-N1 | Unauthorised funding | Token ledger only reachable through the 2-of-4 cftoken chaincode | PlatformOrg client | **MITIGATED** | access denied: token functions are served only by the "cftoken" chaincode (2-of-4 endorsement) |
+
+### Cost of hardening - RegisterInvestor (original E1 vs hardened, same topology)
+
+| Offered TPS | Original TPS | Original success % | Original latency (s) | Hardened TPS | Hardened success % | Hardened latency (s) |
+|---|---|---|---|---|---|---|
+| 25 | 23.9 | 100.0 | 1.452 | 23.3 | 100.0 | 1.424 |
+| 50 | 48.2 | 100.0 | 1.726 | 47.1 | 100.0 | 1.687 |
+| 100 | 89.3 | 97.0 | 3.142 | 92.8 | 100.0 | 2.481 |
+| 150 | 86.3 | 62.2 | 4.191 | 90.6 | 68.1 | 4.329 |
+| 200 | 69.7 | 38.3 | 5.672 | 91.7 | 51.5 | 4.162 |
+
+### Cost of hardening - CreateTokenAccount (original E1 vs hardened, same topology)
+
+| Offered TPS | Original TPS | Original success % | Original latency (s) | Hardened TPS | Hardened success % | Hardened latency (s) |
+|---|---|---|---|---|---|---|
+| 25 | 24.4 | 100.0 | 1.156 | 23.8 | 100.0 | 1.211 |
+| 50 | 48.1 | 100.0 | 1.293 | 48 | 100.0 | 1.265 |
+| 100 | 97 | 100.0 | 1.51 | 96.6 | 100.0 | 1.494 |
+| 150 | 145 | 100.0 | 1.821 | 145.5 | 100.0 | 1.78 |
+| 200 | 160.7 | 82.8 | 2.062 | 166.7 | 86.2 | 1.965 |
+| 300 | 175.4 | 63.9 | 2.068 | 178.4 | 61.8 | 2.068 |
+
 ## Cross-channel synchronisation (governance -> investment)
 
 | Run | Offered TPS | Source committed | Relayed | Present on target | Missing | Source TPS | End-to-end TPS | Sync lag avg (s) | p50 | p95 | max | Idempotent replays |

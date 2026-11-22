@@ -261,10 +261,95 @@ Key interpretation for the paper
 * The PASS/FAIL functional tests in the manuscript tested the honest path only, which is why these issues
   were not visible.
 
-Recommended fixes (standard Fabric practice, see threat model §5): explicit `GetClientIdentity().GetMSPID()`
-/ ABAC checks in every state-changing function; ownership by client ID; KYC through the **transient map**;
-real `PutPrivateData` in the dual-channel design; `MAJORITY` or `OutOf(2,4)` endorsement; deterministic
-timestamps (`GetTxTimestamp`); nil checks / no read-your-writes; remove `StoreData`.
+### 4.1 Fixes implemented and the same attacks re-run
+
+The fixes are implemented in new code folders; the code evaluated above is unchanged for reproducibility:
+
+* `CF_SingleChannel/crowdfundingv2_hardened/` (single channel)
+* `CF_DualChannel/crowdfunding_dualchannel_v3/` (dual channel, also contains the bridge of §3)
+
+The shared hardening layer is `contracts/security.go`.
+
+| Fix | Mechanism | Closes |
+|---|---|---|
+| Role-based access control | `roleGuard` runs as contractapi `BeforeTransaction` on every contract: state-changing functions of `<Org>Contract` require `<Org>MSP`. Reads (`Get*`, `Is*`, `Calculate*`) stay open and are still protected by PDC membership. | A6, A7, A8 |
+| Token ledger isolation | Tokens are served **only** by a separate chaincode `cftoken` with endorsement policy `OutOf(2, 4 orgs)`; the OR-policy namespace refuses token calls. Mint, burn, freeze, exchange rates and purchases are PlatformOrg-only. | A1, M1 |
+| Account ownership | Each account records a `controller` (the creating client's identity, or Platform custody). Only the controller may debit it. Non-zero opening balances are Platform-only. | A2, A3, A4 |
+| Investor binding and campaign check | An investor ID is bound to the client that registered it. `MakeInvestment` requires that owner, and a campaign that is published and open. In dual, the public campaign record is bridged to the investment channel. | A5, A6b |
+| KYC confidentiality | Aadhaar, income and PAN are accepted **only** via the transient map (`"kyc"`); plaintext arguments are rejected. | P1 |
+| Real private data (dual) | Collection-homed data uses `PutPrivateData`/`GetPrivateData` (was public `PutState`). `StoreData` is disabled. Bridge writes go into the target PDC. | P3, A14 |
+| Determinism | `time.Now()` → `GetTxTimestamp()` in all 108 / 90 / 111 call sites. | ENDORSE_MISMATCH (§2.4) |
+| Crash safety | Accounts created in the same transaction are built in memory (Fabric has no read-your-writes). | A15 |
+
+Re-run (`benchmarks/run_attacks_hardened.sh`, `attacks/hardened.js`; raw results in `results/security_hardened/`).
+Same attack IDs; User1 is the attacker and User2 a legitimate user of the same org. **Positive controls** verify
+that the honest end-to-end workflow still works, so a block cannot be caused by a broken feature.
+
+| # | Attack | Single: before → after | Dual: before → after | Blocked by (error returned by the network) |
+|---|---|---|---|---|
+| A1 | Non-Platform mint | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | `access denied: caller InvestorOrgMSP is not authorised (requires PlatformOrgMSP)` |
+| A2 | Self-funded account | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | `non-zero opening balance … requires PlatformOrgMSP` |
+| A3 | Spend PLATFORM treasury | VULNERABLE → **MITIGATED** | mitigated → **MITIGATED** | `account PLATFORM is platform-custodied` |
+| A4 | Spend another user's balance (same org) | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | `caller does not control account …` |
+| A5 | Invest in non-existent campaign | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | `campaign … is not published/open for investment` |
+| A6 | Startup invests for an investor | mitigated → **MITIGATED** | VULNERABLE → **MITIGATED** | `requires InvestorOrgMSP` |
+| A6b | Investor invests in another investor's name | (new) **MITIGATED** | (new) **MITIGATED** | `caller is not the registered owner of investor …` |
+| A7 / A8 | Startup validates / approves own campaign | mitigated → **MITIGATED** | VULNERABLE → **MITIGATED** | `requires ValidatorOrgMSP` |
+| A9–A11 | Duplicates (sequential, 20× concurrent) | mitigated → **MITIGATED** | mitigated → **MITIGATED** | existence check, MVCC (1 VALID, 19 MVCC_READ_CONFLICT) |
+| A12 / A13 | Replay / forged certificate | mitigated → **MITIGATED** | mitigated → **MITIGATED** | duplicate txID / MSP validation |
+| A14 | `StoreData` overwrite | — | VULNERABLE → **MITIGATED** | `StoreData is disabled in v3` |
+| A15 | Chaincode crash (DoS) | VULNERABLE → **MITIGATED** | mitigated → **MITIGATED** | no crash; account created in memory |
+| P1 | KYC in shared blocks | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | block fetched by StartupOrg, Aadhaar/income **not present** |
+| P1b | KYC sent as plaintext arguments | (new) **MITIGATED** | (new) **MITIGATED** | `KYC data must not be passed as transaction arguments` |
+| P2 / P3 | Non-member reads investor KYC | mitigated → **MITIGATED** | VULNERABLE → **MITIGATED** | `tx creator does not have read access permission … InvestorPrivateData` |
+| C1 | Cross-channel write persisted | — | FAILS → **WORKS** (present after 3.0 s) | v3 bridge |
+| M1 | One compromised org forges 10⁹ tokens | VULNERABLE → **MITIGATED** | (same mechanism) | endorsed by StartupOrg only: `invalidated: code 10` (ENDORSEMENT_POLICY_FAILURE); with an honest co-endorser: `insufficient balance` |
+| N1 | Token call on the OR-policy chaincode | (new) **MITIGATED** | (new) **MITIGATED** | `token functions are served only by the "cftoken" chaincode` |
+
+**Totals after hardening: 0 of 19 attacks succeed on the single channel and 0 of 19 on the dual channel**
+(C1 now works). Both malicious-endorser tests are mitigated (2 of 2).
+Positive controls — **all PASS** (single 6/6, dual 8/8):
+
+1. Create startup and campaign, then submit it.
+2. Validator validates and approves.
+3. Share and publish the campaign. Dual only: it reaches the investment channel through the relay in 3.1 s.
+4. Register an investor with KYC in the transient map.
+5. Invest in the published campaign.
+6. Token flow: own accounts, a 2-of-4-endorsed mint, and an owner transfer.
+7. Dual only: InvestorOrg still reads its own private KYC record.
+
+**Cost of hardening** (same 4-peer topology as E1; `results/RESULTS_TABLES.md`, "Cost of hardening"):
+
+| Workload | Offered TPS | Original: TPS / success / latency | Hardened: TPS / success / latency |
+|---|---|---|---|
+| RegisterInvestor | 50 | 48.2 / 100 % / 1.73 s | 47.1 / 100 % / 1.69 s |
+| RegisterInvestor | 100 | 89.3 / 97 % / 3.14 s | **92.8 / 100 % / 2.48 s** |
+| RegisterInvestor | 200 | 69.7 / 38 % / 5.67 s | **91.7 / 52 % / 4.16 s** |
+| Token write | 100 | 97.0 / 100 % / 1.51 s (1 endorser) | 96.6 / 100 % / 1.49 s (**2 endorsers**) |
+| Token write | 200 | 160.7 / 83 % / 2.06 s (1 endorser) | 166.7 / 86 % / 1.97 s (**2 endorsers**) |
+| Token write, 2-of-4 | 200 | 143.8 TPS, 125 mismatch rejections (original code, E5) | 166.7 TPS, **0** mismatch rejections |
+
+Access control, ownership checks and the transient map add no measurable overhead. Moving tokens to a
+2-of-4 policy costs nothing, because the deterministic timestamps remove the rejections that made
+multi-endorser policies expensive in §2.4. Differences of a few percent are within run-to-run variation.
+
+**Design finding — must be stated in the paper.**
+
+* **The conflict:** the paper's governance-channel policy `AND(Validator, Platform)` cannot coexist with real
+  Startup-private data. A Startup step that reads `StartupPrivateData` must be endorsed only by members of
+  that collection (StartupOrg). If the same step also writes public state, it would need Validator **and**
+  Platform endorsement.
+* **Measured:** the gateway reports *"no combination of peers can be derived which satisfy the endorsement
+  policy"* for `CreateCampaign` (`results/security_hardened/dual_ANDpolicy_conflict.json`).
+* **v2 hid it:** v2 never noticed because it stored everything in public state.
+* **Hardened deployment (`HARDENED=1`):**
+  * member-based collection endorsement policies (as in the single-channel design);
+  * any-member endorsement on the governance namespace;
+  * `OutOf(2,4)` on `AllOrgsShared` (bridged campaign records);
+  * the 2-of-4 `cftoken` namespace for value.
+* **Residual risk:** a single compromised organisation can still forge *non-monetary* public governance
+  records. Removing this needs the hash-plus-transient verification pattern (non-member endorsers verify
+  `GetPrivateDataHash` instead of reading plaintext) — future work.
 
 ---
 
@@ -291,14 +376,14 @@ cost, (iii) default batch settings. Do **not** claim BlockAssist+ is "faster tha
 
 ### 5.2 Qualitative (security, privacy, governance, deployment)
 
-| Criterion | Public-chain crowdfunding dApps (e.g. Ethereum smart-contract escrow) | Generic Fabric asset-transfer baseline | BlockAssist+ single-channel | BlockAssist+ dual-channel v2 (paper) | BlockAssist+ dual-channel v3 + fixes |
+| Criterion | Public-chain crowdfunding dApps (e.g. Ethereum smart-contract escrow) | Generic Fabric asset-transfer baseline | BlockAssist+ single-channel | BlockAssist+ dual-channel v2 (paper) | BlockAssist+ hardened (single / dual v3) |
 |---|---|---|---|---|---|
 | Participant identity / KYC | pseudonymous addresses | X.509 MSP | X.509 MSP, KYC on-chain | same | same |
-| Confidentiality of investor data | none (all public) | channels / PDC | PDC, **but KYC leaks via tx args** (P1) | **public state** (P3) | PDC + transient map (recommended) |
-| Role-based authorisation | contract-level `require(msg.sender…)` | chaincode ABAC | PDC membership only (A1–A5 fail) | none (A1–A8 fail) | explicit MSP/ABAC (recommended) |
-| Regulatory governance (validator approval) | rarely modelled | — | Validator org + PDC | governance channel, but self-approval possible (A8) | — |
+| Confidentiality of investor data | none (all public) | channels / PDC | PDC, **but KYC leaks via tx args** (P1) | **public state** (P3) | PDC + transient map (P1–P3 mitigated, measured) |
+| Role-based authorisation | contract-level `require(msg.sender…)` | chaincode ABAC | PDC membership only (A1–A5 fail) | none (A1–A8 fail) | MSP role guard + per-account/per-investor ownership (all mitigated, measured) |
+| Regulatory governance (validator approval) | rarely modelled | — | Validator org + PDC | governance channel, but self-approval possible (A8) | Validator-only approval (A7/A8 mitigated) |
 | Cross-domain isolation | — | channels | single channel | 2 channels, **sync broken** | 2 channels, verified relay (§3) |
-| Byzantine endorser tolerance | PoS consensus | policy-dependent | `OR` → none (M1) | governance `AND`, investment `OR` | `OutOf(2,4)` (M2) |
+| Byzantine endorser tolerance | PoS consensus | policy-dependent | `OR` → none (M1) | governance `AND`, investment `OR` | tokens `OutOf(2,4)` (M1 mitigated); non-monetary records single-org |
 | Finality | probabilistic, minutes | deterministic, ~1–2 s | deterministic, 0.6–2.7 s | same | + sync lag (§3.3) |
 | Transaction cost | gas fees | none | none | none | none |
 | Deployment complexity | low (public network) | medium | medium (1 channel, 1 CC) | higher (2 channels, 2 CCs) | higher (+ relay service) |
@@ -317,12 +402,14 @@ only properties stated in those papers.
    channel as a design proposal and keep the single-channel system as the evaluated contribution.
    The current text ("event-driven bridge … future work") must not be combined with claims that the
    dual-channel system is secure or functional.
-3. **Security section**: add the threat model and the attack table. Either implement the recommended
-   fixes and re-run `run_attacks.sh` (all attacks should then be MITIGATED), or soften the claims to what is
-   actually provided.
+3. **Security section**:
+   * Add the threat model, the "before" attack table and the hardening with its before/after table (§4.1).
+   * Report the measured cost of the hardening, which is negligible.
+   * State the AND-policy/PDC design finding and the residual risk for non-monetary governance records.
+   * Claims in the paper should refer to the hardened code.
 4. Add the comparison tables of §5.
-5. Fix chaincode non-determinism (`time.Now()` → `GetTxTimestamp()`); otherwise any multi-endorser policy
-   rejects up to 44 % of transactions.
+5. Non-determinism is fixed in the hardened code (`GetTxTimestamp()`). Present it as a finding: the original
+   code rejects up to 44 % of transactions under multi-endorser policies.
 
 ## 7. Reproducing on the Table 7 VPS
 
@@ -336,6 +423,10 @@ cd benchmarks && ./build_chaincode.sh && (cd loadgen && npm ci)
 
 ```bash
 ./run_attacks.sh && ./run_bridge.sh && python3 analyze.py
+```
+
+```bash
+./run_attacks_hardened.sh && ./run_hardened_perf.sh && python3 analyze.py
 ```
 
 Requirements: Docker, Go ≥ 1.22, Node 22, Python 3 with `pyyaml`, `matplotlib`; images

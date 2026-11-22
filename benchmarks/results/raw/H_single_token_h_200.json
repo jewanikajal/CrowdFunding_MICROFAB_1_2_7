@@ -1,0 +1,89 @@
+{
+  "workload": "token_h",
+  "channel": "crowdfunding-channel",
+  "chaincode": "cftoken",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3447,
+  "failed": 553,
+  "sendRate": 199.5,
+  "throughput": 166.7,
+  "latAvg": 1.965,
+  "latMin": 0.628,
+  "latP50": 1.897,
+  "latP95": 2.987,
+  "latP99": 3.235,
+  "latMax": 3.389,
+  "startMs": 1795357936810.0159,
+  "endMs": 1795357957493.2117,
+  "errors": {
+    "GATEWAY_OVERLOAD": 553
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 26.0,
+      "cpuPeakPct": 38.9,
+      "memAvgMB": 1114.9,
+      "memPeakMB": 1136.3,
+      "netRxMBps": 0.698,
+      "netTxMBps": 0.362
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 124.6,
+      "cpuPeakPct": 162.4,
+      "memAvgMB": 786.4,
+      "memPeakMB": 843.5,
+      "netRxMBps": 5.501,
+      "netTxMBps": 3.26
+    },
+    "couchdb": {
+      "cpuAvgPct": 92.4,
+      "cpuPeakPct": 163.7,
+      "memAvgMB": 282.5,
+      "memPeakMB": 298.4,
+      "netRxMBps": 0.36,
+      "netTxMBps": 0.246
+    },
+    "orderer": {
+      "cpuAvgPct": 13.6,
+      "cpuPeakPct": 22.8,
+      "memAvgMB": 76.2,
+      "memPeakMB": 98.0,
+      "netRxMBps": 0.781,
+      "netTxMBps": 3.026
+    },
+    "loadgen": {
+      "cpuAvgPct": 78.5,
+      "cpuPeakPct": 88.4,
+      "memAvgMB": 375.0,
+      "memPeakMB": 379.8,
+      "netRxMBps": 0.427,
+      "netTxMBps": 0.654
+    },
+    "host": {
+      "cpuAvgPct": 88.6,
+      "cpuPeakPct": 97.7,
+      "memUsedPeakMB": 3370.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OutOf(2,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "H",
+  "name": "H_single_token_h_200"
+}
