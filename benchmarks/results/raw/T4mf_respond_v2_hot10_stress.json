@@ -1,0 +1,89 @@
+{
+  "workload": "respond_v2",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 1000,
+  "succeeded": 466,
+  "failed": 534,
+  "sendRate": 100,
+  "throughput": 46,
+  "latAvg": 0.131,
+  "latMin": 0.048,
+  "latP50": 0.124,
+  "latP95": 0.209,
+  "latP99": 0.279,
+  "latMax": 0.359,
+  "startMs": 1795367581141.0315,
+  "endMs": 1795367591272.549,
+  "errors": {
+    "COMMIT_11": 534
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 6.6,
+      "cpuPeakPct": 8.1,
+      "memAvgMB": 573.1,
+      "memPeakMB": 573.4,
+      "netRxMBps": 0.236,
+      "netTxMBps": 0.123
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 101.4,
+      "cpuPeakPct": 119.1,
+      "memAvgMB": 337.9,
+      "memPeakMB": 346.3,
+      "netRxMBps": 2.534,
+      "netTxMBps": 1.333
+    },
+    "couchdb": {
+      "cpuAvgPct": 103.9,
+      "cpuPeakPct": 124.7,
+      "memAvgMB": 201.4,
+      "memPeakMB": 223.4,
+      "netRxMBps": 0.181,
+      "netTxMBps": 0.213
+    },
+    "orderer": {
+      "cpuAvgPct": 12.4,
+      "cpuPeakPct": 15.3,
+      "memAvgMB": 55.8,
+      "memPeakMB": 60.8,
+      "netRxMBps": 0.373,
+      "netTxMBps": 1.418
+    },
+    "loadgen": {
+      "cpuAvgPct": 53.5,
+      "cpuPeakPct": 53.5,
+      "memAvgMB": 266.1,
+      "memPeakMB": 266.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "host": {
+      "cpuAvgPct": 75.0,
+      "cpuPeakPct": 86.3,
+      "memUsedPeakMB": 2180.5
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "100ms",
+    "batchSize": 10,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "T4",
+  "name": "T4mf_respond_v2_hot10_stress"
+}

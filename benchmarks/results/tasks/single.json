@@ -40,10 +40,19 @@
     {
       "task": "Task1",
       "id": "T1-4",
-      "test": "Rejected: income 1.5 cr, net worth 6 cr, financial assets 3 cr",
+      "test": "Rejected: income 0.8 cr, net worth 6 cr, financial assets 3 cr (below every route)",
       "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "does not meet SEBI accredited-investor criteria: needs annual income >= 2 cror"
+    },
+    {
+      "task": "Task1",
+      "id": "T1-4b",
+      "test": "Hybrid route: income 1.5 cr, net worth 6 cr, financial assets 3 cr",
+      "expected": "registered, basis INCOME_AND_NET_WORTH",
       "observed": "registered, basis INCOME_AND_NET_WORTH",
-      "result": "FAIL",
+      "result": "PASS",
       "evidence": ""
     },
     {
@@ -105,7 +114,7 @@
       "expected": "readable by InvestorOrg and ValidatorOrg only; not in public state or blocks; stored only on Investor/Validator peers",
       "observed": "reads: Startup=denied, Investor=readable, Validator=readable, Platform=denied; public state: absent; blocks (Startup/Platform): absent; stored on: InvestorOrg, ValidatorOrg",
       "result": "PASS",
-      "evidence": "Startup: denied (failed: transaction ID: 1f445a50ef48281368af65bfe9b5735b19d38698f453fa0b37d400f186d47fd4: tx creator does not have read access)"
+      "evidence": "Startup: denied (failed: transaction ID: 4b4ae38765d87ff30c67e56382d258c4da805c88cf3230e6571502f4599915b2: tx creator does not have read access)"
     },
     {
       "task": "Task7",
@@ -114,16 +123,25 @@
       "expected": "StartupOrg read denied; income not on StartupOrg peer or in its blocks; InvestorOrg can read it",
       "observed": "StartupOrg read: denied; on StartupOrg peer: absent; in blocks: absent; InvestorOrg read: allowed",
       "result": "PASS",
-      "evidence": "failed: transaction ID: 1aa3ba9058a06ea6df52b0787c7ee8ab733a86e6ec30e9ec8cb8e9358149e0dd: tx creator does not have read access"
+      "evidence": "failed: transaction ID: c3c4d4c6d765c5f11991e06c1ed6573f016987a475e5b5079beda66034f178b5: tx creator does not have read access"
+    },
+    {
+      "task": "Task7",
+      "id": "PR11b",
+      "test": "Campaign documents cannot be submitted as plaintext arguments",
+      "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "chaincode response 500, campaign documents must not be passed as transaction arguments (they would be stored in the block); send them in the transient map under"
     },
     {
       "task": "Task7",
       "id": "PR11",
       "test": "Campaign private documents not readable by InvestorOrg",
       "expected": "InvestorOrg cannot read StartupPrivateData; documents not in blocks InvestorOrg receives nor in the published campaign record",
-      "observed": "private record read: denied; copy on InvestorOrg peer: none; CreateCampaign block via InvestorOrg: FOUND in block; published record: no documents; public state hits: StartupOrg:crowdfunding-channel_crowdfunding InvestorOrg:crowdfunding-channel_crowdfunding ValidatorOrg:crowdfunding-channel_crowdfunding PlatformOrg:crowdfunding-channel_crowdfunding",
-      "result": "FAIL",
-      "evidence": "failed to read campaign: GET_STATE failed: transaction ID: 249aa6ac16ba69941522fc5e3bc133fb6d4ad3b613b0ed175727513d903d16a7: t"
+      "observed": "private record read: denied; copy on InvestorOrg peer: none; CreateCampaign block via InvestorOrg: fetched, absent; published record: no documents; public state hits: none",
+      "result": "PASS",
+      "evidence": "failed to read campaign: GET_STATE failed: transaction ID: 23bd6110fd5694c104f3eb7e8dc42fec62c5f58a0e92b86537396205fb4b0793: t"
     },
     {
       "task": "Task5",

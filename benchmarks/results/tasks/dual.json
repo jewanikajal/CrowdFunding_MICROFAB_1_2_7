@@ -116,7 +116,7 @@
       "expected": "readable by InvestorOrg and ValidatorOrg only; not in public state or blocks; stored only on Investor/Validator peers",
       "observed": "reads: Startup=denied, Investor=readable, Validator=readable, Platform=denied; public state: absent; blocks (Startup/Platform): absent; stored on: InvestorOrg, ValidatorOrg",
       "result": "PASS",
-      "evidence": "Startup: denied (failed: GET_STATE failed: transaction ID: 8b1680b471520be681c86105d5a5dddf0fbc196aa2269aa4ffe24ea126df3596: tx creator does no)"
+      "evidence": "Startup: denied (failed: GET_STATE failed: transaction ID: 314865152e43ec90efbb1a0466de04792766f5543edbce8d12af2568ca412efb: tx creator does no)"
     },
     {
       "task": "Task7",
@@ -125,15 +125,24 @@
       "expected": "StartupOrg read denied; income not on StartupOrg peer or in its blocks; InvestorOrg can read it",
       "observed": "StartupOrg read: denied; on StartupOrg peer: absent; in blocks: absent; InvestorOrg read: allowed",
       "result": "PASS",
-      "evidence": "failed: GET_STATE failed: transaction ID: c79329506b498cc4dba78ab8c578fad4c3552b295c6aa4a9ff7d95e4258ab246: tx creator does no"
+      "evidence": "failed: GET_STATE failed: transaction ID: 1bf8b93fd811bb2f5c04fa8509ad470ba23106f0a795d8c3699b0b2b791ba087: tx creator does no"
+    },
+    {
+      "task": "Task7",
+      "id": "PR11b",
+      "test": "Campaign documents cannot be submitted as plaintext arguments",
+      "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "chaincode response 500, campaign documents must not be passed as transaction arguments (they would be stored in the block); send them in the transient map under"
     },
     {
       "task": "Task7",
       "id": "PR11",
       "test": "Campaign private documents not readable by InvestorOrg",
       "expected": "InvestorOrg cannot read StartupPrivateData; documents not in blocks InvestorOrg receives nor in the published campaign record",
-      "observed": "private record read: denied; copy on InvestorOrg peer: FOUND; CreateCampaign block via InvestorOrg: not accessible (failed to get config for channel [governance-validation-channel]: could not get last config for channel governance-validation-); published record: CONTAINS document list; public state hits: StartupOrg:governance-validation-channel_governance ValidatorOrg:governance-validation-channel_governance PlatformOrg:governance-validation-channel_governance",
-      "result": "FAIL",
+      "observed": "private record read: denied; copy on InvestorOrg peer: none; CreateCampaign block via InvestorOrg: not accessible (failed to get config for channel [governance-validation-channel]: could not get last config for channel governance-validation-); published record: no documents; public state hits: StartupOrg:governance-validation-channel_governance ValidatorOrg:governance-validation-channel_governance PlatformOrg:governance-validation-channel_governance",
+      "result": "PASS",
       "evidence": "failed to get config for channel [governance-validation-channel]: could not get last config for channel governance-validation-"
     },
     {
