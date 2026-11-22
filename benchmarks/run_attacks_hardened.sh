@@ -19,7 +19,9 @@ grep -q 'if false && fromAccount' "$M/token_operations.go"
 (cd "$M" && CGO_ENABLED=0 go build -o ../../bin/crowdfunding_hardened_malicious .)
 
 # 1. hardened single channel
-CC_SUFFIX=_hardened TOKEN_BIN=crowdfunding_hardened ./network.sh up 1 1 single
+STAGES=${STAGES:-"single malicious dual"}
+if [[ " $STAGES " == *" single "* ]]; then
+HARDENED=1 CC_SUFFIX=_hardened TOKEN_BIN=crowdfunding_hardened ./network.sh up 1 1 single
 run single
 # 2. compromise StartupOrg's cftoken chaincode server
 PKG=$(cat work/net/pkgid_cftoken)
@@ -28,13 +30,16 @@ docker run -d --restart unless-stopped --name peer0startuporg-cftoken --hostname
   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID="$PKG" hyperledger/fabric-baseos:2.5 /bin-cc/crowdfunding_hardened_malicious >/dev/null
 sleep 3
 run malicious
+fi
 # 3. hardened dual channel (v3) with relay
+if [[ " $STAGES " == *" dual "* ]]; then
 rm -rf work/relay/*
-CC_SUFFIX=_v3 TOKEN_BIN=investment_v3 ./network.sh up 1 1 dual
+HARDENED=1 CC_SUFFIX=_v3 TOKEN_BIN=investment_v3 ./network.sh up 1 1 dual
 docker run -d --name relay --network cfnet -v "$PWD":/b -v "$PWD/work/net/crypto":/crypto:ro -e NODE_PATH=/b/loadgen/node_modules \
   node:22-slim node /b/bridge/relay.js '{"org":"PlatformOrg","stateDir":"/b/work/relay","statsFile":"/b/results/security_hardened/.relay.jsonl","batch":50}' >/dev/null
 sleep 5
 run dual
 docker rm -f relay >/dev/null 2>&1 || true
+fi
 ./network.sh down
 echo HARDENED_ATTACKS_DONE

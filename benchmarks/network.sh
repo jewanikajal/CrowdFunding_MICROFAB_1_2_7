@@ -35,14 +35,21 @@ all_channels(){ jq_py "print(' '.join(d['channels']))"; }
 peers_of()    { jq_py "print(' '.join(p['host'] for p in d['peers'] if p['org']=='$1'))"; }
 short_of()    { jq_py "print([p['short'] for p in d['peers'] if p['host']=='$1'][0])"; }
 cc_for()      { case "$1" in crowdfunding-channel) echo crowdfunding;; governance-validation-channel) echo governance;; investment-execution-channel) echo investment;; esac; }
-collections_for() { case "$1" in
+collections_for() {
+  if [ -n "${HARDENED:-}" ]; then case "$1" in   # hardened v3: PDC-consistent collection policies
+    governance) echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v3/collections_config_governance_hardened.json"; return;;
+    investment) echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v3/collections_config_investment_hardened.json"; return;;
+  esac; fi
+  case "$1" in
   crowdfunding) echo "$HERE/../CF_SingleChannel/crowdfundingv2/collections_config.json";;
   governance)   echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v2/collections_config_governance.json";;
   investment)   echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v2/collections_config_investment.json";;
   cftoken)      echo "";; esac; }
 policy_for() { case "$1" in
   crowdfunding) echo "${SINGLE_POLICY:-$SINGLE_POLICY_DEFAULT}";;
-  governance)   echo "AND('ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";;   # as in the paper / deploy_chaincode.sh
+  governance)   if [ -n "${HARDENED:-}" ]; then   # AND(Validator,Platform) cannot coexist with Startup-only PDC reads
+                  echo "OR('StartupOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')"
+                else echo "AND('ValidatorOrgMSP.peer','PlatformOrgMSP.peer')"; fi;;   # as in the paper / deploy_chaincode.sh
   investment)   echo "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";;
   cftoken)      echo "OutOf(2,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";; esac; }
 
