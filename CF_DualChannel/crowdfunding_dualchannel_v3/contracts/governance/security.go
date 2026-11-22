@@ -1,0 +1,250 @@
+package main
+
+// security.go — hardening layer added in response to the adversarial evaluation
+// (benchmarks/THREAT_MODEL.md, attacks A1–A15, P1–P3, M1). Shared verbatim by the
+// single-channel and dual-channel (v3) chaincodes.
+//
+//  1. roleGuard (BeforeTransaction hook): every state-changing function of
+//     <Org>Contract may only be invoked by a client of <Org>MSP; read-only functions
+//     (Get*/Is*/Calculate*) stay open and remain protected by PDC membership rules.
+//  2. Token functions are served ONLY by the separate "cftoken" chaincode namespace,
+//     which is deployed with an OutOf(2, 4 orgs) endorsement policy, so a single
+//     compromised organisation cannot forge balances (attack M1). Privileged token
+//     functions (mint, burn, freeze, rates, ...) are PlatformOrg-only.
+//  3. txNow: deterministic transaction timestamp (replaces txNow(ctx), whose value
+//     differs between endorsers and caused ENDORSEMENT_MISMATCH rejections).
+//  4. Identity helpers used for ownership checks (token accounts, investor IDs).
+
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/hyperledger/fabric-protos-go/peer"
+)
+
+const (
+	StartupMSP     = "StartupOrgMSP"
+	InvestorMSP    = "InvestorOrgMSP"
+	ValidatorMSP   = "ValidatorOrgMSP"
+	PlatformMSP    = "PlatformOrgMSP"
+	TokenNamespace = "cftoken"
+	// CustodyPlatform marks token accounts controlled by PlatformOrg (treasury,
+	// platform-created and implicitly created accounts).
+	CustodyPlatform = "PLATFORM_CUSTODY"
+)
+
+var contractRole = map[string]string{
+	"StartupContract":   StartupMSP,
+	"InvestorContract":  InvestorMSP,
+	"ValidatorContract": ValidatorMSP,
+	"PlatformContract":  PlatformMSP,
+}
+
+// privileged token operations: PlatformOrg only
+var tokenPlatformOnly = map[string]bool{
+	"InitTokenLedger": true, "IssueTokens": true, "CollectFeeTokens": true, "FreezeTokens": true,
+	"UnfreezeTokens": true, "InitializeToken": true, "SetExchangeRate": true, "PurchaseTokens": true,
+	"MintTokens": true, "BurnTokens": true, "DistributeRewards": true, "FreezePenaltyTokens": true,
+	"ExecutePenalty": true, "ApplyBlacklist": true, "InitializeMLRating": true, "UpdateMLRating": true,
+	"AddRewardBonus": true,
+}
+
+// token operations open to every org; each performs its own ownership check
+var tokenAnyOrg = map[string]bool{
+	"CreateTokenAccount": true, "TransferTokens": true, "RedeemRewardTokens": true,
+	"WithdrawToFiat": true, "CreateDisputeTicket": true,
+}
+
+func isReadOnly(method string) bool {
+	return strings.HasPrefix(method, "Get") || strings.HasPrefix(method, "Is") || strings.HasPrefix(method, "Calculate")
+}
+
+func callerMSP(ctx contractapi.TransactionContextInterface) (string, error) {
+	return ctx.GetClientIdentity().GetMSPID()
+}
+
+// callerID is the unique, endorser-independent identity of the submitting client.
+func callerID(ctx contractapi.TransactionContextInterface) (string, error) {
+	return ctx.GetClientIdentity().GetID()
+}
+
+func requireMSP(ctx contractapi.TransactionContextInterface, allowed ...string) error {
+	msp, err := callerMSP(ctx)
+	if err != nil {
+		return fmt.Errorf("access denied: cannot read caller MSP: %v", err)
+	}
+	for _, a := range allowed {
+		if msp == a {
+			return nil
+		}
+	}
+	return fmt.Errorf("access denied: caller %s is not authorised (requires %s)", msp, strings.Join(allowed, " or "))
+}
+
+// chaincodeName returns the namespace this invocation targets (from the signed proposal).
+func chaincodeName(stub shim.ChaincodeStubInterface) string {
+	sp, err := stub.GetSignedProposal()
+	if err != nil || sp == nil {
+		return ""
+	}
+	prop := &peer.Proposal{}
+	if proto.Unmarshal(sp.ProposalBytes, prop) != nil {
+		return ""
+	}
+	payload := &peer.ChaincodeProposalPayload{}
+	if proto.Unmarshal(prop.Payload, payload) != nil {
+		return ""
+	}
+	cis := &peer.ChaincodeInvocationSpec{}
+	if proto.Unmarshal(payload.Input, cis) != nil || cis.ChaincodeSpec == nil || cis.ChaincodeSpec.ChaincodeId == nil {
+		return ""
+	}
+	return cis.ChaincodeSpec.ChaincodeId.Name
+}
+
+// roleGuard is registered as BeforeTransaction on every contract.
+func roleGuard(ctx contractapi.TransactionContextInterface) error {
+	fn, _ := ctx.GetStub().GetFunctionAndParameters()
+	if strings.HasPrefix(fn, "org.hyperledger.fabric:") {
+		return nil // contract metadata
+	}
+	i := strings.Index(fn, ":")
+	if i < 0 {
+		return fmt.Errorf("access denied: use a fully-qualified function name (Contract:Function)")
+	}
+	contract, method := fn[:i], fn[i+1:]
+
+	ns := chaincodeName(ctx.GetStub())
+	if contract == "TokenContract" && ns != TokenNamespace {
+		return fmt.Errorf("access denied: token functions are served only by the %q chaincode (2-of-4 endorsement)", TokenNamespace)
+	}
+	if contract != "TokenContract" && ns == TokenNamespace {
+		return fmt.Errorf("access denied: the %q chaincode serves TokenContract only", TokenNamespace)
+	}
+	if isReadOnly(method) || contract == "DataBridgeContract" {
+		return nil // reads are protected by PDC membership; bridge calls verify their input
+	}
+	if contract == "TokenContract" {
+		if tokenPlatformOnly[method] {
+			return requireMSP(ctx, PlatformMSP)
+		}
+		if tokenAnyOrg[method] {
+			return nil
+		}
+		return fmt.Errorf("access denied: unknown token function %s", method)
+	}
+	if role, ok := contractRole[contract]; ok {
+		return requireMSP(ctx, role)
+	}
+	return fmt.Errorf("access denied: unknown contract %s", contract)
+}
+
+// txNow is the transaction's proposal timestamp: identical on every endorser.
+func txNow(ctx contractapi.TransactionContextInterface) time.Time {
+	ts, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil || ts == nil {
+		return time.Unix(0, 0).UTC()
+	}
+	return time.Unix(ts.Seconds, int64(ts.Nanos)).UTC()
+}
+
+// accountController returns the identity that may spend from a newly created account.
+func accountController(ctx contractapi.TransactionContextInterface) (string, error) {
+	msp, err := callerMSP(ctx)
+	if err != nil {
+		return "", err
+	}
+	if msp == PlatformMSP {
+		return CustodyPlatform, nil
+	}
+	return callerID(ctx)
+}
+
+// requireAccountControl: only the account's controller may debit it.
+func requireAccountControl(ctx contractapi.TransactionContextInterface, acct *TokenAccount) error {
+	msp, err := callerMSP(ctx)
+	if err != nil {
+		return err
+	}
+	controller := acct.Controller
+	if controller == "" {
+		controller = CustodyPlatform // legacy accounts are platform-custodied
+	}
+	if controller == CustodyPlatform {
+		if msp == PlatformMSP {
+			return nil
+		}
+		return fmt.Errorf("access denied: account %s is platform-custodied", acct.AccountID)
+	}
+	id, err := callerID(ctx)
+	if err != nil {
+		return err
+	}
+	if id != controller {
+		return fmt.Errorf("access denied: caller does not control account %s", acct.AccountID)
+	}
+	return nil
+}
+
+// KYC carries investor identity data. Hardening (attack P1): it must arrive in the transient
+// map under key "kyc" so it is never written to the block; the plaintext arguments must be empty.
+type KYC struct {
+	AnnualIncome float64 `json:"annualIncome"`
+	AadharNumber string  `json:"aadharNumber"`
+	PANNumber    string  `json:"panNumber"`
+}
+
+func readKYC(ctx contractapi.TransactionContextInterface, argIncome float64, argAadhar, argPAN string) (*KYC, error) {
+	if argIncome != 0 || argAadhar != "" || argPAN != "" {
+		return nil, fmt.Errorf("KYC data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"kyc\"")
+	}
+	tm, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read transient map: %v", err)
+	}
+	raw, ok := tm["kyc"]
+	if !ok {
+		return nil, fmt.Errorf("transient key \"kyc\" is required")
+	}
+	k := &KYC{}
+	if err := json.Unmarshal(raw, k); err != nil {
+		return nil, fmt.Errorf("invalid kyc transient data: %v", err)
+	}
+	return k, nil
+}
+
+// investor ownership: the client that registered an investor ID is the only one allowed to act for it
+func investorOwnerKey(investorID string) string { return "INVESTOR_OWNER_" + investorID }
+
+func requireInvestorOwner(ctx contractapi.TransactionContextInterface, investorID string) error {
+	owner, err := ctx.GetStub().GetState(investorOwnerKey(investorID))
+	if err != nil {
+		return err
+	}
+	if owner == nil {
+		return fmt.Errorf("investor %s is not registered", investorID)
+	}
+	id, err := callerID(ctx)
+	if err != nil {
+		return err
+	}
+	if string(owner) != id {
+		return fmt.Errorf("access denied: caller is not the registered owner of investor %s", investorID)
+	}
+	return nil
+}
+
+func isOpenCampaign(publicJSON []byte) bool {
+	var c struct {
+		Status string `json:"status"`
+	}
+	if json.Unmarshal(publicJSON, &c) != nil {
+		return false
+	}
+	return c.Status == "PUBLISHED" || c.Status == "ACTIVE"
+}

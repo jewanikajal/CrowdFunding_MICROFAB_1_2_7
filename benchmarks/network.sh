@@ -6,6 +6,8 @@
 #   ./network.sh down
 #
 #   CC_SUFFIX=_v3 ./network.sh up 1 1 dual                 # deploy the v3 (outbox/relay) dual-channel chaincodes
+#   CC_SUFFIX=_hardened TOKEN_BIN=crowdfunding_hardened ./network.sh up 1 1 single   # hardened single channel
+#   CC_SUFFIX=_v3 TOKEN_BIN=investment_v3 ./network.sh up 1 1 dual                  # hardened dual channel (v3)
 #
 # Everything (peers, CouchDBs, Raft orderers, chaincode servers, the CLI and the load generator)
 # runs as containers on one Docker host, the same single-host model as Microfab.
@@ -36,11 +38,13 @@ cc_for()      { case "$1" in crowdfunding-channel) echo crowdfunding;; governanc
 collections_for() { case "$1" in
   crowdfunding) echo "$HERE/../CF_SingleChannel/crowdfundingv2/collections_config.json";;
   governance)   echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v2/collections_config_governance.json";;
-  investment)   echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v2/collections_config_investment.json";; esac; }
+  investment)   echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v2/collections_config_investment.json";;
+  cftoken)      echo "";; esac; }
 policy_for() { case "$1" in
   crowdfunding) echo "${SINGLE_POLICY:-$SINGLE_POLICY_DEFAULT}";;
   governance)   echo "AND('ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";;   # as in the paper / deploy_chaincode.sh
-  investment)   echo "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";; esac; }
+  investment)   echo "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";;
+  cftoken)      echo "OutOf(2,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')";; esac; }
 
 down() {
   docker ps -aq --filter network=cfnet | xargs -r docker rm -f >/dev/null 2>&1 || true
@@ -51,19 +55,20 @@ down() {
 
 approve_commit() { # cc channel sequence policy
   local cc=$1 ch=$2 seq=$3 pol=$4 pkg; pkg=$(cat "$NET/pkgid_$cc")
-  cp "$(collections_for "$cc")" "$NET/coll_$cc.json"
+  local coll=(); local cf; cf=$(collections_for "$cc")
+  if [ -n "$cf" ]; then cp "$cf" "$NET/coll_$cc.json"; coll=(--collections-config "/w/coll_$cc.json"); fi
   local o; local peerargs=()
   for o in $(orgs_of "$ch"); do
     local d; d=$(dom "$o")
     cli "$o" "peer0.$d" peer lifecycle chaincode approveformyorg -o orderer0.example.com:7050 --tls --cafile $ORDERER_CA \
       --channelID "$ch" --name "$cc" --version 1.0 --package-id "$pkg" --sequence "$seq" \
-      --signature-policy "$pol" --collections-config "/w/coll_$cc.json" >/dev/null 2>&1
+      --signature-policy "$pol" "${coll[@]}" >/dev/null 2>&1
     peerargs+=(--peerAddresses "peer0.$d:7051" --tlsRootCertFiles "/w/crypto/peerOrganizations/$d/peers/peer0.$d/tls/ca.crt")
   done
   local first; first=$(orgs_of "$ch" | awk '{print $1}')
   cli "$first" "peer0.$(dom "$first")" peer lifecycle chaincode commit -o orderer0.example.com:7050 --tls --cafile $ORDERER_CA \
     --channelID "$ch" --name "$cc" --version 1.0 --sequence "$seq" \
-    --signature-policy "$pol" --collections-config "/w/coll_$cc.json" "${peerargs[@]}" >/dev/null 2>&1
+    --signature-policy "$pol" "${coll[@]}" "${peerargs[@]}" >/dev/null 2>&1
   echo "$seq" > "$NET/seq_$cc"; echo "$pol" > "$NET/policy_$cc"; echo "  committed $cc seq=$seq policy=$pol"
 }
 
@@ -94,34 +99,46 @@ up() {
   sleep 3; seed
 }
 
+deploy_cc() { # channel chaincode-name binary
+  local ch=$1 cc=$2 bin=$3
+  # ---- CCaaS package (connection.json is templated per peer by the ccaas builder)
+  local pk="$NET/pkg_$cc"; mkdir -p "$pk"
+  printf '{"address":"{{.peername}}-%s:9999","dial_timeout":"10s","tls_required":false}' "$cc" > "$pk/connection.json"
+  printf '{"type":"ccaas","label":"%s_1.0"}' "$cc" > "$pk/metadata.json"
+  (cd "$pk" && tar czf code.tar.gz connection.json && tar czf "$NET/$cc.tgz" metadata.json code.tar.gz)
+  local pkg; pkg=$(docker exec cfcli peer lifecycle chaincode calculatepackageid "/w/$cc.tgz")
+  echo "$pkg" > "$NET/pkgid_$cc"; echo "$bin" > "$NET/bin_$cc"
+  local o h
+  for o in $(orgs_of "$ch"); do for h in $(peers_of "$o"); do
+    local s; s=$(short_of "$h")
+    docker run -d --restart unless-stopped --name "$s-$cc" --hostname "$s-$cc" --network cfnet -v "$HERE/work/bin":/bin-cc:ro \
+      -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID="$pkg" "hyperledger/fabric-baseos:$TAG" "/bin-cc/$bin" >/dev/null
+    cli "$o" "$h" peer lifecycle chaincode install "/w/$cc.tgz" >/dev/null 2>&1 || true
+  done; done
+  approve_commit "$cc" "$ch" 1 "$(policy_for "$cc")"
+}
+
+# Hardened mode: TOKEN_BIN=<binary> additionally deploys the token ledger as its own
+# chaincode "cftoken" with an OutOf(2,4) endorsement policy (CC_SUFFIX selects main binaries).
 deploy() {
   local ch cc
   for ch in $(all_channels); do
-    cc=$(cc_for "$ch")
-    # ---- CCaaS package (connection.json is templated per peer by the ccaas builder)
-    local pk="$NET/pkg_$cc"; mkdir -p "$pk"
-    printf '{"address":"{{.peername}}-%s:9999","dial_timeout":"10s","tls_required":false}' "$cc" > "$pk/connection.json"
-    printf '{"type":"ccaas","label":"%s_1.0"}' "$cc" > "$pk/metadata.json"
-    (cd "$pk" && tar czf code.tar.gz connection.json && tar czf "$NET/$cc.tgz" metadata.json code.tar.gz)
-    local pkg; pkg=$(docker exec cfcli peer lifecycle chaincode calculatepackageid "/w/$cc.tgz")
-    echo "$pkg" > "$NET/pkgid_$cc"
-    local o h
-    for o in $(orgs_of "$ch"); do for h in $(peers_of "$o"); do
-      local s; s=$(short_of "$h")
-      docker run -d --restart unless-stopped --name "$s-$cc" --hostname "$s-$cc" --network cfnet -v "$HERE/work/bin":/bin-cc:ro \
-        -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID="$pkg" "hyperledger/fabric-baseos:$TAG" "/bin-cc/$cc${CC_SUFFIX:-}" >/dev/null
-      cli "$o" "$h" peer lifecycle chaincode install "/w/$cc.tgz" >/dev/null 2>&1 || true
-    done; done
-    approve_commit "$cc" "$ch" 1 "$(policy_for "$cc")"
+    cc=$(cc_for "$ch"); deploy_cc "$ch" "$cc" "$cc${CC_SUFFIX:-}"
   done
+  if [ -n "${TOKEN_BIN:-}" ]; then
+    local tch=crowdfunding-channel; [ -f "$NET/pkgid_investment" ] && tch=investment-execution-channel
+    deploy_cc "$tch" cftoken "$TOKEN_BIN"
+  fi
 }
 
 seed() { # create ACC_SEED for the read-only query workload
-  local ch=crowdfunding-channel cc=crowdfunding
+  local ch=crowdfunding-channel cc=crowdfunding extra=()
   [ -f "$NET/pkgid_investment" ] && ch=investment-execution-channel && cc=investment
+  if [ -f "$NET/pkgid_cftoken" ]; then cc=cftoken   # hardened: token ledger needs 2 endorsing orgs
+    extra=(--peerAddresses peer0.investororg.example.com:7051 --tlsRootCertFiles /w/crypto/peerOrganizations/investororg.example.com/peers/peer0.investororg.example.com/tls/ca.crt); fi
   cli PlatformOrg peer0.platformorg.example.com peer chaincode invoke -o orderer0.example.com:7050 --tls --cafile $ORDERER_CA \
     -C "$ch" -n "$cc" --peerAddresses peer0.platformorg.example.com:7051 \
-    --tlsRootCertFiles /w/crypto/peerOrganizations/platformorg.example.com/peers/peer0.platformorg.example.com/tls/ca.crt \
+    --tlsRootCertFiles /w/crypto/peerOrganizations/platformorg.example.com/peers/peer0.platformorg.example.com/tls/ca.crt "${extra[@]}" \
     --waitForEvent -c '{"function":"TokenContract:CreateTokenAccount","Args":["ACC_SEED","seed","USER","{}"]}' >/dev/null 2>&1
   echo "  seeded ACC_SEED on $ch"
 }

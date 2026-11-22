@@ -205,12 +205,19 @@ func (i *InvestorContract) RegisterInvestor(
 		return fmt.Errorf("investor %s already exists", investorID)
 	}
 
+	// Hardening (P1): KYC comes from the transient map, never from the (block-recorded) arguments
+	kyc, err := readKYC(ctx, annualIncome, aadharNumber, panNumber)
+	if err != nil {
+		return err
+	}
+	annualIncome, aadharNumber, panNumber = kyc.AnnualIncome, kyc.AadharNumber, kyc.PANNumber
+
 	// SEBI Accredited Investor Check
 	if annualIncome < MinInvestorIncome {
 		return fmt.Errorf("investor annual income %.2f below SEBI minimum threshold %.2f", annualIncome, MinInvestorIncome)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// 1. Public State: Name
 	publicProfile := InvestorProfilePublic{
@@ -222,6 +229,14 @@ func (i *InvestorContract) RegisterInvestor(
 	err = ctx.GetStub().PutState("INVESTOR_PUB_"+investorID, pubBytes)
 	if err != nil {
 		return fmt.Errorf("failed to store public profile: %v", err)
+	}
+	// Hardening (A4/A6): bind the investor ID to the registering client identity
+	ownerID, err := callerID(ctx)
+	if err != nil {
+		return err
+	}
+	if err := ctx.GetStub().PutState(investorOwnerKey(investorID), []byte(ownerID)); err != nil {
+		return err
 	}
 
 	// 2. Private State (InvestorPrivateCollection): Annual Income & Aadhar
@@ -275,7 +290,7 @@ func (i *InvestorContract) ViewCampaign(
 		return nil, fmt.Errorf("failed to unmarshal campaign: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create campaign view
 	projectName, _ := publicInfo["projectName"].(string)
@@ -344,7 +359,7 @@ func (i *InvestorContract) ViewCampaignDetails(
 		return nil, fmt.Errorf("failed to unmarshal campaign: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create campaign view
 	projectName, _ := publicInfo["projectName"].(string)
@@ -489,8 +504,16 @@ func (i *InvestorContract) MakeInvestment(
 	if amount <= 0 {
 		return fmt.Errorf("investment amount must be positive, requested: %f", amount)
 	}
+	// Hardening (A5/A6): investor registered by the caller; campaign published and bridged to this channel
+	if err := requireInvestorOwner(ctx, investorID); err != nil {
+		return err
+	}
+	pub, err := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID)
+	if err != nil || pub == nil || !isOpenCampaign(pub) {
+		return fmt.Errorf("campaign %s is not published/open for investment", campaignID)
+	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Check for duplicate investment ID
 	existingInvJSON, _ := CrossChannelGet(ctx, StartupInvestorCollection, "INVESTMENT_"+investmentID)
@@ -551,7 +574,7 @@ func (i *InvestorContract) WithdrawInvestment(
 		return fmt.Errorf("investment cannot be withdrawn in current status")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	investment.Status = "WITHDRAWN"
 	investment.WithdrawnAt = timestamp
 
@@ -615,7 +638,7 @@ func (i *InvestorContract) CreateInvestmentProposal(
 		return fmt.Errorf("campaign must be PUBLISHED to accept investments. Current status: %v", status)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Construct terms from equity and duration if separate fields aren't in struct
 	fullTerms := fmt.Sprintf("Equity: %s, Duration: %s. %s", equity, duration, proposedTerms)
@@ -682,7 +705,7 @@ func (i *InvestorContract) RespondToCounterOffer(
 		return fmt.Errorf("failed to unmarshal proposal: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	if action == "ACCEPT" {
 		proposal.Status = "ACCEPTED"
@@ -741,7 +764,7 @@ func (i *InvestorContract) AcceptAgreement(
 		return fmt.Errorf("failed to unmarshal agreement: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	agreement["investorAccepted"] = true
 	agreement["acceptedAt"] = timestamp
 	agreement["status"] = "ACCEPTED"
@@ -781,7 +804,7 @@ func (i *InvestorContract) ConfirmFundingCommitment(
 		json.Unmarshal([]byte(milestonesJSON), &milestones)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	commitment := FundingCommitment{
 		CommitmentID: commitmentID,
@@ -825,7 +848,7 @@ func (i *InvestorContract) ConfirmInvestmentToPlatform(
 	currency string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	confirmation := InvestmentConfirmation{
 		ConfirmationID: confirmationID,
@@ -868,7 +891,7 @@ func (i *InvestorContract) VerifyMilestone(
 	feedback string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	verification := MilestoneVerification{
 		VerificationID: verificationID,
@@ -907,7 +930,7 @@ func (i *InvestorContract) RequestRiskInsights(
 	investorID string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	request := RiskInsightRequest{
 		RequestID:   requestID,
@@ -944,7 +967,7 @@ func (i *InvestorContract) RecordRiskInsightResponse(
 	recommendation string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	response := RiskInsightResponse{
 		ResponseID:     responseID,
@@ -992,7 +1015,7 @@ func (i *InvestorContract) RequestValidationDetails(
 	investorID string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create validation request
 	request := map[string]interface{}{
@@ -1096,7 +1119,7 @@ func (i *InvestorContract) ReceiveCampaignNotification(
 	goalAmount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	notification := map[string]interface{}{
 		"notificationId": notificationID,
@@ -1136,7 +1159,7 @@ func (i *InvestorContract) SubmitDispute(
 	var evidenceHashes []string
 	json.Unmarshal([]byte(evidenceHashesJSON), &evidenceHashes)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	submissionID := fmt.Sprintf("DISPUTE_SUB_%s", disputeID)
 
 	dispute := InvestorDisputeSubmission{
@@ -1181,7 +1204,7 @@ func (i *InvestorContract) SubmitDisputeEvidence(
 	var evidenceHashes []string
 	json.Unmarshal([]byte(evidenceHashesJSON), &evidenceHashes)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	evidence := map[string]interface{}{
 		"disputeId":           disputeID,
@@ -1213,7 +1236,7 @@ func (i *InvestorContract) RespondToDispute(
 	var counterEvidenceHashes []string
 	json.Unmarshal([]byte(counterEvidenceHashesJSON), &counterEvidenceHashes)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	response := map[string]interface{}{
 		"disputeId":             disputeID,
@@ -1251,7 +1274,7 @@ func (i *InvestorContract) RequestRefund(
 	deductionPercent float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	expectedRefund := originalAmount - (originalAmount * deductionPercent / 100)
 
 	refund := RefundRequest{
@@ -1458,7 +1481,7 @@ func (i *InvestorContract) PublishInvestmentSummary(
 	investorCount int,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	summaryData := fmt.Sprintf("%s|%s|%d", summaryID, campaignID, investorCount)
 	hash := sha256.Sum256([]byte(summaryData))
 	summaryHash := hex.EncodeToString(hash[:])
@@ -1538,7 +1561,7 @@ func (i *InvestorContract) RecordInvestmentFee(
 	transactionHash string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := InvestorFeeRecord{
 		RecordID:        recordID,

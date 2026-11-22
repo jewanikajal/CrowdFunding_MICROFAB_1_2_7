@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -79,6 +78,8 @@ type TokenAccount struct {
 	FrozenAmount map[string]float64 `json:"frozenAmount"`
 	CreatedAt    string             `json:"createdAt"`
 	UpdatedAt    string             `json:"updatedAt"`
+	// Controller: client identity allowed to debit this account, or PLATFORM_CUSTODY (hardening)
+	Controller string `json:"controller,omitempty"`
 }
 
 // TokenTransfer represents a token transfer transaction
@@ -124,7 +125,7 @@ func (t *TokenContract) CreateTokenAccount(
 		return fmt.Errorf("token account %s already exists", accountID)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Parse initial balances
 	var initialBalance map[string]float64
@@ -139,6 +140,19 @@ func (t *TokenContract) CreateTokenAccount(
 		initialBalance[TokenTypeFee] = 0
 	}
 
+	// Hardening (attack A2): only PlatformOrg may open an account with a non-zero balance
+	for tt, v := range initialBalance {
+		if v != 0 {
+			if err := requireMSP(ctx, PlatformMSP); err != nil {
+				return fmt.Errorf("non-zero opening balance for %s: %v", tt, err)
+			}
+		}
+	}
+	controller, err := accountController(ctx)
+	if err != nil {
+		return err
+	}
+
 	account := TokenAccount{
 		AccountID:    accountID,
 		Owner:        owner,
@@ -147,6 +161,7 @@ func (t *TokenContract) CreateTokenAccount(
 		FrozenAmount: make(map[string]float64),
 		CreatedAt:    timestamp,
 		UpdatedAt:    timestamp,
+		Controller:   controller,
 	}
 
 	accountJSON, err := json.Marshal(account)
@@ -182,13 +197,6 @@ func (t *TokenContract) GetTokenAccount(
 		return nil, fmt.Errorf("failed to unmarshal token account: %v", err)
 	}
 
-	if account.Balances == nil {
-		account.Balances = make(map[string]float64)
-	}
-	if account.FrozenAmount == nil {
-		account.FrozenAmount = make(map[string]float64)
-	}
-
 	return &account, nil
 }
 
@@ -212,7 +220,7 @@ func (t *TokenContract) IssueTokens(
 		return fmt.Errorf("amount must be positive")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create token record
 	token := Token{
@@ -241,17 +249,8 @@ func (t *TokenContract) IssueTokens(
 	// Credit recipient's account
 	account, err := t.GetTokenAccount(ctx, recipient)
 	if err != nil {
-		// Create account if it doesn't exist
-		err = t.CreateTokenAccount(ctx, recipient, recipient, "USER", "{}")
-		if err != nil {
-			return fmt.Errorf("failed to create account: %v", err)
-		}
-		account = &TokenAccount{
-			AccountID: recipient,
-			Owner:     recipient,
-			Balances:     make(map[string]float64),
-			FrozenAmount: make(map[string]float64),
-		}
+		// hardening (A15): build the new account in memory instead of re-reading an uncommitted write
+		account = newCustodialAccount(ctx, recipient)
 	}
 
 	if account.Balances == nil {
@@ -268,13 +267,36 @@ func (t *TokenContract) IssueTokens(
 
 	return nil
 }
+// TransferTokens (hardened): only the controller of the sender account may move its funds.
+// Platform fee collection uses the internal transferTokens (PlatformOrg-only via CollectFeeTokens).
+func (t *TokenContract) TransferTokens(
+	ctx contractapi.TransactionContextInterface,
+	transferID string,
+	tokenType string,
+	from string,
+	to string,
+	amount float64,
+	currency string,
+	purpose string,
+	campaignID string,
+) error {
+	fromAccount, err := t.GetTokenAccount(ctx, from)
+	if err != nil {
+		return fmt.Errorf("sender account not found: %v", err)
+	}
+	if err := requireAccountControl(ctx, fromAccount); err != nil {
+		return err
+	}
+	return t.transferTokens(ctx, transferID, tokenType, from, to, amount, currency, purpose, campaignID)
+}
+
 
 // ============================================================================
 // TOKEN TRANSFER
 // ============================================================================
 
 // TransferTokens transfers tokens between accounts
-func (t *TokenContract) TransferTokens(
+func (t *TokenContract) transferTokens(
 	ctx contractapi.TransactionContextInterface,
 	transferID string,
 	tokenType string,
@@ -290,28 +312,7 @@ func (t *TokenContract) TransferTokens(
 		return fmt.Errorf("amount must be positive")
 	}
 
-	// =========================================================================
-	// SECURITY: Ensure caller is authorized to spend from the 'from' account
-	// =========================================================================
-	callerMSP, err := ctx.GetClientIdentity().GetMSPID()
-	if err != nil {
-		return fmt.Errorf("failed to get caller MSP: %v", err)
-	}
-	
-	if from == "PLATFORM" && callerMSP != "PlatformOrgMSP" {
-		return fmt.Errorf("unauthorized: only PlatformOrg can transfer from PLATFORM account")
-	}
-	if from != "PLATFORM" && strings.HasPrefix(from, "INV_") && callerMSP != "InvestorOrgMSP" {
-		return fmt.Errorf("unauthorized: only InvestorOrg can transfer from investor accounts")
-	}
-	if from != "PLATFORM" && strings.HasPrefix(from, "STARTUP") && callerMSP != "StartupOrgMSP" {
-		return fmt.Errorf("unauthorized: only StartupOrg can transfer from startup accounts")
-	}
-	if from != "PLATFORM" && strings.HasPrefix(from, "VALIDATOR") && callerMSP != "ValidatorOrgMSP" {
-		return fmt.Errorf("unauthorized: only ValidatorOrg can transfer from validator accounts")
-	}
-
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get sender account
 	fromAccount, err := t.GetTokenAccount(ctx, from)
@@ -328,16 +329,8 @@ func (t *TokenContract) TransferTokens(
 	// Get or create recipient account
 	toAccount, err := t.GetTokenAccount(ctx, to)
 	if err != nil {
-		err = t.CreateTokenAccount(ctx, to, to, "USER", "{}")
-		if err != nil {
-			return fmt.Errorf("failed to create recipient account: %v", err)
-		}
-		toAccount = &TokenAccount{
-			AccountID: to,
-			Owner:     to,
-			Balances:     make(map[string]float64),
-			FrozenAmount: make(map[string]float64),
-		}
+		// hardening (A15): build the new account in memory instead of re-reading an uncommitted write
+		toAccount = newCustodialAccount(ctx, to)
 	}
 
 	// Perform transfer
@@ -393,12 +386,12 @@ func (t *TokenContract) CollectFeeTokens(
 ) error {
 
 	feeAmount := (campaignAmount * feePercent) / 100
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Transfer fee tokens from startup to platform
 	transferID := fmt.Sprintf("FEE_TRANSFER_%s_%s", campaignID, timestamp)
 	
-	err := t.TransferTokens(
+	err := t.transferTokens(
 		ctx,
 		transferID,
 		TokenTypeFee,
@@ -455,7 +448,7 @@ func (t *TokenContract) FreezeTokens(
 		return fmt.Errorf("insufficient balance to freeze")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Move from balance to frozen
 	account.Balances[tokenType] -= amount
@@ -499,7 +492,7 @@ func (t *TokenContract) UnfreezeTokens(
 		return fmt.Errorf("insufficient frozen amount")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Move from frozen to balance
 	account.FrozenAmount[tokenType] -= amount
@@ -589,7 +582,7 @@ func (t *TokenContract) InitializeToken(
 		return fmt.Errorf("token %s already initialized", tokenType)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	metadata := TokenMetadata{
 		TokenType:   tokenType,
@@ -615,16 +608,10 @@ func (t *TokenContract) InitializeToken(
 
 	// Create Platform account with initial supply if > 0
 	if initialSupply > 0 {
-		err = t.CreateTokenAccount(ctx, PlatformAccountID, PlatformAccountID, "PLATFORM", "{}")
-		if err != nil {
-			// Account may already exist, continue
-		}
-		account := &TokenAccount{
-			AccountID: PlatformAccountID,
-			Owner:     PlatformAccountID,
-			OwnerType: "PLATFORM",
-			Balances:     make(map[string]float64),
-			FrozenAmount: make(map[string]float64),
+		account, gerr := t.GetTokenAccount(ctx, PlatformAccountID)
+		if gerr != nil {
+			account = newCustodialAccount(ctx, PlatformAccountID) // hardening (A15)
+			account.OwnerType = "PLATFORM"
 		}
 		if account != nil {
 			if account.Balances == nil {
@@ -678,7 +665,7 @@ func (t *TokenContract) SetExchangeRate(
 		return fmt.Errorf("rate must be positive")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	exchangeRate := ExchangeRate{
 		Currency:  currency,
@@ -756,21 +743,13 @@ func (t *TokenContract) PurchaseTokens(
 	// Calculate CFT amount
 	cftAmount := fiatAmount * rate
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get or create account
 	account, err := t.GetTokenAccount(ctx, accountID)
 	if err != nil {
-		err = t.CreateTokenAccount(ctx, accountID, accountID, "USER", "{}")
-		if err != nil {
-			return fmt.Errorf("failed to create account: %v", err)
-		}
-		account = &TokenAccount{
-			AccountID: accountID,
-			Owner:     accountID,
-			Balances:     make(map[string]float64),
-			FrozenAmount: make(map[string]float64),
-		}
+		// hardening (A15): build the new account in memory instead of re-reading an uncommitted write
+		account = newCustodialAccount(ctx, accountID)
 	}
 
 	if account.Balances == nil {
@@ -825,21 +804,13 @@ func (t *TokenContract) MintTokens(
 		return fmt.Errorf("amount must be positive")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get or create recipient account
 	account, err := t.GetTokenAccount(ctx, recipient)
 	if err != nil {
-		err = t.CreateTokenAccount(ctx, recipient, recipient, "USER", "{}")
-		if err != nil {
-			return fmt.Errorf("failed to create account: %v", err)
-		}
-		account = &TokenAccount{
-			AccountID: recipient,
-			Owner:     recipient,
-			Balances:     make(map[string]float64),
-			FrozenAmount: make(map[string]float64),
-		}
+		// hardening (A15): build the new account in memory instead of re-reading an uncommitted write
+		account = newCustodialAccount(ctx, recipient)
 	}
 
 	if account.Balances == nil {
@@ -892,7 +863,7 @@ func (t *TokenContract) BurnTokens(
 		return fmt.Errorf("insufficient balance to burn")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	account.Balances[tokenType] -= amount
 	account.UpdatedAt = timestamp
@@ -929,7 +900,7 @@ func (t *TokenContract) DistributeRewards(
 		return fmt.Errorf("amount must be positive")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Mint CFRT to recipient
 	err := t.MintTokens(ctx, TokenTypeCFRT, recipient, amount)
@@ -966,6 +937,10 @@ func (t *TokenContract) RedeemRewardTokens(
 	if err != nil {
 		return fmt.Errorf("account not found: %v", err)
 	}
+	// hardening (A4): only the account controller may debit it
+	if err := requireAccountControl(ctx, account); err != nil {
+		return err
+	}
 
 	if account.Balances[TokenTypeCFRT] < cfrtAmount {
 		return fmt.Errorf("insufficient CFRT balance. Available: %.2f, Required: %.2f",
@@ -975,7 +950,7 @@ func (t *TokenContract) RedeemRewardTokens(
 	// Calculate CFT to credit
 	cftAmount := cfrtAmount * DefaultCFRTtoCFT
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Deduct CFRT, credit CFT
 	account.Balances[TokenTypeCFRT] -= cfrtAmount
@@ -1019,6 +994,10 @@ func (t *TokenContract) WithdrawToFiat(
 	if err != nil {
 		return 0, fmt.Errorf("account not found: %v", err)
 	}
+	// hardening (A4): only the account controller may debit it
+	if err := requireAccountControl(ctx, account); err != nil {
+		return 0, err
+	}
 
 	if account.Balances[TokenTypeCFT] < cftAmount {
 		return 0, fmt.Errorf("insufficient CFT balance")
@@ -1037,7 +1016,7 @@ func (t *TokenContract) WithdrawToFiat(
 	withdrawalFee := fiatAmount * 0.01
 	netFiatAmount := fiatAmount - withdrawalFee
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Deduct CFT from account
 	account.Balances[TokenTypeCFT] -= cftAmount
@@ -1147,7 +1126,7 @@ func (t *TokenContract) CreateDisputeTicket(
 		json.Unmarshal([]byte(evidenceHashesJSON), &evidenceHashes)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	ticket := DisputeTicket{
 		TicketID:        ticketID,
@@ -1221,7 +1200,7 @@ func (t *TokenContract) FreezePenaltyTokens(
 			account.Balances[TokenTypeCFT], freezeAmount)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Move from balance to frozen
 	account.Balances[TokenTypeCFT] -= freezeAmount
@@ -1274,7 +1253,7 @@ func (t *TokenContract) ExecutePenalty(
 		return fmt.Errorf("penalty + refund exceeds frozen amount")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get respondent account
 	respondentAccount, err := t.GetTokenAccount(ctx, ticket.RespondentID)
@@ -1303,8 +1282,7 @@ func (t *TokenContract) ExecutePenalty(
 				AccountID: PlatformAccountID,
 				Owner:     PlatformAccountID,
 				OwnerType: "PLATFORM",
-				Balances:     make(map[string]float64),
-				FrozenAmount: make(map[string]float64),
+				Balances:  make(map[string]float64),
 				CreatedAt: timestamp,
 			}
 		}
@@ -1354,7 +1332,7 @@ func (t *TokenContract) ApplyBlacklist(
 	reason string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get or create ML rating
 	rating, _ := t.GetMLRating(ctx, userID)
@@ -1419,7 +1397,7 @@ func (t *TokenContract) InitializeMLRating(
 		return fmt.Errorf("ML rating already exists for user: %s", userID)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	rating := MLRating{
 		UserID:          userID,
@@ -1477,7 +1455,7 @@ func (t *TokenContract) updateMLRatingInternal(
 	isDisputeWinner bool,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get or create rating
 	rating, _ := t.GetMLRating(ctx, userID)
@@ -1550,7 +1528,7 @@ func (t *TokenContract) AddRewardBonus(
 	reason string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get rating
 	rating, _ := t.GetMLRating(ctx, userID)
@@ -1627,3 +1605,11 @@ func (t *TokenContract) GetPenaltySchedule(
 }
 
 
+
+// newCustodialAccount returns an unsaved, platform-custodied account (hardening, A15).
+func newCustodialAccount(ctx contractapi.TransactionContextInterface, accountID string) *TokenAccount {
+	ts := txNow(ctx).Format(time.RFC3339)
+	return &TokenAccount{AccountID: accountID, Owner: accountID, OwnerType: "USER",
+		Balances: map[string]float64{}, FrozenAmount: map[string]float64{},
+		CreatedAt: ts, UpdatedAt: ts, Controller: CustodyPlatform}
+}

@@ -10,14 +10,20 @@ import (
 // Combined INVESTMENT chaincode for investment-execution-channel.
 // Orgs: StartupOrg, ValidatorOrg, InvestorOrg, PlatformOrg.
 func main() {
-	cc, err := contractapi.NewChaincode(
-		&DataBridgeContract{},
-		&StartupContract{},
-		&InvestorContract{},
-		&ValidatorContract{},
-		&PlatformContract{},
-		&TokenContract{},
-	)
+	// Hardened: roleGuard runs before every transaction (security.go)
+	dataBridgeContract := &DataBridgeContract{}
+	dataBridgeContract.BeforeTransaction = roleGuard
+	startupContract := &StartupContract{}
+	startupContract.BeforeTransaction = roleGuard
+	investorContract := &InvestorContract{}
+	investorContract.BeforeTransaction = roleGuard
+	validatorContract := &ValidatorContract{}
+	validatorContract.BeforeTransaction = roleGuard
+	platformContract := &PlatformContract{}
+	platformContract.BeforeTransaction = roleGuard
+	tokenContract := &TokenContract{}
+	tokenContract.BeforeTransaction = roleGuard
+	cc, err := contractapi.NewChaincode(dataBridgeContract, startupContract, investorContract, validatorContract, platformContract, tokenContract)
 	if err != nil {
 		log.Panicf("Error creating investment chaincode: %v", err)
 	}

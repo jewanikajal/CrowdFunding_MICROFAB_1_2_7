@@ -227,7 +227,7 @@ func (v *ValidatorContract) ValidateCampaign(
 		json.Unmarshal([]byte(documentsReviewedJSON), &documentsReviewed)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create validation record
 	validation := ValidationRecord{
@@ -314,7 +314,7 @@ func (v *ValidatorContract) ApproveOrRejectCampaign(
 		json.Unmarshal([]byte(issuesJSON), &issues)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Update validation
 	validation.Status = status
@@ -487,7 +487,7 @@ func (v *ValidatorContract) VerifyMilestoneCompletion(
 	approved bool,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	verification := MilestoneValidation{
 		VerificationID:       verificationID,
@@ -587,7 +587,7 @@ func (v *ValidatorContract) AssignRiskScore(
 		json.Unmarshal([]byte(riskFactorsJSON), &riskFactors)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	insight := RiskInsight{
 		InsightID:      insightID,
@@ -647,7 +647,7 @@ func (v *ValidatorContract) SendValidationReportToPlatform(
 	reportSummary string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Generate report hash
 	reportData := fmt.Sprintf("%s|%s|%.2f|%v", reportID, campaignID, overallScore, approved)
@@ -696,7 +696,7 @@ func (v *ValidatorContract) WitnessAgreement(
 	validatorComments string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	witness := AgreementWitness{
 		WitnessID:         witnessID,
@@ -749,7 +749,7 @@ func (v *ValidatorContract) ProvideValidationDetailsToInvestor(
 		return fmt.Errorf("failed to unmarshal validation approval: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Create response with validation details
 	response := map[string]interface{}{
@@ -787,7 +787,7 @@ func (v *ValidatorContract) ConfirmCampaignCompletion(
 	completionNotes string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	completion := map[string]interface{}{
 		"campaignId":      campaignID,
@@ -816,7 +816,7 @@ func (v *ValidatorContract) PublishValidationProof(
 	status string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	proof := ValidationProof{
 		ProofID:             proofID,
@@ -855,7 +855,7 @@ func (v *ValidatorContract) AcceptDisputeInvestigation(
 	disputeType string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	investigation := DisputeInvestigation{
 		InvestigationID:    investigationID,
@@ -910,7 +910,7 @@ func (v *ValidatorContract) RecordInvestigationFinding(
 	var investigation DisputeInvestigation
 	json.Unmarshal(investigationJSON, &investigation)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	finding := InvestigationFinding{
 		FindingID:       findingID,
@@ -950,7 +950,7 @@ func (v *ValidatorContract) CompleteInvestigation(
 	var investigation DisputeInvestigation
 	json.Unmarshal(investigationJSON, &investigation)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	investigation.Status = "COMPLETED"
 	investigation.Recommendation = recommendation
@@ -983,7 +983,7 @@ func (v *ValidatorContract) InvestigateMilestoneDispute(
 	comments string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	milestoneInvestigation := MilestoneInvestigation{
 		InvestigationID:    investigationID,
@@ -1031,7 +1031,7 @@ func (v *ValidatorContract) RespondToDispute(
 		json.Unmarshal([]byte(supportingDocsJSON), &supportingDocs)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	response := ValidatorDisputeResponse{
 		ResponseID:     responseID,
@@ -1349,7 +1349,7 @@ func (v *ValidatorContract) RecordValidationFeeReceived(
 	transactionHash string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := ValidatorFeeRecord{
 		RecordID:        recordID,

@@ -13,8 +13,9 @@ build() { # name srcdir
   echo "built $1"
 }
 build crowdfunding "$ROOT/CF_SingleChannel/crowdfundingv2/contracts"
+build crowdfunding_hardened "$ROOT/CF_SingleChannel/crowdfundingv2_hardened/contracts"
 build governance   "$ROOT/CF_DualChannel/crowdfunding_dualchannel_v2/contracts/governance"
 build investment   "$ROOT/CF_DualChannel/crowdfunding_dualchannel_v2/contracts/investment"
-# v3: verifiable outbox + relay cross-channel synchronisation
+# v3: verifiable outbox + relay cross-channel synchronisation + security hardening
 build governance_v3 "$ROOT/CF_DualChannel/crowdfunding_dualchannel_v3/contracts/governance"
 build investment_v3 "$ROOT/CF_DualChannel/crowdfunding_dualchannel_v3/contracts/investment"

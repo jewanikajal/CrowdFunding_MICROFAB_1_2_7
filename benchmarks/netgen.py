@@ -48,7 +48,7 @@ def main():
         }],
         "PeerOrgs": [{
             "Name": o, "Domain": dom(o), "EnableNodeOUs": True,
-            "Template": {"Count": a.peers}, "Users": {"Count": 1},
+            "Template": {"Count": a.peers}, "Users": {"Count": 2},
         } for o in ORGS],
     }
 

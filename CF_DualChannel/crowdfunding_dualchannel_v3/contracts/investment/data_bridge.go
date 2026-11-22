@@ -22,7 +22,8 @@ func (d *DataBridgeContract) StoreData(ctx contractapi.TransactionContextInterfa
 }
 
 func (d *DataBridgeContract) ReadData(ctx contractapi.TransactionContextInterface, collection string, key string) (string, error) {
-	val, err := ctx.GetStub().GetState(collection + "_" + key)
+	// Hardening (P3): reads go through PDC membership checks (memberOnlyRead)
+	val, err := ctx.GetStub().GetPrivateData(collection, key)
 	if err != nil {
 		return "", fmt.Errorf("DataBridge ReadData failed: %v", err)
 	}
@@ -116,7 +117,7 @@ func applyOne(ctx contractapi.TransactionContextInterface, sourceChannel string,
 	if hex.EncodeToString(sum[:]) != e.SHA256 || e.TargetChannel != stub.GetChannelID() || e.SourceChannel != sourceChannel {
 		return "", fmt.Errorf("outbox entry failed integrity/target check")
 	}
-	if err := stub.PutState(e.Collection+"_"+e.Key, []byte(e.Value)); err != nil {
+	if err := stub.PutPrivateData(e.Collection, e.Key, []byte(e.Value)); err != nil { // Hardening (P3)
 		return "", err
 	}
 	if err := stub.PutState(marker, []byte(e.SourceTxID)); err != nil {

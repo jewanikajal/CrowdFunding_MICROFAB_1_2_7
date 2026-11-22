@@ -72,7 +72,8 @@ func CrossChannelPut(ctx contractapi.TransactionContextInterface, collection str
 	stub := ctx.GetStub()
 	target := getChannelForCollection(collection)
 	if target == stub.GetChannelID() {
-		return stub.PutState(collection+"_"+key, value)
+		// Hardening (P3): collection-homed data is stored in the real Private Data Collection
+		return stub.PutPrivateData(collection, key, value)
 	}
 	sum := sha256.Sum256(value)
 	e := OutboxEntry{SourceChannel: stub.GetChannelID(), SourceTxID: stub.GetTxID(), TargetChannel: target,
@@ -94,7 +95,7 @@ func CrossChannelGet(ctx contractapi.TransactionContextInterface, collection str
 	stub := ctx.GetStub()
 	target := getChannelForCollection(collection)
 	if target == stub.GetChannelID() {
-		return stub.GetState(collection + "_" + key)
+		return stub.GetPrivateData(collection, key) // Hardening (P3)
 	}
 	resp := stub.InvokeChaincode(chaincodeForChannel(target),
 		[][]byte{[]byte("DataBridgeContract:ReadData"), []byte(collection), []byte(key)}, target)

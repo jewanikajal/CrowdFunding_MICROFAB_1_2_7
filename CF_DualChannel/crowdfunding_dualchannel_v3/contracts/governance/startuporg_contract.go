@@ -216,8 +216,8 @@ func (s *StartupContract) CreateStartup(
 		Description: description,
 		DisplayID:   displayID,
 		CampaignIDs: []string{},
-		CreatedAt:   time.Now().Format(time.RFC3339),
-		UpdatedAt:   time.Now().Format(time.RFC3339),
+		CreatedAt:   txNow(ctx).Format(time.RFC3339),
+		UpdatedAt:   txNow(ctx).Format(time.RFC3339),
 	}
 
 	// Store in private data collection
@@ -316,7 +316,7 @@ func (s *StartupContract) AddCampaignToStartup(
 
 	// Add campaign to list
 	startup.CampaignIDs = append(startup.CampaignIDs, campaignID)
-	startup.UpdatedAt = time.Now().Format(time.RFC3339)
+	startup.UpdatedAt = txNow(ctx).Format(time.RFC3339)
 
 	// Update in private data
 	startupJSON, err := json.Marshal(startup)
@@ -393,7 +393,7 @@ func (s *StartupContract) DeleteCampaign(
 	}
 
 	// Create deletion record
-	timestamp := time.Now()
+	timestamp := txNow(ctx)
 	deletionID := fmt.Sprintf("DEL_CAMP_%s_%d", campaignID, timestamp.Unix())
 
 	deletionRecord := DeletionRecord{
@@ -511,7 +511,7 @@ func (s *StartupContract) DeleteStartup(
 		return nil, fmt.Errorf("startup not found: %v", err)
 	}
 
-	timestamp := time.Now()
+	timestamp := txNow(ctx)
 	// var campaignDeletions []DeletionRecord
 	campaignDeletions := []DeletionRecord{}
 	var totalFee float64
@@ -686,7 +686,7 @@ func (s *StartupContract) CreateCampaign(
 		}
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Calculate open and close dates based on funding date and duration
 	openDate := fmt.Sprintf("%04d-%02d-%02d", fundingYearInt, fundingMonthInt, fundingDayInt)
@@ -838,7 +838,7 @@ func (s *StartupContract) UpdateCampaign(
 		return fmt.Errorf("failed to unmarshal private details: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	updateID := fmt.Sprintf("UPDATE_%s_%d", campaignID, len(privateDetails.UpdateHistory)+1)
 
 	// Capture old value and apply actual field update
@@ -949,7 +949,7 @@ func (s *StartupContract) SubmitForValidation(
 		return fmt.Errorf("failed to parse documents: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Get private details
 	detailsJSON, err := CrossChannelGet(ctx, StartupPrivateCollection, "CAMPAIGN_PRIVATE_"+campaignID)
@@ -1200,7 +1200,7 @@ func (s *StartupContract) ShareCampaignToPlatform(
 		return fmt.Errorf("validation proof hash mismatch. Cannot share with platform")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Share complete campaign data with Platform via StartupPlatformCollection
 	platformData := map[string]interface{}{
@@ -1310,7 +1310,7 @@ func (s *StartupContract) SubmitForPublishing(
 		return fmt.Errorf("campaign must be approved before publishing")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	campaign.PlatformStatus = "PENDING_PLATFORM"
 	campaign.UpdatedAt = timestamp
 
@@ -1379,7 +1379,7 @@ func (s *StartupContract) MarkCampaignCompleted(
 		return fmt.Errorf("failed to unmarshal campaign: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	campaign.Status = "COMPLETED"
 	campaign.UpdatedAt = timestamp
 
@@ -1436,7 +1436,7 @@ func (s *StartupContract) AcknowledgeInvestment(
 	}
 
 	// 2. Update the investment status to ACKNOWLEDGED
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	investment.Status = "ACKNOWLEDGED"
 
 	updatedInvestmentJSON, err := json.Marshal(investment)
@@ -1512,7 +1512,7 @@ func (s *StartupContract) RespondToInvestmentProposal(
 		return fmt.Errorf("failed to unmarshal proposal: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Update proposal based on action
 	if action == "ACCEPT" {
@@ -1701,7 +1701,7 @@ func (s *StartupContract) SubmitMilestoneReport(
 		return fmt.Errorf("failed to parse evidence: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	report := MilestoneReport{
 		ReportID:    reportID,
@@ -1781,7 +1781,7 @@ func (s *StartupContract) ReceiveFunding(
 	amount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	fundingRecord := map[string]interface{}{
 		"releaseId":   releaseID,
@@ -1831,7 +1831,7 @@ func (s *StartupContract) SubmitDispute(
 		return fmt.Errorf("failed to parse evidence hashes: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	submissionID := fmt.Sprintf("DISPUTE_SUB_%s", disputeID)
 
 	dispute := DisputeSubmission{
@@ -1876,7 +1876,7 @@ func (s *StartupContract) SubmitDisputeEvidence(
 	var evidenceHashes []string
 	json.Unmarshal([]byte(evidenceHashesJSON), &evidenceHashes)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	evidence := map[string]interface{}{
 		"disputeId":           disputeID,
@@ -1908,7 +1908,7 @@ func (s *StartupContract) RespondToDispute(
 	var counterEvidenceHashes []string
 	json.Unmarshal([]byte(counterEvidenceHashesJSON), &counterEvidenceHashes)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	response := map[string]interface{}{
 		"disputeId":             disputeID,
@@ -1943,7 +1943,7 @@ func (s *StartupContract) RecordFeePayment(
 	transactionHash string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	feeRecord := FeePaymentRecord{
 		RecordID:        recordID,

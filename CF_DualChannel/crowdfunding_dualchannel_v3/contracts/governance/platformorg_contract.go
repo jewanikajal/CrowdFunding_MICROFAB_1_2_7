@@ -386,7 +386,7 @@ func (p *PlatformContract) PublishCampaignToPortal(
 	}
 
 	// Step 4: Hash verification successful - proceed with publishing
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Extract campaign fields
 	campaignID = campaignData["campaignId"].(string)
@@ -487,6 +487,11 @@ func (p *PlatformContract) PublishCampaignToPortal(
 
 	// Store FULL campaign info on world state for all investors to see
 	// This makes the 22-parameters visible to everyone
+	// Hardening (A5): make the published campaign visible on the investment channel through the
+	// verified bridge, so MakeInvestment can check that the campaign exists and is open.
+	if err := CrossChannelPut(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID, campaignJSON); err != nil {
+		return fmt.Errorf("failed to bridge public campaign: %v", err)
+	}
 	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, campaignJSON)
 	if err != nil {
 		return fmt.Errorf("failed to store public campaign info: %v", err)
@@ -514,7 +519,7 @@ func (p *PlatformContract) NotifyStartupPublished(
 	var pubCamp map[string]interface{}
 	json.Unmarshal(publishedJSON, &pubCamp)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	projectName, _ := pubCamp["projectName"].(string)
 
 	// 2. Write notification to StartupPlatformCollection (allowed because we are invoked on governance-validation-channel)
@@ -580,7 +585,7 @@ func (p *PlatformContract) VerifyAndPublish(
 	var campaign PublishedCampaign
 	json.Unmarshal(campaignJSON, &campaign)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	campaign.ValidationVerified = true
 	campaign.Status = "PUBLISHED"
 	campaign.UpdatedAt = timestamp
@@ -623,7 +628,7 @@ func (p *PlatformContract) WitnessAgreement(
 		json.Unmarshal([]byte(milestonesJSON), &milestones)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	agreement := Agreement{
 		AgreementID:       agreementID,
@@ -686,7 +691,7 @@ func (p *PlatformContract) RequestMilestoneValidation(ctx contractapi.Transactio
 		"reportID": reportID,
 		"campaignID": campaignID,
 		"status": "REQUESTED",
-		"requestedAt": time.Now().Format(time.RFC3339),
+		"requestedAt": txNow(ctx).Format(time.RFC3339),
 	}
 	requestJSON, _ := json.Marshal(request)
 	
@@ -724,7 +729,7 @@ func (p *PlatformContract) TriggerFundRelease(
 		return fmt.Errorf("cannot release funds: milestone verification was not approved")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	triggerReason := fmt.Sprintf("Milestone verified by validator. Quality Score: %v", verification["qualityScore"])
 
 	release := FundRelease{
@@ -820,7 +825,7 @@ func (p *PlatformContract) ExecuteFundReleaseTransfer(ctx contractapi.Transactio
 	}
 
 	// 5. Mark as paid
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	ctx.GetStub().PutState("PAID_RELEASE_"+releaseID, []byte(timestamp))
 
 	return nil
@@ -844,7 +849,7 @@ func (p *PlatformContract) CloseCampaign(
 	var campaign PublishedCampaign
 	json.Unmarshal(campaignJSON, &campaign)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	closure := CampaignClosure{
 		ClosureID:          closureID,
@@ -879,7 +884,7 @@ func (p *PlatformContract) RecordInvestorConfirmation(
 	currency string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := InvestorConfirmationRecord{
 		RecordID:       recordID,
@@ -928,7 +933,7 @@ func (p *PlatformContract) RecordValidatorDecision(
 	reportHash string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := ValidatorDecisionRecord{
 		RecordID:       recordID,
@@ -964,7 +969,7 @@ func (p *PlatformContract) PublishGlobalMetrics(
 	totalInvestorCount int,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	metricsData := fmt.Sprintf("%s|%d|%d|%d|%d",
 		metricsID, totalCampaigns, activeCampaigns, successfulCampaigns, totalInvestorCount)
@@ -1010,7 +1015,7 @@ func (p *PlatformContract) CreateWallet(
 	initialBalance float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	wallet := Wallet{
 		WalletID:       walletID,
@@ -1055,7 +1060,7 @@ func (p *PlatformContract) DepositTokens(
 	var wallet Wallet
 	json.Unmarshal(walletJSON, &wallet)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	wallet.Balance += amount
 	wallet.TotalDeposited += amount
 	wallet.UpdatedAt = timestamp
@@ -1102,7 +1107,7 @@ func (p *PlatformContract) TransferTokens(
 	var toWallet Wallet
 	json.Unmarshal(toJSON, &toWallet)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	// Update balances
 	fromWallet.Balance -= amount
@@ -1228,7 +1233,7 @@ func (p *PlatformContract) CollectCampaignFee(
 ) error {
 
 	amount := goalAmount * (feePercentage / 100.0)
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	collection := FeeCollection{
 		CollectionID:  collectionID,
@@ -1298,7 +1303,7 @@ func (p *PlatformContract) CollectDisputeFee(
 	feeAmount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := DisputeFeeRecord{
 		FeeRecordID: feeRecordID,
@@ -1334,7 +1339,7 @@ func (p *PlatformContract) RefundDisputeFee(
 	var record DisputeFeeRecord
 	json.Unmarshal(recordJSON, &record)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	record.Status = "REFUNDED"
 	record.RefundAmount = record.FeeAmount
 	record.ProcessedAt = timestamp
@@ -1360,7 +1365,7 @@ func (p *PlatformContract) ForfeitDisputeFee(
 	var record DisputeFeeRecord
 	json.Unmarshal(recordJSON, &record)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	record.Status = "FORFEITED"
 	record.RefundAmount = 0
 	record.ProcessedAt = timestamp
@@ -1422,7 +1427,7 @@ func (p *PlatformContract) RecordRating(
 	comment string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	record := RatingRecord{
 		RatingID:      ratingID,
@@ -1462,7 +1467,7 @@ func (p *PlatformContract) updateRatingAggregate(
 	aggregateJSON, err := ctx.GetStub().GetState(key)
 
 	var aggregate RatingAggregate
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	if err == nil && aggregateJSON != nil {
 		json.Unmarshal(aggregateJSON, &aggregate)
@@ -1497,7 +1502,7 @@ func (p *PlatformContract) updateReputationScore(
 	reputationJSON, err := ctx.GetStub().GetState(key)
 
 	var reputation ReputationScore
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	if err == nil && reputationJSON != nil {
 		json.Unmarshal(reputationJSON, &reputation)
@@ -1584,7 +1589,7 @@ func (p *PlatformContract) CreateDispute(
 	claimAmount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	dispute := Dispute{
 		DisputeID:          disputeID,
@@ -1681,7 +1686,7 @@ func (p *PlatformContract) AddInvestigationNote(
 	var dispute Dispute
 	json.Unmarshal(disputeJSON, &dispute)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	noteEntry := fmt.Sprintf("[%s] %s", timestamp, note)
 	dispute.InvestigationNotes = append(dispute.InvestigationNotes, noteEntry)
 
@@ -1751,7 +1756,7 @@ func (p *PlatformContract) CommitVote(
 		return fmt.Errorf("voter not eligible")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	commitment := VoteCommitment{
 		VoterID:     voterID,
@@ -1808,7 +1813,7 @@ func (p *PlatformContract) RevealVote(
 		return fmt.Errorf("vote hash mismatch")
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	dispute.Votes[voteIndex].Revealed = true
 	dispute.Votes[voteIndex].Vote = vote
 	dispute.Votes[voteIndex].RevealedAt = timestamp
@@ -1879,7 +1884,7 @@ func (p *PlatformContract) ResolveDispute(
 	var dispute Dispute
 	json.Unmarshal(disputeJSON, &dispute)
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	dispute.Status = "RESOLVED"
 	dispute.Resolution = resolution
 	dispute.ResolutionDetails = resolutionDetails
@@ -1911,7 +1916,7 @@ func (p *PlatformContract) incrementDisputeWin(
 	reputationJSON, err := ctx.GetStub().GetState(key)
 
 	var reputation ReputationScore
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	if err == nil && reputationJSON != nil {
 		json.Unmarshal(reputationJSON, &reputation)
@@ -1949,7 +1954,7 @@ func (p *PlatformContract) incrementDisputeLoss(
 	reputationJSON, err := ctx.GetStub().GetState(key)
 
 	var reputation ReputationScore
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	if err == nil && reputationJSON != nil {
 		json.Unmarshal(reputationJSON, &reputation)
@@ -1987,7 +1992,7 @@ func (p *PlatformContract) ApplyPenalty(
 	amount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	penalty := Penalty{
 		PenaltyID:   penaltyID,
@@ -2032,7 +2037,7 @@ func (p *PlatformContract) ProcessRefund(
 	amount float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 
 	refund := RefundOrder{
 		RefundID:    refundID,
@@ -2249,7 +2254,7 @@ func (p *PlatformContract) CollectPublishingFee(
 	startupID string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	publishingFeeCFT := 2500.0 // ₹1,000 × 2.5
 
 	// Record fee collection
@@ -2288,7 +2293,7 @@ func (p *PlatformContract) CollectRegistrationFee(
 	startupID string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	registrationFeeCFT := 250.0 // ₹100 × 2.5
 
 	feeRecord := FeeCollection{
@@ -2325,7 +2330,7 @@ func (p *PlatformContract) CollectCampaignCreationFee(
 	startupID string,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	creationFeeCFT := 1250.0 // ₹500 × 2.5
 
 	feeRecord := FeeCollection{
@@ -2371,7 +2376,7 @@ func (p *PlatformContract) ConfirmFeePayment(
 		return fmt.Errorf("failed to unmarshal fee record: %v", err)
 	}
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	feeRecord.Status = "PAID"
 	feeRecord.CollectedAt = timestamp
 
@@ -2402,7 +2407,7 @@ func (p *PlatformContract) CollectInvestmentFee(
 	investmentAmountCFT float64,
 ) error {
 
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := txNow(ctx).Format(time.RFC3339)
 	feePercentage := 5.0
 	feeAmountCFT := investmentAmountCFT * (feePercentage / 100)
 
