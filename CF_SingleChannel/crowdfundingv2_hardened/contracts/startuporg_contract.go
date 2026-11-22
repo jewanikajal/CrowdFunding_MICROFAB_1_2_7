@@ -2095,3 +2095,17 @@ func (s *StartupContract) GetRequiredFees(
 
 	return string(feesJSON), nil
 }
+
+// GetSharedInvestment returns an investment record from StartupInvestorShared (StartupOrg + InvestorOrg).
+// Added with the hardening so the record's visibility can be checked directly; access is enforced by
+// the collection's memberOnlyRead rule.
+func (s *StartupContract) GetSharedInvestment(ctx contractapi.TransactionContextInterface, investmentID string) (string, error) {
+	b, err := ctx.GetStub().GetPrivateData(StartupInvestorCollection, "INVESTMENT_"+investmentID)
+	if err != nil {
+		return "", err
+	}
+	if b == nil {
+		return "", fmt.Errorf("investment %s not found", investmentID)
+	}
+	return string(b), nil
+}

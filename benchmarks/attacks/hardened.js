@@ -137,7 +137,7 @@ async function run(cfg) {
   // who can read the investment record? (StartupInvestorShared: Startup + Investor only)
   const readInv = (as) => (GCH !== ICH
     ? evaluate(as, ICH, ICC, 'DataBridgeContract:ReadData', ['StartupInvestorShared', `INVESTMENT_INVT_${RID}_ok`])
-    : evaluate(as, ICH, ICC, 'InvestorContract:GetInvestment', [`INVT_${RID}_ok`]));
+    : evaluate(as, ICH, ICC, 'StartupContract:GetSharedInvestment', [`INVT_${RID}_ok`]));
   const rs = await readInv(S()); positive(`${L}-POS5d`, 'StartupOrg can read the investment record', rs.ok, rs.ok ? rs.result.slice(0, 90) : rs.error);
   for (const org of ['ValidatorOrg', 'PlatformOrg']) {
     const x = await readInv({ org, user: 'User1' });

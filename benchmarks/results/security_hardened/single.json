@@ -6,7 +6,7 @@
     "attacker": "-",
     "action": "Startup creates startup + campaign and submits for validation",
     "outcome": "PASS",
-    "evidence": "committed VALID tx f0f3f8016cc0"
+    "evidence": "committed VALID tx 9e47842cdfca"
   },
   {
     "id": "HS-POS2",
@@ -15,7 +15,7 @@
     "attacker": "-",
     "action": "Validator validates and approves the campaign",
     "outcome": "PASS",
-    "evidence": "committed VALID tx 20d8419c5e5e / committed VALID tx 5e4ec362b0c6"
+    "evidence": "committed VALID tx f6a46a785384 / committed VALID tx 47ec6b8b4d77"
   },
   {
     "id": "HS-POS3",
@@ -24,7 +24,7 @@
     "attacker": "-",
     "action": "Startup shares and Platform publishes the approved campaign",
     "outcome": "PASS",
-    "evidence": "hash=d1fafb4083f6; share: committed VALID tx f15f950e621b; publish: committed VALID tx f2e58cad73af"
+    "evidence": "hash=98e478ee48c1; share: committed VALID tx 937e85b3bf7a; publish: committed VALID tx 6e25415df12b"
   },
   {
     "id": "HS-POS4",
@@ -33,16 +33,88 @@
     "attacker": "-",
     "action": "Investor registers with KYC in the transient map",
     "outcome": "PASS",
-    "evidence": "committed VALID tx f99289fdde08"
+    "evidence": "committed VALID tx 12424e063b3b"
   },
   {
     "id": "HS-POS5",
     "category": "Positive control (honest path)",
-    "claim": "Investor invests in the published campaign",
+    "claim": "Investor invests in the published campaign (amount/campaign/investor via transient map)",
     "attacker": "-",
-    "action": "Investor invests in the published campaign",
+    "action": "Investor invests in the published campaign (amount/campaign/investor via transient map)",
     "outcome": "PASS",
-    "evidence": "committed VALID tx 5307eea772c6"
+    "evidence": "committed VALID tx ee4246369737"
+  },
+  {
+    "id": "HS-POS5b",
+    "category": "Positive control (honest path)",
+    "claim": "Investor creates a proposal with confidential terms (transient map)",
+    "attacker": "-",
+    "action": "Investor creates a proposal with confidential terms (transient map)",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 2d018c575930"
+  },
+  {
+    "id": "HS-POS5c",
+    "category": "Positive control (honest path)",
+    "claim": "Startup acknowledges the investment (transient map)",
+    "attacker": "-",
+    "action": "Startup acknowledges the investment (transient map)",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 1f3a8ee096bd"
+  },
+  {
+    "id": "HS-POS5d",
+    "category": "Positive control (honest path)",
+    "claim": "StartupOrg can read the investment record",
+    "attacker": "-",
+    "action": "StartupOrg can read the investment record",
+    "outcome": "FAIL",
+    "evidence": "2 UNKNOWN: evaluate call to endorser returned error: chaincode response 500, investment not found: GET_STATE failed: transaction ID: 60b3e721f05ecff322561c977c8cd6ec8f3fc7071c554345f22d1d1002856bc8: tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData | StartupOrgMSP: chaincode response 500, investment not found: GET_STATE"
+  },
+  {
+    "id": "HS-P4c-Validator",
+    "category": "Privacy leakage",
+    "claim": "Investment records readable only by StartupOrg and InvestorOrg",
+    "attacker": "ValidatorOrg client",
+    "action": "read INVESTMENT_ record in StartupInvestorShared",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData"
+  },
+  {
+    "id": "HS-P4c-Platform",
+    "category": "Privacy leakage",
+    "claim": "Investment records readable only by StartupOrg and InvestorOrg",
+    "attacker": "PlatformOrg client",
+    "action": "read INVESTMENT_ record in StartupInvestorShared",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData"
+  },
+  {
+    "id": "HS-P4-investment",
+    "category": "Privacy leakage",
+    "claim": "Investment amount not recorded in shared blocks",
+    "attacker": "ValidatorOrg client (channel member, not a collection member)",
+    "action": "qscc GetBlockByTxID on the investment tx, search for \"25034206\"",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (4810 bytes); value NOT present"
+  },
+  {
+    "id": "HS-P4-proposal",
+    "category": "Privacy leakage",
+    "claim": "Proposal terms not recorded in shared blocks",
+    "attacker": "ValidatorOrg client (channel member, not a collection member)",
+    "action": "qscc GetBlockByTxID on the proposal tx, search for \"TERMS_mws1tqe6\"",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (4662 bytes); value NOT present"
+  },
+  {
+    "id": "HS-P4b",
+    "category": "Privacy leakage",
+    "claim": "Investment data cannot be submitted as plaintext arguments",
+    "attacker": "careless client",
+    "action": "MakeInvestment with amount/campaign/investor in args",
+    "outcome": "MITIGATED",
+    "evidence": "confidential investment data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"private\""
   },
   {
     "id": "HS-POS6",
@@ -51,7 +123,7 @@
     "attacker": "-",
     "action": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
     "outcome": "PASS",
-    "evidence": "create committed VALID tx d8a2c39b5cb9 / committed VALID tx ae47018d28c3; mint committed VALID tx 1133df43955d; transfer committed VALID tx 5e22ed1acbec; startup balance 1000"
+    "evidence": "create committed VALID tx 869ab915cf80 / committed VALID tx 2a65b2f8a8a5; mint committed VALID tx 8e95e250c030; transfer committed VALID tx cecb39175465; startup balance 1000"
   },
   {
     "id": "HS-A1",
@@ -87,7 +159,7 @@
     "attacker": "InvestorOrg User1 (account owned by User2)",
     "action": "TransferTokens(from=victim account)",
     "outcome": "MITIGATED",
-    "evidence": "access denied: caller does not control account INV_acct_mwrx9357"
+    "evidence": "access denied: caller does not control account INV_acct_mws1tqe6"
   },
   {
     "id": "HS-A5",
@@ -114,7 +186,7 @@
     "attacker": "InvestorOrg User1 (investor registered by User2)",
     "action": "MakeInvestment as INV_honest",
     "outcome": "MITIGATED",
-    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mwrx9357"
+    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mws1tqe6"
   },
   {
     "id": "HS-A7",
@@ -203,7 +275,7 @@
     "attacker": "StartupOrg client",
     "action": "qscc GetBlockByTxID on the registration tx, search for Aadhaar/income",
     "outcome": "MITIGATED",
-    "evidence": "block fetched (5139 bytes); Aadhaar and income NOT present"
+    "evidence": "block fetched (5143 bytes); Aadhaar and income NOT present"
   },
   {
     "id": "HS-P1b",
