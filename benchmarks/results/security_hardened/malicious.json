@@ -1,0 +1,20 @@
+[
+  {
+    "id": "HM-1",
+    "category": "Malicious endorser",
+    "claim": "A single compromised org cannot forge ledger state",
+    "attacker": "StartupOrg peer running tampered cftoken",
+    "action": "Overdraft 1e9 endorsed only by StartupOrg",
+    "outcome": "MITIGATED",
+    "evidence": "invalidated: code 10; sink balance {}"
+  },
+  {
+    "id": "HM-2",
+    "category": "Malicious endorser",
+    "claim": "Honest co-endorser blocks forged state",
+    "attacker": "same",
+    "action": "Same transfer endorsed by StartupOrg + honest PlatformOrg",
+    "outcome": "MITIGATED",
+    "evidence": "insufficient balance. Available: 0.00, Required: 1000000000.00"
+  }
+]
