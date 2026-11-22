@@ -622,20 +622,14 @@ func (i *InvestorContract) CreateInvestmentProposal(
 		return fmt.Errorf("investment amount must be positive, requested: %f", investmentAmount)
 	}
 
-	// Verify campaign is published on investment-execution-channel
-	campaignDataStr, err := new(PlatformContract).GetPublishedCampaign(ctx, campaignID)
-	if err != nil || campaignDataStr == "" {
-		return fmt.Errorf("campaign %s is not published or cannot be verified. Error: %v", campaignID, err)
+	// Verify campaign is published: read the public campaign record bridged to this channel
+	// (hardening: PlatformPrivateData is now a real PDC that InvestorOrg cannot read)
+	if err := requireInvestorOwner(ctx, investorID); err != nil {
+		return err
 	}
-
-	var campaignData map[string]interface{}
-	err = json.Unmarshal([]byte(campaignDataStr), &campaignData)
-	if err != nil {
-		return fmt.Errorf("failed to parse campaign data: %v", err)
-	}
-
-	if status, ok := campaignData["status"].(string); !ok || status != "PUBLISHED" {
-		return fmt.Errorf("campaign must be PUBLISHED to accept investments. Current status: %v", status)
+	pub, err := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID)
+	if err != nil || pub == nil || !isOpenCampaign(pub) {
+		return fmt.Errorf("campaign %s is not published/open for investment", campaignID)
 	}
 
 	timestamp := txNow(ctx).Format(time.RFC3339)
