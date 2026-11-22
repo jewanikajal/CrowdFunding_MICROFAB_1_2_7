@@ -1,0 +1,209 @@
+{
+  "mode": "dual",
+  "setup": [
+    "ok CreateStartup",
+    "ok CreateCampaign",
+    "ok SubmitForValidation",
+    "ok ValidateCampaign",
+    "ok ApproveOrRejectCampaign",
+    "ok ShareValidationToPlatform",
+    "ok ShareCampaignToPlatform",
+    "ok PublishCampaignToPortal",
+    "ok campaign bridged to investment channel"
+  ],
+  "results": [
+    {
+      "task": "Task1",
+      "id": "T1-1",
+      "test": "Income route: income 2.5 cr",
+      "expected": "registered, basis INCOME",
+      "observed": "registered, basis INCOME",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task1",
+      "id": "T1-2",
+      "test": "Net-worth route: income 0.5 cr, net worth 8 cr, financial assets 4 cr",
+      "expected": "registered, basis NET_WORTH",
+      "observed": "registered, basis NET_WORTH",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task1",
+      "id": "T1-3",
+      "test": "Hybrid route: income 1.2 cr, net worth 5.5 cr, financial assets 2.6 cr",
+      "expected": "registered, basis INCOME_AND_NET_WORTH",
+      "observed": "registered, basis INCOME_AND_NET_WORTH",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task1",
+      "id": "T1-4",
+      "test": "Rejected: income 0.8 cr, net worth 6 cr, financial assets 3 cr (below every route)",
+      "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "does not meet SEBI accredited-investor criteria: needs annual income >= 2 cror"
+    },
+    {
+      "task": "Task1",
+      "id": "T1-4b",
+      "test": "Hybrid route: income 1.5 cr, net worth 6 cr, financial assets 3 cr",
+      "expected": "registered, basis INCOME_AND_NET_WORTH",
+      "observed": "registered, basis INCOME_AND_NET_WORTH",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task1",
+      "id": "T1-5",
+      "test": "Rejected: net worth 8 cr but financial assets only 3 cr",
+      "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "does not meet SEBI accredited-investor criteria: needs annual income >= 2 cror"
+    },
+    {
+      "task": "Task1",
+      "id": "T1-6",
+      "test": "Rejected: financial assets 9 cr exceed net worth 8 cr",
+      "expected": "rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "cannot exceed net worth (80000000.00)"
+    },
+    {
+      "task": "Task1",
+      "id": "T1-7",
+      "test": "Boundary: income exactly 2 cr",
+      "expected": "registered, basis INCOME",
+      "observed": "registered, basis INCOME",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task1",
+      "id": "T1-8",
+      "test": "Boundary: net worth exactly 7.5 cr, financial assets exactly 3.75 cr",
+      "expected": "registered, basis NET_WORTH",
+      "observed": "registered, basis NET_WORTH",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task7",
+      "id": "PR04",
+      "test": "Investor Aadhaar number not in public state",
+      "expected": "absent from public state of all 4 peers and from blocks; present only in InvestorOrg private data",
+      "observed": "public state: absent on all peers; blocks: absent; private copies on: InvestorOrg",
+      "result": "PASS"
+    },
+    {
+      "task": "Task7",
+      "id": "PR07",
+      "test": "Investor annual income not in public state",
+      "expected": "absent from public state of all 4 peers and from blocks; present only in InvestorOrg private data",
+      "observed": "public state: absent on all peers; blocks: absent; private copies on: InvestorOrg",
+      "result": "PASS"
+    },
+    {
+      "task": "Task7",
+      "id": "PR05",
+      "test": "Investor PAN not visible to unauthorised organisations",
+      "expected": "readable by InvestorOrg and ValidatorOrg only; not in public state or blocks; stored only on Investor/Validator peers",
+      "observed": "reads: Startup=denied, Investor=readable, Validator=readable, Platform=denied; public state: absent; blocks (Startup/Platform): absent; stored on: InvestorOrg, ValidatorOrg",
+      "result": "PASS",
+      "evidence": "Startup: denied (failed: GET_STATE failed: transaction ID: 8b1680b471520be681c86105d5a5dddf0fbc196aa2269aa4ffe24ea126df3596: tx creator does no)"
+    },
+    {
+      "task": "Task7",
+      "id": "PR09",
+      "test": "StartupOrg cannot read investor annual income",
+      "expected": "StartupOrg read denied; income not on StartupOrg peer or in its blocks; InvestorOrg can read it",
+      "observed": "StartupOrg read: denied; on StartupOrg peer: absent; in blocks: absent; InvestorOrg read: allowed",
+      "result": "PASS",
+      "evidence": "failed: GET_STATE failed: transaction ID: c79329506b498cc4dba78ab8c578fad4c3552b295c6aa4a9ff7d95e4258ab246: tx creator does no"
+    },
+    {
+      "task": "Task7",
+      "id": "PR11",
+      "test": "Campaign private documents not readable by InvestorOrg",
+      "expected": "InvestorOrg cannot read StartupPrivateData; documents not in blocks InvestorOrg receives nor in the published campaign record",
+      "observed": "private record read: denied; copy on InvestorOrg peer: FOUND; CreateCampaign block via InvestorOrg: not accessible (failed to get config for channel [governance-validation-channel]: could not get last config for channel governance-validation-); published record: CONTAINS document list; public state hits: StartupOrg:governance-validation-channel_governance ValidatorOrg:governance-validation-channel_governance PlatformOrg:governance-validation-channel_governance",
+      "result": "FAIL",
+      "evidence": "failed to get config for channel [governance-validation-channel]: could not get last config for channel governance-validation-"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-0",
+      "test": "Control: investment before blacklisting",
+      "expected": "accepted",
+      "observed": "accepted",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-1",
+      "test": "Only ValidatorOrg can blacklist",
+      "expected": "StartupOrg rejected",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP)"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-2",
+      "test": "ValidatorOrg blacklists the published campaign",
+      "expected": "committed",
+      "observed": "committed",
+      "result": "PASS",
+      "evidence": ""
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-3",
+      "test": "Blacklist marker reaches the investment channel (bridge)",
+      "expected": "visible to InvestorOrg",
+      "observed": "visible after 3.0 s",
+      "result": "PASS"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19",
+      "test": "Investment after blacklisting is rejected",
+      "expected": "rejected (fraud control)",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "blacklisted (fraud control): investments are not accepted"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-4",
+      "test": "Proposal after blacklisting is rejected",
+      "expected": "rejected (fraud control)",
+      "observed": "rejected",
+      "result": "PASS",
+      "evidence": "blacklisted (fraud control): investments are not accepted"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-5",
+      "test": "Blacklist reason kept private; IsCampaignBlacklisted true for ValidatorOrg",
+      "expected": "true",
+      "observed": "true",
+      "result": "PASS"
+    },
+    {
+      "task": "Task5",
+      "id": "SE19-6",
+      "test": "Blacklist reason not in public state",
+      "expected": "absent",
+      "observed": "absent on all peers",
+      "result": "PASS"
+    }
+  ]
+}
