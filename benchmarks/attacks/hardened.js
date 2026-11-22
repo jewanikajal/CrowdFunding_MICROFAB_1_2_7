@@ -48,7 +48,9 @@ function errText(e) {
 async function submit(as, ch, cc, fn, args) {
   const c = gateway(as.org, as.user, as.forged).getNetwork(ch).getContract(cc);
   try {
-    const p = c.newProposal(fn, { arguments: args.map(String), endorsingOrganizations: as.endorsers, transientData: as.transient });
+    // Fabric guidance: with transient (confidential) data, endorse only by collection members -> the caller's own org
+    const endorsers = as.endorsers || (as.transient ? [`${as.org}MSP`] : undefined);
+    const p = c.newProposal(fn, { arguments: args.map(String), endorsingOrganizations: endorsers, transientData: as.transient });
     const tx = await p.endorse();
     const st = await (await tx.submit()).getStatus();
     return { committed: st.successful, code: st.code, txId: tx.getTransactionId(), bytes: tx.getBytes() };
