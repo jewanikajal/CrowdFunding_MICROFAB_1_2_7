@@ -32,56 +32,127 @@ Tests were run on live Fabric 2.5.16 networks:
 * **Effect:** the `validationProofHash` is now identical on every endorser.
 * **Original v2:** the paper's code still uses `time.Now()`. It was left unchanged so it stays reproducible.
 
-## Task 3 — Caliper stress-round counts: NEEDS YOUR CALIPER FILES
+## Task 3 — Caliper stress-round counts: CONFIRMED from your Caliper workspace
 
-The Caliper workspace (benchconfig, workload modules, report) is not in the repository, so the reason
-can't be confirmed from data. Two Caliper mechanisms produce more than the nominal 1,000 transactions:
+**Source:** `josephrichard1988/crowdfunding`, branch `master`, folder `caliper-workspace/`:
 
-1. **A fixed-duration round.** If a round sets `txDuration`, it runs for that long, and `txDuration` takes
-   precedence over `txNumber` when both are set.
-   * At 100 TPS, 4,303 transactions ≈ 43 s of sending.
-   * See the [Caliper bench-config documentation](https://hyperledger.github.io/caliper/vNext/bench-config/).
-2. **Several Fabric transactions per workload iteration.** If a workload's `submitTransaction` also sends
-   its setup transactions, each one is counted. Typical cases are creating the campaign or proposal in the
-   same iteration, or lazy setup on the first call.
-   * Small surpluses such as 1,002 also fit per-worker rounding: 3 workers × 334 = 1,002, or 6 × 167.
+* `benchconfig-single-full.yaml`;
+* `workloads/*.js`;
+* `report-single-full.html` (single-channel stress rounds: 1,002 to 4,303 transactions, matching Table 12);
+* `package-lock.json` (Caliper 0.5.0).
 
-**To confirm, please send:**
+**Duration-bounded rounds are ruled out:**
 
-* `benchconfig.yaml` — the `txNumber`/`txDuration` of each round and the number of workers;
-* the workload `.js` files;
-* `report.html` or the Caliper log.
+* All 76 rounds use `txNumber`; none uses `txDuration`.
+* There are 2 workers, so 1,000 splits evenly into 500 per worker.
 
-## Task 4 — validation codes: PARTLY CONFIRMED; CreateDispute claim must change
+**The real cause is how Caliper 0.5.0 ends a round.** The worker loop (`caliper-worker.js`, `runFixedNumber`) is:
 
-Reproduction on the original v2 single-channel chaincode:
+```js
+while (stats.getTotalSubmittedTx() < number && !error) {
+    await rateController.applyRateControl();
+    await this.setImmediatePromise(() => { workloadModule.submitTransaction()... }); // not awaited
+}
+await CaliperWorker._waitForTxsToFinish(stats);
+```
 
-* Rounds identical to the paper's (50 transactions at 10 TPS, 100 at 25 TPS, 1,000 at 100 TPS).
-* Orderer batching identical to Microfab: `BatchTimeout` 100 ms and `MaxMessageCount` 10, taken from the
-  Microfab source (`internal/pkg/orderer/runtime.go`).
+1. **Every Fabric transaction counts toward the limit**, not just each workload iteration. Many workload
+   modules send setup transactions inside `submitTransaction()` before the measured operation. For example:
+   * `createCampaign.js` creates a startup and then a campaign (2 transactions);
+   * `respondToInvestmentProposal.js` creates a startup, a campaign and a proposal, then responds
+     (4 transactions);
+   * `triggerFundRelease.js` runs the full publish path, the agreement, the milestone report, the
+     verification and the share before the release (about 10 transactions).
+2. **Iterations aren't awaited.** When a worker's counter reaches 500, iterations already started keep
+   sending their remaining steps. Caliper waits for them and counts them, so the total overshoots 1,000.
+3. **Single-transaction operations still get +1 per worker.** The connector records a submission only
+   after some asynchronous work, so each worker starts one extra iteration before its counter updates.
+   2 workers × 501 = **1,002**. This is the value for every single-transaction operation in the report:
+   createStartup, registerInvestor, initializeToken, submitMilestoneReport, collectCampaignFee,
+   setFeeTiers and requestRefund.
 
-| Operation | Workload | Light | Medium | Stress | Failure code |
-|---|---|---|---|---|---|
-| TransferTokens | all transfers debit PLATFORM | 25.0 % | 24.0 % | 10.0 % | **11 MVCC_READ_CONFLICT** (all failures) |
-| RespondToInvestmentProposal | responses spread over 10 proposals | 100 % | 97.0 % | 46.6 % | **11 MVCC_READ_CONFLICT** (all failures) |
-| RespondToInvestmentProposal | one proposal per transaction | 100 % | 100 % | 100 % | — |
-| CreateDispute | unique dispute IDs | 100 % | 100 % | 100 % | — |
+**Suggested sentence:**
 
-* **TransferTokens:** confirmed. All failures are code 11, because concurrent debits of the same account
-  conflict within a block. The exact rates depend on block size and how many sender accounts the workload
-  used.
-* **RespondToInvestmentProposal:** the function reads and writes only `PROPOSAL_<id>`. It fails with code 11
-  only when concurrent transactions respond to the **same** proposal. Your 82.9 % and 84.8 % therefore imply
-  that the Caliper workload reused proposals. Confirm this in the Caliper log, where MVCC failures show as
-  `MVCC_READ_CONFLICT`.
-* **CreateDispute:** **cannot** fail with code 11.
-  * It writes `DISPUTE_<id>` without reading anything, and Fabric only raises MVCC conflicts on keys a
-    transaction has read.
-  * It reached 100 % in every round here.
-  * So the 85.7–93.5 % in Table 12 has another cause. Likely candidates are an endorsement-phase error (no
-    validation code), a timeout, or a setup step that failed in the same iteration.
-  * **Change the sentence** so it no longer says CreateDispute "updates shared records", and take the reason
-    from the Caliper log.
+> Caliper counted between 1,002 and 4,303 transactions in stress rounds because Caliper's fixed-number
+> round ends when a worker's count of submitted Fabric transactions reaches its share of `txNumber`
+> (500 per worker), not when 1,000 workload iterations have run.
+>
+> Workloads whose iterations embed their prerequisite transactions therefore submit more than 1,000
+> transactions in total. For example, CreateCampaign first creates a startup, and TriggerFundRelease first
+> creates, validates and publishes a campaign and records an agreement and milestone. Iterations still in
+> flight when the limit is reached also complete and are counted.
+>
+> Single-transaction operations show 1,002 because each of the 2 workers starts one iteration before its
+> submission counter is updated.
+
+**Important for the paper (and reviewer comment 2):**
+
+* For multi-step operations, Table 12's throughput, latency and success rate are computed over **all**
+  transactions of the iteration, including setup transactions. They are not over the named operation alone.
+* Say this explicitly, or re-run with setup moved into `initializeWorkloadModule` (or a separate seeding
+  round) so each measured round submits only the named operation.
+
+## Task 4 — validation codes: CONFIRMED; the draft text must change for two operations
+
+Reproduction details:
+
+* The workload chains are taken from your `caliper-workspace/workloads`.
+* They ran on the original v2 single-channel chaincode, with Microfab's orderer batching (100 ms / 10 transactions).
+* Every step was classified as a validation code, or as an endorsement-phase error.
+* Results are in `benchmarks/results/task4/chain_*.json` (script `attacks/task4_chains.js`).
+
+**TransferTokens: code 11 MVCC_READ_CONFLICT. Confirmed.**
+
+* Every iteration of `transferTokens.js` debits the same `PLATFORM` account.
+* With a 10-transaction pool of hot keys, all failures were code 11
+  (`results/raw/T4mf_transfer_v2_*.json`: 25 %, 24 % and 10 % success).
+
+**RespondToInvestmentProposal: NOT code 11, and not a shared record.**
+
+* `respondToInvestmentProposal.js` creates a **new, unique proposal** in every iteration and responds to it
+  immediately, so there is no shared key.
+* Reproduced failures are all endorsement-phase errors, `proposal not found`, with **no validation code**.
+  The response failed in 0 of 25, 7 of 50 and 400 of 400 iterations at light, medium and stress load.
+* **Cause:** the proposal is endorsed and committed on InvestorOrg's peer. The response is endorsed
+  immediately afterwards by StartupOrg's peer, which has not yet received the private proposal data.
+  `StartupInvestorShared` has `requiredPeerCount: 0`, so the data is copied best-effort and lags under load.
+* **Fixes:**
+  * set `requiredPeerCount: 1` on the collection;
+  * or have the response endorsed by the InvestorOrg peer;
+  * or retry the response on "not found".
+
+**CreateDispute: NOT code 11 on CreateDispute.**
+
+* `CreateDispute` itself is a write-only operation and committed 100 % of the times it was reached.
+* `createDispute.js` funds the investor with a **TransferTokens from PLATFORM** before the dispute. That transfer
+  failed with code 11 in 13 of 25, 43 of 50 and 388 of 400 iterations, and the iteration then stops.
+* Caliper reports these transfer conflicts in the CreateDispute row.
+
+**Suggested replacement text:**
+
+> Three operations failed under concurrency, all because of how the workloads interact with shared state
+> rather than because of the channel topology.
+>
+> TransferTokens committed 73.1 %, 69.2 % and 50.4 % of transactions at light, medium and stress load. Its
+> failures carried Fabric validation code 11 (MVCC_READ_CONFLICT): concurrent transfers debit the same
+> platform account, so when two transfers fall in one block, the second is invalidated.
+>
+> The CreateDispute workload first funds the disputing investor with a transfer from the same platform
+> account. Its failures (85.7–93.5 % success) are these MVCC_READ_CONFLICT invalidations of the funding
+> transfer; CreateDispute itself only writes a new record and cannot conflict.
+>
+> RespondToInvestmentProposal (82.9 % and 84.8 % at medium and stress load) responds to a proposal created
+> moments earlier by another organisation. Its failures are endorsement-time "proposal not found" errors:
+> under load, the private proposal record has not yet reached StartupOrg's peer, because the collection
+> requires no synchronous dissemination (requiredPeerCount 0).
+>
+> These failures can be reduced with per-transfer keys or delta accounting for the platform account, a
+> requiredPeerCount of at least 1 for shared collections, or client-side retries.
+
+**Remaining check:** your exact percentages come from your Caliper run. The Caliper report does not show
+validation codes, so the mechanisms above come from reproducing your workloads. If you still have the
+Caliper console log (`caliper.log`), it will show `MVCC_READ_CONFLICT` for the transfers and "proposal not
+found" for the responses.
 
 ## Task 5 — SE19 investment after blacklisting: IMPLEMENTED (single + dual)
 

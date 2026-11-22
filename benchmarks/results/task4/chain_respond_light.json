@@ -1,0 +1,19 @@
+{
+  "mode": "respond",
+  "iterations": 25,
+  "iterationsPerSecond": 10,
+  "steps": {
+    "createStartup": {
+      "VALID": 25
+    },
+    "createCampaign": {
+      "VALID": 25
+    },
+    "createInvestmentProposal": {
+      "VALID": 25
+    },
+    "respondToInvestmentProposal": {
+      "VALID": 25
+    }
+  }
+}

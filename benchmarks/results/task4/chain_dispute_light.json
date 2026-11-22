@@ -1,0 +1,29 @@
+{
+  "mode": "dispute",
+  "iterations": 25,
+  "iterationsPerSecond": 10,
+  "steps": {
+    "createStartup": {
+      "VALID": 25
+    },
+    "createCampaign": {
+      "VALID": 25
+    },
+    "registerInvestor": {
+      "VALID": 25
+    },
+    "createTokenAccount(investor)": {
+      "VALID": 25
+    },
+    "createTokenAccount(startup)": {
+      "VALID": 25
+    },
+    "transferTokens(PLATFORM->investor)": {
+      "code_11": 13,
+      "VALID": 12
+    },
+    "createDispute": {
+      "VALID": 12
+    }
+  }
+}
