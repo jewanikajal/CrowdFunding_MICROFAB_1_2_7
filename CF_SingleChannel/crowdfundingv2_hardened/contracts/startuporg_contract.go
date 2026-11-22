@@ -1293,6 +1293,20 @@ func (s *StartupContract) AcknowledgeInvestment(
 	investorID string,
 	amount float64,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, campaignID == "" && investorID == "" && amount == 0)
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("campaignId", &campaignID, true); err != nil {
+		return err
+	}
+	if err := priv.str("investorId", &investorID, true); err != nil {
+		return err
+	}
+	if err := priv.num("amount", &amount); err != nil {
+		return err
+	}
 
 	timestamp := txNow(ctx).Format(time.RFC3339)
 
@@ -1343,6 +1357,25 @@ func (s *StartupContract) RespondToInvestmentProposal(
 	counterTerms string,
 	modifiedMilestonesJSON string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, action == "" && counterAmount == 0 && counterTerms == "" && modifiedMilestonesJSON == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("action", &action, true); err != nil {
+		return err
+	}
+	if _, ok := priv["counterAmount"]; ok {
+		if err := priv.num("counterAmount", &counterAmount); err != nil {
+			return err
+		}
+	}
+	if err := priv.str("counterTerms", &counterTerms, false); err != nil {
+		return err
+	}
+	if err := priv.str("modifiedMilestones", &modifiedMilestonesJSON, false); err != nil {
+		return err
+	}
 
 	// Get proposal from shared collection
 	proposalJSON, err := ctx.GetStub().GetPrivateData(StartupInvestorCollection, "PROPOSAL_"+proposalID)

@@ -58,7 +58,7 @@ async function evaluate(as, ch, cc, fn, args) {
   try { return { ok: true, result: Buffer.from(await gateway(as.org, as.user).getNetwork(ch).getContract(cc).evaluateTransaction(fn, ...args.map(String))).toString() }; } catch (e) { return { ok: false, error: errText(e) }; }
 }
 const ev = (r) => (r.committed ? `committed VALID tx ${r.txId.slice(0, 12)}` : (r.error || `invalidated: code ${r.code}`));
-const why = (r) => { const m = (r.error || '').match(/(access denied[^|]*|KYC[^|]*|not published[^|]*|not registered[^|]*|insufficient[^|]*|non-zero opening[^|]*|disabled[^|]*|already exists[^|]*|tx creator does not have[^|]*|creator org[^|]*|cannot verify[^|]*)/i); return m ? m[1].trim().slice(0, 160) : ev(r); };
+const why = (r) => { const m = (r.error || '').match(/(access denied[^|]*|KYC[^|]*|not published[^|]*|not registered[^|]*|insufficient[^|]*|non-zero opening[^|]*|disabled[^|]*|already exists[^|]*|tx creator does not have[^|]*|creator org[^|]*|cannot verify[^|]*|confidential investment data[^|]*)/i); return m ? m[1].trim().slice(0, 160) : ev(r); };
 
 const results = [];
 function record(id, category, claim, attacker, action, vulnerable, evidence) {
@@ -73,6 +73,7 @@ const P = (user = 'User1') => ({ org: 'PlatformOrg', user });
 const S = (user = 'User1') => ({ org: 'StartupOrg', user });
 const I = (user = 'User1') => ({ org: 'InvestorOrg', user });
 const V = (user = 'User1') => ({ org: 'ValidatorOrg', user });
+const priv = (o) => ({ private: Buffer.from(JSON.stringify(o)) });
 const kyc = (income, aadhaar, pan) => ({ kyc: Buffer.from(JSON.stringify({ annualIncome: income, aadharNumber: aadhaar, panNumber: pan })) });
 
 function campaignArgs(campId, stId) {
@@ -119,8 +120,39 @@ async function run(cfg) {
   r = await submit({ ...I('User2'), transient: kyc(45000000, `5555-${RID.slice(-4)}-1111`, 'HONST1234H') }, ICH, ICC, 'InvestorContract:RegisterInvestor', [investor, 'Asha', 0, '', '']);
   positive(`${L}-POS4`, 'Investor registers with KYC in the transient map', r.committed, ev(r));
   const regTx = r.txId;
-  r = await submit(I('User2'), ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_ok`, camp, investor, 25000000, 'INR']);
-  positive(`${L}-POS5`, 'Investor invests in the published campaign', r.committed, ev(r));
+  const AMTU = 25000000 + parseInt(RID.slice(-3), 36); // unique amount, searched for in blocks
+  r = await submit({ ...I('User2'), transient: priv({ campaignId: camp, investorId: investor, amount: AMTU, currency: 'INR' }) }, ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_ok`, '', '', 0, '']);
+  positive(`${L}-POS5`, 'Investor invests in the published campaign (amount/campaign/investor via transient map)', r.committed, ev(r));
+  const investTx = r.txId, AMT = AMTU;
+  // proposal with confidential terms
+  const terms = `TERMS_${RID}`, prop = `PROP_${RID}`;
+  const pr = await submit({ ...I('User2'), transient: priv({ campaignId: camp, investorId: investor, startupId: st, investmentAmount: 30000000 + parseInt(RID.slice(-3), 36), currency: 'INR', equity: '10%', duration: '24m', milestones: '[]', proposedTerms: terms }) },
+    ICH, ICC, 'InvestorContract:CreateInvestmentProposal', [prop, '', '', '', 0, '', '', '', '', '']);
+  positive(`${L}-POS5b`, 'Investor creates a proposal with confidential terms (transient map)', pr.committed, ev(pr));
+  // startup acknowledges the investment (signature differs between single and dual)
+  const ack = GCH !== ICH
+    ? await submit({ ...S(), transient: priv({ campaignId: camp, startupId: st, investorId: investor, message: 'thanks' }) }, ICH, ICC, 'StartupContract:AcknowledgeInvestment', [`ACK_${RID}`, `INVT_${RID}_ok`, '', '', '', ''])
+    : await submit({ ...S(), transient: priv({ campaignId: camp, investorId: investor, amount: AMT }) }, ICH, ICC, 'StartupContract:AcknowledgeInvestment', [`INVT_${RID}_ok`, '', '', 0]);
+  positive(`${L}-POS5c`, 'Startup acknowledges the investment (transient map)', ack.committed, ev(ack));
+  // who can read the investment record? (StartupInvestorShared: Startup + Investor only)
+  const readInv = (as) => (GCH !== ICH
+    ? evaluate(as, ICH, ICC, 'DataBridgeContract:ReadData', ['StartupInvestorShared', `INVESTMENT_INVT_${RID}_ok`])
+    : evaluate(as, ICH, ICC, 'InvestorContract:GetInvestment', [`INVT_${RID}_ok`]));
+  const rs = await readInv(S()); positive(`${L}-POS5d`, 'StartupOrg can read the investment record', rs.ok, rs.ok ? rs.result.slice(0, 90) : rs.error);
+  for (const org of ['ValidatorOrg', 'PlatformOrg']) {
+    const x = await readInv({ org, user: 'User1' });
+    record(`${L}-P4c-${org.replace('Org', '')}`, 'Privacy leakage', 'Investment records readable only by StartupOrg and InvestorOrg', `${org} client`, 'read INVESTMENT_ record in StartupInvestorShared', x.ok, x.ok ? x.result.slice(0, 120) : why({ error: x.error }));
+  }
+  // are amount / terms visible in the blocks every channel member receives?
+  for (const [label, txid, needle] of [['investment', investTx, String(AMT)], ['proposal', pr.txId, terms]]) {
+    if (!txid) continue;
+    const blk = await gateway('ValidatorOrg').getNetwork(ICH).getContract('qscc').evaluateTransaction('GetBlockByTxID', ICH, txid).then((b) => Buffer.from(b)).catch((e) => ({ err: errText(e) }));
+    const leak = Buffer.isBuffer(blk) && blk.includes(Buffer.from(needle));
+    record(`${L}-P4-${label}`, 'Privacy leakage', `${label === 'investment' ? 'Investment amount' : 'Proposal terms'} not recorded in shared blocks`, 'ValidatorOrg client (channel member, not a collection member)',
+      `qscc GetBlockByTxID on the ${label} tx, search for "${needle}"`, leak, Buffer.isBuffer(blk) ? (leak ? 'found in block' : `block fetched (${blk.length} bytes); value NOT present`) : blk.err);
+  }
+  const pl = await submit(I('User2'), ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_plain`, camp, investor, 25000000, 'INR']);
+  record(`${L}-P4b`, 'Privacy leakage', 'Investment data cannot be submitted as plaintext arguments', 'careless client', 'MakeInvestment with amount/campaign/investor in args', pl.committed, why(pl));
   // token honest path
   await submit(P(), TCH, TCC, 'TokenContract:InitializeToken', [tok, 'Payment Token', 2, 1000000, 0]);
   const invAcct = `INV_acct_${RID}`, stAcct = `STARTUP_acct_${RID}`;
@@ -143,11 +175,11 @@ async function run(cfg) {
   record(`${L}-A3`, 'Unauthorised funding', 'Only PlatformOrg can move PLATFORM treasury funds', 'StartupOrg client', 'TransferTokens(from=PLATFORM)', r.committed, why(r));
   r = await submit(I('User1'), TCH, TCC, 'TokenContract:TransferTokens', [`TX_${RID}_a4`, tok, invAcct, atk, 1000, 'INR', 'theft', '']);
   record(`${L}-A4`, 'Unauthorised funding', 'Investors can only spend their own balance', 'InvestorOrg User1 (account owned by User2)', 'TransferTokens(from=victim account)', r.committed, why(r));
-  r = await submit(I('User2'), ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_ghost`, 'CAMP_DOES_NOT_EXIST', investor, 25000000, 'INR']);
+  r = await submit({ ...I('User2'), transient: priv({ campaignId: 'CAMP_DOES_NOT_EXIST', investorId: investor, amount: 25000000, currency: 'INR' }) }, ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_ghost`, '', '', 0, '']);
   record(`${L}-A5`, 'Unauthorised funding', 'Investments only into existing, approved campaigns', 'InvestorOrg client', 'MakeInvestment(campaign=CAMP_DOES_NOT_EXIST)', r.committed, why(r));
-  r = await submit(S(), ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_forged`, camp, investor, 25000000, 'INR']);
+  r = await submit({ ...S(), transient: priv({ campaignId: camp, investorId: investor, amount: 25000000, currency: 'INR' }) }, ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_forged`, '', '', 0, '']);
   record(`${L}-A6`, 'Unauthorised funding', 'Only investors can commit investments', 'StartupOrg client', 'MakeInvestment on behalf of an investor', r.committed, why(r));
-  r = await submit(I('User1'), ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_imp`, camp, investor, 25000000, 'INR']);
+  r = await submit({ ...I('User1'), transient: priv({ campaignId: camp, investorId: investor, amount: 25000000, currency: 'INR' }) }, ICH, ICC, 'InvestorContract:MakeInvestment', [`INVT_${RID}_imp`, '', '', 0, '']);
   record(`${L}-A6b`, 'Unauthorised funding', 'An investor cannot invest in the name of another investor', 'InvestorOrg User1 (investor registered by User2)', 'MakeInvestment as INV_honest', r.committed, why(r));
   // own campaign for self-approval attempt
   const camp2 = `CAMP2_${RID}`, val2 = `VAL2_${RID}`;
@@ -165,7 +197,7 @@ async function run(cfg) {
   const codes = {}; race.forEach((x) => { const k = x.committed ? 'VALID' : (x.code != null ? `code_${x.code}` : 'rejected'); codes[k] = (codes[k] || 0) + 1; });
   record(`${L}-A10`, 'Duplicate registration', 'Concurrent duplicate registrations: exactly one wins', 'InvestorOrg client', '20 parallel RegisterInvestor (same ID)', won !== 1, { committed: won, outcomes: codes });
   const invt = `INVT_race_${RID}`;
-  const race2 = await Promise.all(Array.from({ length: 20 }, () => submit(I('User2'), ICH, ICC, 'InvestorContract:MakeInvestment', [invt, camp, investor, 25000000, 'INR'])));
+  const race2 = await Promise.all(Array.from({ length: 20 }, () => submit({ ...I('User2'), transient: priv({ campaignId: camp, investorId: investor, amount: 25000000, currency: 'INR' }) }, ICH, ICC, 'InvestorContract:MakeInvestment', [invt, '', '', 0, ''])));
   const won2 = race2.filter((x) => x.committed).length;
   record(`${L}-A11`, 'Duplicate registration', 'Concurrent duplicate investment IDs: exactly one wins', 'InvestorOrg client', '20 parallel MakeInvestment (same ID, published campaign)', won2 !== 1, { committed: won2 });
   // A12 replay

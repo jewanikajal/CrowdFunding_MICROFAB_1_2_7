@@ -525,6 +525,23 @@ func (i *InvestorContract) MakeInvestment(
 	amount float64,
 	currency string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, campaignID == "" && investorID == "" && amount == 0 && currency == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("campaignId", &campaignID, true); err != nil {
+		return err
+	}
+	if err := priv.str("investorId", &investorID, true); err != nil {
+		return err
+	}
+	if err := priv.num("amount", &amount); err != nil {
+		return err
+	}
+	if err := priv.str("currency", &currency, true); err != nil {
+		return err
+	}
 
 	if amount < 20000000 {
 		return fmt.Errorf("minimum investment amount is 20,000,000 (2 crore), requested: %f", amount)
@@ -637,6 +654,38 @@ func (i *InvestorContract) CreateInvestmentProposal(
 	milestonesJSON string,
 	proposedTerms string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, campaignID == "" && investorID == "" && startupID == "" && investmentAmount == 0 && currency == "" && equity == "" && duration == "" && milestonesJSON == "" && proposedTerms == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("campaignId", &campaignID, true); err != nil {
+		return err
+	}
+	if err := priv.str("investorId", &investorID, true); err != nil {
+		return err
+	}
+	if err := priv.str("startupId", &startupID, true); err != nil {
+		return err
+	}
+	if err := priv.num("investmentAmount", &investmentAmount); err != nil {
+		return err
+	}
+	if err := priv.str("currency", &currency, true); err != nil {
+		return err
+	}
+	if err := priv.str("equity", &equity, false); err != nil {
+		return err
+	}
+	if err := priv.str("duration", &duration, false); err != nil {
+		return err
+	}
+	if err := priv.str("milestones", &milestonesJSON, false); err != nil {
+		return err
+	}
+	if err := priv.str("proposedTerms", &proposedTerms, false); err != nil {
+		return err
+	}
 
 	var milestones []Milestone
 	if milestonesJSON != "" {
@@ -688,6 +737,13 @@ func (i *InvestorContract) CreateInvestmentProposal(
 	}
 
 	// Store in shared collection with StartupOrg
+	// Hardening (A5/A6): proposals only from the registered investor owner, into published open campaigns
+	if err := requireInvestorOwner(ctx, investorID); err != nil {
+		return err
+	}
+	if pub, perr := ctx.GetStub().GetState("CAMPAIGN_PUBLIC_" + campaignID); perr != nil || pub == nil || !isOpenCampaign(pub) {
+		return fmt.Errorf("campaign %s is not published/open for investment", campaignID)
+	}
 	err = ctx.GetStub().PutPrivateData(StartupInvestorCollection, "PROPOSAL_"+proposalID, proposalJSON)
 	if err != nil {
 		return fmt.Errorf("failed to create proposal: %v", err)
@@ -704,6 +760,22 @@ func (i *InvestorContract) RespondToCounterOffer(
 	counterAmount float64,
 	counterTerms string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, action == "" && counterAmount == 0 && counterTerms == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("action", &action, true); err != nil {
+		return err
+	}
+	if _, ok := priv["counterAmount"]; ok {
+		if err := priv.num("counterAmount", &counterAmount); err != nil {
+			return err
+		}
+	}
+	if err := priv.str("counterTerms", &counterTerms, false); err != nil {
+		return err
+	}
 
 	// Get proposal from shared collection
 	proposalJSON, err := ctx.GetStub().GetPrivateData(StartupInvestorCollection, "PROPOSAL_"+proposalID)
@@ -763,6 +835,14 @@ func (i *InvestorContract) AcceptAgreement(
 	agreementID string,
 	investorID string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, investorID == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("investorId", &investorID, true); err != nil {
+		return err
+	}
 
 	// Get agreement from StartupInvestorCollection
 	agreementJSON, err := ctx.GetStub().GetPrivateData(StartupInvestorCollection, "AGREEMENT_"+agreementID)

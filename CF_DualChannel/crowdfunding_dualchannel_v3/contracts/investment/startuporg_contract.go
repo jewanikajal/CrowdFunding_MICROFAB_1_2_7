@@ -1422,6 +1422,23 @@ func (s *StartupContract) AcknowledgeInvestment(
 	investorID string,
 	message string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, campaignID == "" && startupID == "" && investorID == "" && message == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("campaignId", &campaignID, true); err != nil {
+		return err
+	}
+	if err := priv.str("startupId", &startupID, true); err != nil {
+		return err
+	}
+	if err := priv.str("investorId", &investorID, true); err != nil {
+		return err
+	}
+	if err := priv.str("message", &message, false); err != nil {
+		return err
+	}
 
 	// 1. Fetch existing investment to get the actual amount and verify it exists
 	investmentJSON, err := CrossChannelGet(ctx, StartupInvestorCollection, "INVESTMENT_"+investmentID)
@@ -1471,20 +1488,35 @@ func (s *StartupContract) AcknowledgeInvestment(
 		return fmt.Errorf("failed to store acknowledgement record: %v", err)
 	}
 
-	// 5. Update campaign investor count and funds raised
-	campaignJSON, err := CrossChannelGet(ctx, StartupPrivateCollection, "CAMPAIGN_"+campaignID)
-	if err == nil && campaignJSON != nil {
-		var campaign Campaign
-		json.Unmarshal(campaignJSON, &campaign)
-		
-		// Note: we use the amount from the fetched Investment, not from arguments
-		campaign.InvestorCount++
-		campaign.FundsRaisedAmount += investment.Amount
-		campaign.FundsRaisedPercent = (campaign.FundsRaisedAmount / campaign.GoalAmount) * 100
-		campaign.UpdatedAt = timestamp
-
-		campaignJSON, _ = json.Marshal(campaign)
-		CrossChannelPut(ctx, StartupPrivateCollection, "CAMPAIGN_"+campaignID, campaignJSON)
+	// 5. Update the campaign funding summary.
+	// Hardening (P4): kept on the investment channel in StartupInvestorShared (Startup + Investor only).
+	// Previously the whole campaign record was written back to the governance channel, which in v3
+	// travels through the public governance outbox and would expose amounts to Validator/Platform.
+	type fundingSummary struct {
+		CampaignID         string  `json:"campaignId"`
+		InvestorCount      int     `json:"investorCount"`
+		FundsRaisedAmount  float64 `json:"fundsRaisedAmount"`
+		FundsRaisedPercent float64 `json:"fundsRaisedPercent"`
+		UpdatedAt          string  `json:"updatedAt"`
+	}
+	summary := fundingSummary{CampaignID: campaignID}
+	if prev, _ := CrossChannelGet(ctx, StartupInvestorCollection, "CAMPAIGN_FUNDING_"+campaignID); prev != nil {
+		json.Unmarshal(prev, &summary)
+	}
+	summary.InvestorCount++
+	summary.FundsRaisedAmount += investment.Amount // amount from the stored investment, not from arguments
+	if pub, _ := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID); pub != nil {
+		var pc struct {
+			GoalAmount float64 `json:"goal_amount"` // field name used by PublishedCampaign
+		}
+		if json.Unmarshal(pub, &pc) == nil && pc.GoalAmount > 0 {
+			summary.FundsRaisedPercent = summary.FundsRaisedAmount / pc.GoalAmount * 100
+		}
+	}
+	summary.UpdatedAt = timestamp
+	summaryJSON, _ := json.Marshal(summary)
+	if err := CrossChannelPut(ctx, StartupInvestorCollection, "CAMPAIGN_FUNDING_"+campaignID, summaryJSON); err != nil {
+		return fmt.Errorf("failed to update funding summary: %v", err)
 	}
 
 	return nil
@@ -1499,6 +1531,25 @@ func (s *StartupContract) RespondToInvestmentProposal(
 	counterTerms string,
 	modifiedMilestonesJSON string,
 ) error {
+	// Hardening (P4): confidential inputs come from transient["private"], never from block-recorded arguments
+	priv, perr := privateInput(ctx, action == "" && counterAmount == 0 && counterTerms == "" && modifiedMilestonesJSON == "")
+	if perr != nil {
+		return perr
+	}
+	if err := priv.str("action", &action, true); err != nil {
+		return err
+	}
+	if _, ok := priv["counterAmount"]; ok {
+		if err := priv.num("counterAmount", &counterAmount); err != nil {
+			return err
+		}
+	}
+	if err := priv.str("counterTerms", &counterTerms, false); err != nil {
+		return err
+	}
+	if err := priv.str("modifiedMilestones", &modifiedMilestonesJSON, false); err != nil {
+		return err
+	}
 
 	// Get proposal from shared collection
 	proposalJSON, err := CrossChannelGet(ctx, StartupInvestorCollection, "PROPOSAL_"+proposalID)

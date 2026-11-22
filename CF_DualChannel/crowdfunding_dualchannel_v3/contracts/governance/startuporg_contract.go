@@ -1422,6 +1422,12 @@ func (s *StartupContract) AcknowledgeInvestment(
 	investorID string,
 	message string,
 ) error {
+	// Hardening (P4): investment records live in StartupInvestorShared on the investment channel.
+	// A governance-side write would travel through the (public) governance outbox, exposing it to
+	// Validator/Platform, so this copy is disabled; StartupOrg calls the investment-channel version.
+	if true {
+		return fmt.Errorf("AcknowledgeInvestment must be invoked on the investment-execution-channel (investment chaincode)")
+	}
 
 	// 1. Fetch existing investment to get the actual amount and verify it exists
 	investmentJSON, err := CrossChannelGet(ctx, StartupInvestorCollection, "INVESTMENT_"+investmentID)
@@ -1499,6 +1505,12 @@ func (s *StartupContract) RespondToInvestmentProposal(
 	counterTerms string,
 	modifiedMilestonesJSON string,
 ) error {
+	// Hardening (P4): investment records live in StartupInvestorShared on the investment channel.
+	// A governance-side write would travel through the (public) governance outbox, exposing it to
+	// Validator/Platform, so this copy is disabled; StartupOrg calls the investment-channel version.
+	if true {
+		return fmt.Errorf("RespondToInvestmentProposal must be invoked on the investment-execution-channel (investment chaincode)")
+	}
 
 	// Get proposal from shared collection
 	proposalJSON, err := CrossChannelGet(ctx, StartupInvestorCollection, "PROPOSAL_"+proposalID)

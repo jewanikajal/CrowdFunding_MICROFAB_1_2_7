@@ -248,3 +248,49 @@ func isOpenCampaign(publicJSON []byte) bool {
 	}
 	return c.Status == "PUBLISHED" || c.Status == "ACTIVE"
 }
+
+// ---------------------------------------------------------------------------------------------
+// Confidential transaction inputs (hardening, attack P4): investment amounts, proposal terms,
+// counter-offers and the investor/campaign relationship are read from the transient map under
+// key "private" (a JSON object), so they are never written to the block. The corresponding
+// plaintext arguments must be empty / zero; otherwise the transaction is rejected.
+// ---------------------------------------------------------------------------------------------
+type privIn map[string]json.RawMessage
+
+func privateInput(ctx contractapi.TransactionContextInterface, plaintextEmpty bool) (privIn, error) {
+	if !plaintextEmpty {
+		return nil, fmt.Errorf("confidential investment data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"private\"")
+	}
+	tm, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read transient map: %v", err)
+	}
+	raw, ok := tm["private"]
+	if !ok {
+		return nil, fmt.Errorf("transient key \"private\" is required")
+	}
+	p := privIn{}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("invalid private transient data: %v", err)
+	}
+	return p, nil
+}
+
+func (p privIn) str(k string, dst *string, required bool) error {
+	v, ok := p[k]
+	if !ok {
+		if required {
+			return fmt.Errorf("transient private.%s is required", k)
+		}
+		return nil
+	}
+	return json.Unmarshal(v, dst)
+}
+
+func (p privIn) num(k string, dst *float64) error {
+	v, ok := p[k]
+	if !ok {
+		return fmt.Errorf("transient private.%s is required", k)
+	}
+	return json.Unmarshal(v, dst)
+}
