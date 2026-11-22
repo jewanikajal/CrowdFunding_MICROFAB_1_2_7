@@ -277,6 +277,7 @@ The shared hardening layer is `contracts/security.go`.
 | Account ownership | Each account records a `controller` (the creating client's identity, or Platform custody). Only the controller may debit it. Non-zero opening balances are Platform-only. | A2, A3, A4 |
 | Investor binding and campaign check | An investor ID is bound to the client that registered it. `MakeInvestment` requires that owner, and a campaign that is published and open. In dual, the public campaign record is bridged to the investment channel. | A5, A6b |
 | KYC confidentiality | Aadhaar, income and PAN are accepted **only** via the transient map (`"kyc"`); plaintext arguments are rejected. | P1 |
+| Investment confidentiality | Amounts, proposal terms, counter-offers and the investor/campaign link are accepted only via the transient map (`"private"`) in `MakeInvestment`, `CreateInvestmentProposal`, `RespondToCounterOffer`, `AcceptAgreement`, `AcknowledgeInvestment` and `RespondToInvestmentProposal`. In dual, the governance copies of the last two are disabled, because their writes would pass the public outbox. The funding summary stays in `StartupInvestorShared`. | P4 |
 | Real private data (dual) | Collection-homed data uses `PutPrivateData`/`GetPrivateData` (was public `PutState`). `StoreData` is disabled. Bridge writes go into the target PDC. | P3, A14 |
 | Determinism | `time.Now()` → `GetTxTimestamp()` in all 108 / 90 / 111 call sites. | ENDORSE_MISMATCH (§2.4) |
 | Crash safety | Accounts created in the same transaction are built in memory (Fabric has no read-your-writes). | A15 |
@@ -301,22 +302,32 @@ that the honest end-to-end workflow still works, so a block cannot be caused by 
 | A15 | Chaincode crash (DoS) | VULNERABLE → **MITIGATED** | mitigated → **MITIGATED** | no crash; account created in memory |
 | P1 | KYC in shared blocks | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | block fetched by StartupOrg, Aadhaar/income **not present** |
 | P1b | KYC sent as plaintext arguments | (new) **MITIGATED** | (new) **MITIGATED** | `KYC data must not be passed as transaction arguments` |
+| P4 | Investment amount / proposal terms in shared blocks | VULNERABLE → **MITIGATED** | VULNERABLE → **MITIGATED** | block fetched by ValidatorOrg: amount and terms **not present** |
+| P4b | Investment data sent as plaintext arguments | (new) **MITIGATED** | (new) **MITIGATED** | `confidential investment data must not be passed as transaction arguments` |
+| P4c | Validator / Platform read investment record | mitigated → **MITIGATED** | VULNERABLE → **MITIGATED** | `tx creator does not have read access permission … StartupInvestorShared` |
 | P2 / P3 | Non-member reads investor KYC | mitigated → **MITIGATED** | VULNERABLE → **MITIGATED** | `tx creator does not have read access permission … InvestorPrivateData` |
 | C1 | Cross-channel write persisted | — | FAILS → **WORKS** (present after 3.0 s) | v3 bridge |
 | M1 | One compromised org forges 10⁹ tokens | VULNERABLE → **MITIGATED** | (same mechanism) | endorsed by StartupOrg only: `invalidated: code 10` (ENDORSEMENT_POLICY_FAILURE); with an honest co-endorser: `insufficient balance` |
 | N1 | Token call on the OR-policy chaincode | (new) **MITIGATED** | (new) **MITIGATED** | `token functions are served only by the "cftoken" chaincode` |
 
-**Totals after hardening: 0 of 19 attacks succeed on the single channel and 0 of 19 on the dual channel**
+**Totals after hardening: 0 of 24 attacks succeed on the single channel and 0 of 24 on the dual channel**
 (C1 now works). Both malicious-endorser tests are mitigated (2 of 2).
-Positive controls — **all PASS** (single 6/6, dual 8/8):
+Positive controls — **all PASS** (single 9/9, dual 11/11):
 
 1. Create startup and campaign, then submit it.
 2. Validator validates and approves.
 3. Share and publish the campaign. Dual only: it reaches the investment channel through the relay in 3.1 s.
 4. Register an investor with KYC in the transient map.
-5. Invest in the published campaign.
+5. Invest in the published campaign, create a proposal and acknowledge the investment. All confidential
+   values go through the transient map, and StartupOrg can read the shared investment record.
 6. Token flow: own accounts, a 2-of-4-endorsed mint, and an owner transfer.
 7. Dual only: InvestorOrg still reads its own private KYC record.
+
+**Client rule for confidential data.** When a transaction carries transient data, the Fabric Gateway only
+lets organisations in the target collections endorse it (otherwise: *"requires endorsement from
+organisation(s) that are not in the distribution policy …"*). Clients therefore set
+`endorsingOrganizations` to the calling organisation for these calls, e.g. InvestorOrg for
+`MakeInvestment` and StartupOrg for `AcknowledgeInvestment`.
 
 **Cost of hardening** (same 4-peer topology as E1; `results/RESULTS_TABLES.md`, "Cost of hardening"):
 
