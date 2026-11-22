@@ -40,11 +40,21 @@ const WORKLOADS = {
   // token ledger in the separate cftoken chaincode, OutOf(2,4) endorsement (run with --chaincode cftoken)
   token_h: { fn: 'TokenContract:CreateTokenAccount', org: 'PlatformOrg',
     args: (id) => [`ACC_${id}`, `owner_${id}`, 'USER', '{}'] },
+  // ---- Task 4: contention reproduction on the ORIGINAL v2 single-channel chaincode ----
+  // i = transaction index; POOL = number of distinct hot keys (set via cfg.pool)
+  transfer_v2: { fn: 'TokenContract:TransferTokens', org: 'PlatformOrg',
+    args: (id) => [`TT_${id}`, 'CFT', 'PLATFORM', `RCPT_${txIndex(id) % POOL}`, '1', 'INR', 'bench', ''] },
+  respond_v2: { fn: 'StartupContract:RespondToInvestmentProposal', org: 'StartupOrg',
+    args: (id) => [`PROP_${txIndex(id) % POOL}`, 'COUNTER', '30000000', `terms_${id}`, '[]'] },
+  dispute_v2: { fn: 'PlatformContract:CreateDispute', org: 'PlatformOrg',
+    args: (id) => [`DSP_${id}`, 'INVESTOR', 'INV_1', 'STARTUP', 'ST_1', 'FRAUD', 'CAMP_1', 'AGR_1', 'title', 'desc', '1000'] },
   // read-only query (evaluate, not ordered)
   query: { fn: 'TokenContract:GetTokenAccount', org: 'PlatformOrg', evaluate: true,
     args: () => ['ACC_SEED'] },
 };
 
+let POOL = 10;
+const txIndex = (id) => Number(id.split('_').pop()) * 1009 + Number(id.split('_').slice(-2)[0]); // unique per worker/tx
 function dom(org) { return `${org.toLowerCase()}.example.com`; }
 
 // --------------------------------------------------------------------------- worker
@@ -52,6 +62,7 @@ async function worker(cfg) {
   const grpc = require('@grpc/grpc-js');
   const { connect, signers, hash } = require('@hyperledger/fabric-gateway');
   const wl = WORKLOADS[cfg.workload];
+  if (cfg.pool) POOL = cfg.pool;
   const org = cfg.org || wl.org;
   const d = dom(org);
   const hosts = cfg.peers[org];
@@ -108,6 +119,7 @@ function classify(e) {
   const msg = [e.message || ''].concat((e.details || []).map((x) => x.message || '')).join(' | ');
   if (/do not match|mismatch/i.test(msg)) return 'ENDORSE_MISMATCH';
   if (/MVCC_READ_CONFLICT/.test(msg)) return 'MVCC_READ_CONFLICT';
+  if (/stream terminated|could not launch/i.test(msg)) return 'CHAINCODE_CRASH';
   if (/PHANTOM/.test(msg)) return 'PHANTOM_READ_CONFLICT';
   if (/already exists/i.test(msg)) return 'DUPLICATE';
   if (/exceeding concurrency limit/.test(msg)) return 'GATEWAY_OVERLOAD';

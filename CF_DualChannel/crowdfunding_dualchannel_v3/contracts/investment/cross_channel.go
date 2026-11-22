@@ -75,6 +75,12 @@ func CrossChannelPut(ctx contractapi.TransactionContextInterface, collection str
 		// Hardening (P3): collection-homed data is stored in the real Private Data Collection
 		return stub.PutPrivateData(collection, key, value)
 	}
+	// Privacy (PR11): the outbox is PUBLIC on the source channel. Governance-homed collections are
+	// private to Startup/Validator/Platform; writing them from the investment channel would expose
+	// them to InvestorOrg through the investment-channel outbox, so this direction is refused.
+	if stub.GetChannelID() == InvestmentChannel && target == GovernanceChannel {
+		return fmt.Errorf("refused: writing %s from the investment channel would expose it to InvestorOrg via the public outbox; invoke the governance chaincode instead", collection)
+	}
 	sum := sha256.Sum256(value)
 	e := OutboxEntry{SourceChannel: stub.GetChannelID(), SourceTxID: stub.GetTxID(), TargetChannel: target,
 		Collection: collection, Key: key, Value: string(value), SHA256: hex.EncodeToString(sum[:])}

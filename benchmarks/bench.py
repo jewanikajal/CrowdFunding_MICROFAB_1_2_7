@@ -60,7 +60,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("name"); ap.add_argument("workload"); ap.add_argument("tps", type=float); ap.add_argument("tx", type=int)
     ap.add_argument("--workers", type=int, default=4); ap.add_argument("--org")
-    ap.add_argument("--channel"); ap.add_argument("--chaincode"); ap.add_argument("--tag", default="")
+    ap.add_argument("--channel"); ap.add_argument("--chaincode"); ap.add_argument("--tag", default=""); ap.add_argument("--pool", type=int)
     a = ap.parse_args()
     net = json.load(open(os.path.join(NET, "net.json")))
     ch, cc = DEFAULT_CH.get((net["topology"], a.workload)) or DEFAULT_CH[(net["topology"], "*")]
@@ -77,6 +77,7 @@ def main():
            "workers": a.workers, "peers": peers, "cryptoRoot": "/crypto",
            "out": "/b/results/raw/." + a.name + ".lg.json"}
     if a.org: cfg["org"] = a.org
+    if a.pool: cfg["pool"] = a.pool
     time.sleep(1.5)
     subprocess.run(["docker", "run", "--rm", "--name", "loadgen-" + a.name, "--network", "cfnet",
                     "-v", f"{HERE}:/b", "-v", f"{NET}/crypto:/crypto:ro", "node:22-slim",

@@ -212,9 +212,10 @@ func (i *InvestorContract) RegisterInvestor(
 	}
 	annualIncome, aadharNumber, panNumber = kyc.AnnualIncome, kyc.AadharNumber, kyc.PANNumber
 
-	// SEBI Accredited Investor Check
-	if annualIncome < MinInvestorIncome {
-		return fmt.Errorf("investor annual income %.2f below SEBI minimum threshold %.2f", annualIncome, MinInvestorIncome)
+	// SEBI accredited-investor check: income route OR net-worth routes (sebi_eligibility.go)
+	eligibilityBasis, err := sebiEligibility(annualIncome, kyc.NetWorth, kyc.FinancialAssets)
+	if err != nil {
+		return err
 	}
 
 	timestamp := txNow(ctx).Format(time.RFC3339)
@@ -244,6 +245,9 @@ func (i *InvestorContract) RegisterInvestor(
 		InvestorID:   investorID,
 		AnnualIncome: annualIncome,
 		AadharNumber: aadharNumber,
+		NetWorth:         kyc.NetWorth,
+		FinancialAssets:  kyc.FinancialAssets,
+		EligibilityBasis: eligibilityBasis,
 	}
 	privBytes, _ := json.Marshal(privateProfile)
 	err = CrossChannelPut(ctx, InvestorPrivateCollection, "INVESTOR_PRIV_"+investorID, privBytes)
@@ -525,6 +529,10 @@ func (i *InvestorContract) MakeInvestment(
 	if err := requireInvestorOwner(ctx, investorID); err != nil {
 		return err
 	}
+	// Fraud control (SE19): no investments into blacklisted campaigns
+	if bl, _ := CrossChannelGet(ctx, AllOrgsCollection, blacklistKey(campaignID)); bl != nil {
+		return fmt.Errorf("campaign %s is blacklisted (fraud control): investments are not accepted", campaignID)
+	}
 	pub, err := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID)
 	if err != nil || pub == nil || !isOpenCampaign(pub) {
 		return fmt.Errorf("campaign %s is not published/open for investment", campaignID)
@@ -675,6 +683,10 @@ func (i *InvestorContract) CreateInvestmentProposal(
 	// (hardening: PlatformPrivateData is now a real PDC that InvestorOrg cannot read)
 	if err := requireInvestorOwner(ctx, investorID); err != nil {
 		return err
+	}
+	// Fraud control (SE19): no investments into blacklisted campaigns
+	if bl, _ := CrossChannelGet(ctx, AllOrgsCollection, blacklistKey(campaignID)); bl != nil {
+		return fmt.Errorf("campaign %s is blacklisted (fraud control): investments are not accepted", campaignID)
 	}
 	pub, err := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID)
 	if err != nil || pub == nil || !isOpenCampaign(pub) {

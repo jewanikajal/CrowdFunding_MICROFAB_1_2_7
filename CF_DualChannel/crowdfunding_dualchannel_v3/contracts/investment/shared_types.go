@@ -54,9 +54,12 @@ type InvestorProfilePublic struct {
 
 // InvestorProfilePrivate represents sensitive info stored in PDC (InvestorOrg only)
 type InvestorProfilePrivate struct {
-	InvestorID   string  `json:"investorId"`
-	AnnualIncome float64 `json:"annualIncome"`
-	AadharNumber string  `json:"aadharNumber"`
+	InvestorID       string  `json:"investorId"`
+	AnnualIncome     float64 `json:"annualIncome"`
+	NetWorth         float64 `json:"netWorth,omitempty"`
+	FinancialAssets  float64 `json:"financialAssets,omitempty"`
+	EligibilityBasis string  `json:"eligibilityBasis"` // SEBI route: INCOME | NET_WORTH | INCOME_AND_NET_WORTH
+	AadharNumber     string  `json:"aadharNumber"`
 }
 
 // InvestorProfileShared represents info shared with other orgs (PDC)

@@ -648,6 +648,12 @@ func (s *StartupContract) CreateCampaign(
 	description string,
 	documentsJSON string,
 ) error {
+	// Privacy (PR11): document references come from transient["private"].documents, not from the block
+	docs, derr := privateDocs(ctx, documentsJSON)
+	if derr != nil {
+		return derr
+	}
+	documentsJSON = docs
 
 	// Check if campaign already exists
 	existingCampaignJSON, err := CrossChannelGet(ctx, StartupPrivateCollection, "CAMPAIGN_"+campaignID)
@@ -762,7 +768,7 @@ func (s *StartupContract) CreateCampaign(
 		return fmt.Errorf("failed to marshal public info: %v", err)
 	}
 
-	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, publicJSON)
+	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(publicJSON))
 	if err != nil {
 		return fmt.Errorf("failed to store public campaign info: %v", err)
 	}
@@ -925,6 +931,12 @@ func (s *StartupContract) SubmitForValidation(
 	documentsJSON string,
 	submissionNotes string,
 ) error {
+	// Privacy (PR11): document references come from transient["private"].documents, not from the block
+	docs, derr := privateDocs(ctx, documentsJSON)
+	if derr != nil {
+		return derr
+	}
+	documentsJSON = docs
 
 	// Get campaign from private collection
 	campaignJSON, err := CrossChannelGet(ctx, StartupPrivateCollection, "CAMPAIGN_"+campaignID)
@@ -1357,7 +1369,7 @@ func (s *StartupContract) SubmitForPublishing(
 	}
 
 	publicJSON, _ := json.Marshal(publicInfo)
-	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, publicJSON)
+	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(publicJSON))
 
 	return nil
 }
@@ -1402,7 +1414,7 @@ func (s *StartupContract) MarkCampaignCompleted(
 	}
 
 	publicJSON, _ := json.Marshal(publicInfo)
-	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, publicJSON)
+	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(publicJSON))
 
 	return nil
 }

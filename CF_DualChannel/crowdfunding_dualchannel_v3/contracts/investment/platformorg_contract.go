@@ -487,7 +487,7 @@ func (p *PlatformContract) PublishCampaignToPortal(
 
 	// Store FULL campaign info on world state for all investors to see
 	// This makes the 22-parameters visible to everyone
-	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, campaignJSON)
+	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(campaignJSON))
 	if err != nil {
 		return fmt.Errorf("failed to store public campaign info: %v", err)
 	}
@@ -601,7 +601,7 @@ func (p *PlatformContract) VerifyAndPublish(
 		"publishedAt": campaign.PublishedAt,
 	}
 	publicJSON, _ := json.Marshal(publicInfo)
-	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, publicJSON)
+	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(publicJSON))
 
 	return nil
 }

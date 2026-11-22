@@ -489,10 +489,10 @@ func (p *PlatformContract) PublishCampaignToPortal(
 	// This makes the 22-parameters visible to everyone
 	// Hardening (A5): make the published campaign visible on the investment channel through the
 	// verified bridge, so MakeInvestment can check that the campaign exists and is open.
-	if err := CrossChannelPut(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID, campaignJSON); err != nil {
+	if err := CrossChannelPut(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID, stripDocs(campaignJSON)); err != nil {
 		return fmt.Errorf("failed to bridge public campaign: %v", err)
 	}
-	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, campaignJSON)
+	err = ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(campaignJSON))
 	if err != nil {
 		return fmt.Errorf("failed to store public campaign info: %v", err)
 	}
@@ -606,7 +606,7 @@ func (p *PlatformContract) VerifyAndPublish(
 		"publishedAt": campaign.PublishedAt,
 	}
 	publicJSON, _ := json.Marshal(publicInfo)
-	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, publicJSON)
+	ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(publicJSON))
 
 	return nil
 }

@@ -205,6 +205,12 @@ func (v *ValidatorContract) ValidateCampaign(
 	submissionHash string, /* Was campaignHash */
 	documentsReviewedJSON string,
 ) error {
+	// Privacy (PR11): document references come from transient["private"].documents, not from the block
+	docs, derr := privateDocs(ctx, documentsReviewedJSON)
+	if derr != nil {
+		return derr
+	}
+	documentsReviewedJSON = docs
 
 	// Get campaign submission from StartupValidatorCollection
 	submissionJSON, err := ctx.GetStub().GetPrivateData(StartupValidatorCollection, "VALIDATION_REQUEST_"+campaignID)
@@ -314,7 +320,14 @@ func (v *ValidatorContract) ApproveOrRejectCampaign(
 		json.Unmarshal([]byte(issuesJSON), &issues)
 	}
 
-	timestamp := txNow(ctx).Format(time.RFC3339)
+	// Deterministic timestamp: the transaction's proposal timestamp is identical on every endorser.
+	// (time.Now() differs between endorsers and, under an AND policy, produced different
+	// validationProofHash values -> "ProposalResponsePayloads do not match".)
+	txTs, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return fmt.Errorf("failed to read transaction timestamp: %v", err)
+	}
+	timestamp := time.Unix(txTs.Seconds, int64(txTs.Nanos)).UTC().Format(time.RFC3339)
 
 	// Update validation
 	validation.Status = status
@@ -1341,4 +1354,36 @@ func (v *ValidatorContract) GetDisputePenaltySchedule(
 	}
 
 	return string(penaltiesJSON), nil
+}
+
+// BlacklistCampaign (fraud control, test SE19): ValidatorOrg blacklists a campaign at any stage,
+// including after publication. The reason stays in ValidatorPrivateData; a public marker without
+// the reason and the public campaign status (BLACKLISTED) let MakeInvestment/CreateInvestmentProposal
+// refuse new investments.
+func (v *ValidatorContract) BlacklistCampaign(ctx contractapi.TransactionContextInterface, campaignID string, reason string) error {
+	if campaignID == "" {
+		return fmt.Errorf("campaignID is required")
+	}
+	ts := txNow(ctx).Format(time.RFC3339)
+	validatorID, _ := callerID(ctx)
+	private, _ := json.Marshal(map[string]interface{}{"campaignId": campaignID, "reason": reason, "blacklistedAt": ts, "blacklistedBy": validatorID})
+	if err := ctx.GetStub().PutPrivateData(ValidatorPrivateCollection, "BLACKLISTED_"+campaignID, private); err != nil {
+		return fmt.Errorf("failed to store blacklist record: %v", err)
+	}
+	marker, _ := json.Marshal(map[string]interface{}{"campaignId": campaignID, "status": "BLACKLISTED", "blacklistedAt": ts})
+	if err := ctx.GetStub().PutState(blacklistKey(campaignID), marker); err != nil {
+		return fmt.Errorf("failed to publish blacklist marker: %v", err)
+	}
+	if pub, _ := ctx.GetStub().GetState("CAMPAIGN_PUBLIC_" + campaignID); pub != nil {
+		var m map[string]interface{}
+		if json.Unmarshal(pub, &m) == nil {
+			m["status"] = "BLACKLISTED"
+			m["blacklistedAt"] = ts
+			b, _ := json.Marshal(m)
+			if err := ctx.GetStub().PutState("CAMPAIGN_PUBLIC_"+campaignID, stripDocs(b)); err != nil {
+				return fmt.Errorf("failed to update public campaign status: %v", err)
+			}
+		}
+	}
+	return nil
 }

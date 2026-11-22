@@ -194,9 +194,11 @@ func requireAccountControl(ctx contractapi.TransactionContextInterface, acct *To
 // KYC carries investor identity data. Hardening (attack P1): it must arrive in the transient
 // map under key "kyc" so it is never written to the block; the plaintext arguments must be empty.
 type KYC struct {
-	AnnualIncome float64 `json:"annualIncome"`
-	AadharNumber string  `json:"aadharNumber"`
-	PANNumber    string  `json:"panNumber"`
+	AnnualIncome    float64 `json:"annualIncome"`
+	NetWorth        float64 `json:"netWorth"`        // optional: SEBI net-worth routes
+	FinancialAssets float64 `json:"financialAssets"` // optional: SEBI net-worth routes
+	AadharNumber    string  `json:"aadharNumber"`
+	PANNumber       string  `json:"panNumber"`
 }
 
 func readKYC(ctx contractapi.TransactionContextInterface, argIncome float64, argAadhar, argPAN string) (*KYC, error) {
@@ -293,4 +295,57 @@ func (p privIn) num(k string, dst *float64) error {
 		return fmt.Errorf("transient private.%s is required", k)
 	}
 	return json.Unmarshal(v, dst)
+}
+
+// blacklistKey is the public fraud-control marker for a campaign (test SE19).
+func blacklistKey(campaignID string) string { return "CAMPAIGN_BLACKLIST_" + campaignID }
+
+// ---------------------------------------------------------------------------------------------
+// Campaign document confidentiality (privacy test PR11)
+// ---------------------------------------------------------------------------------------------
+
+// privateDocs returns a JSON list of document references taken from transient["private"].documents.
+// A plaintext documents argument must be empty or "[]": it would otherwise be written to the block,
+// which every channel member (including InvestorOrg on the single channel) receives.
+func privateDocs(ctx contractapi.TransactionContextInterface, plaintext string) (string, error) {
+	if plaintext != "" && plaintext != "[]" {
+		return "", fmt.Errorf("campaign documents must not be passed as transaction arguments (they would be stored in the block); send them in the transient map under key \"private\" as {\"documents\": [...]}")
+	}
+	tm, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return "", err
+	}
+	raw, ok := tm["private"]
+	if !ok {
+		return "[]", nil
+	}
+	var p struct {
+		Documents json.RawMessage `json:"documents"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return "", fmt.Errorf("invalid private transient data: %v", err)
+	}
+	if len(p.Documents) == 0 {
+		return "[]", nil
+	}
+	return string(p.Documents), nil
+}
+
+// stripDocs removes document fields from a campaign record before it is written to public state
+// (or bridged to AllOrgsShared): documents stay in the Startup/Platform private collections.
+func stripDocs(record []byte) []byte {
+	var m map[string]interface{}
+	if json.Unmarshal(record, &m) != nil {
+		return record
+	}
+	for k := range m {
+		if strings.Contains(strings.ToLower(k), "document") {
+			delete(m, k)
+		}
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return record
+	}
+	return b
 }

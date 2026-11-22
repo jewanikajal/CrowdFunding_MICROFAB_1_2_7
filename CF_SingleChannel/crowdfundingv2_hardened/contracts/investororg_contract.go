@@ -212,9 +212,10 @@ func (i *InvestorContract) RegisterInvestor(
 	}
 	annualIncome, aadharNumber, panNumber = kyc.AnnualIncome, kyc.AadharNumber, kyc.PANNumber
 
-	// SEBI Accredited Investor Check
-	if annualIncome < MinInvestorIncome {
-		return fmt.Errorf("investor annual income %.2f below SEBI minimum threshold %.2f", annualIncome, MinInvestorIncome)
+	// SEBI accredited-investor check: income route OR net-worth routes (sebi_eligibility.go)
+	eligibilityBasis, err := sebiEligibility(annualIncome, kyc.NetWorth, kyc.FinancialAssets)
+	if err != nil {
+		return err
 	}
 
 	timestamp := txNow(ctx).Format(time.RFC3339)
@@ -244,6 +245,9 @@ func (i *InvestorContract) RegisterInvestor(
 		InvestorID:   investorID,
 		AnnualIncome: annualIncome,
 		AadharNumber: aadharNumber,
+		NetWorth:         kyc.NetWorth,
+		FinancialAssets:  kyc.FinancialAssets,
+		EligibilityBasis: eligibilityBasis,
 	}
 	privBytes, _ := json.Marshal(privateProfile)
 	err = ctx.GetStub().PutPrivateData(InvestorPrivateCollection, "INVESTOR_PRIV_"+investorID, privBytes)
@@ -550,6 +554,10 @@ func (i *InvestorContract) MakeInvestment(
 	if err := requireInvestorOwner(ctx, investorID); err != nil {
 		return err
 	}
+	// Fraud control (SE19): no investments into blacklisted campaigns
+	if bl, _ := ctx.GetStub().GetState(blacklistKey(campaignID)); bl != nil {
+		return fmt.Errorf("campaign %s is blacklisted (fraud control): investments are not accepted", campaignID)
+	}
 	pub, err := ctx.GetStub().GetState("CAMPAIGN_PUBLIC_" + campaignID)
 	if err != nil {
 		return err
@@ -740,6 +748,10 @@ func (i *InvestorContract) CreateInvestmentProposal(
 	// Hardening (A5/A6): proposals only from the registered investor owner, into published open campaigns
 	if err := requireInvestorOwner(ctx, investorID); err != nil {
 		return err
+	}
+	// Fraud control (SE19): no investments into blacklisted campaigns
+	if bl, _ := ctx.GetStub().GetState(blacklistKey(campaignID)); bl != nil {
+		return fmt.Errorf("campaign %s is blacklisted (fraud control): investments are not accepted", campaignID)
 	}
 	if pub, perr := ctx.GetStub().GetState("CAMPAIGN_PUBLIC_" + campaignID); perr != nil || pub == nil || !isOpenCampaign(pub) {
 		return fmt.Errorf("campaign %s is not published/open for investment", campaignID)
@@ -1852,4 +1864,30 @@ func (i *InvestorContract) GetDisputePenaltyScheduleForInvestor(
 	}
 
 	return string(penaltiesJSON), nil
+}
+
+// GetInvestorPrivateProfile returns the investor's private KYC profile (InvestorPrivateData,
+// InvestorOrg only). Added with the hardening; access is enforced by memberOnlyRead.
+func (i *InvestorContract) GetInvestorPrivateProfile(ctx contractapi.TransactionContextInterface, investorID string) (string, error) {
+	b, err := ctx.GetStub().GetPrivateData(InvestorPrivateCollection, "INVESTOR_PRIV_"+investorID)
+	if err != nil {
+		return "", err
+	}
+	if b == nil {
+		return "", fmt.Errorf("investor %s not found", investorID)
+	}
+	return string(b), nil
+}
+
+// GetInvestorSharedProfile returns the investor record shared with ValidatorOrg (PAN) from
+// InvestorValidatorShared. Added with the hardening; access is enforced by memberOnlyRead.
+func (i *InvestorContract) GetInvestorSharedProfile(ctx contractapi.TransactionContextInterface, investorID string) (string, error) {
+	b, err := ctx.GetStub().GetPrivateData(InvestorValidatorCollection, "INVESTOR_SHARED_"+investorID)
+	if err != nil {
+		return "", err
+	}
+	if b == nil {
+		return "", fmt.Errorf("investor %s not found", investorID)
+	}
+	return string(b), nil
 }

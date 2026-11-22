@@ -205,6 +205,12 @@ func (v *ValidatorContract) ValidateCampaign(
 	submissionHash string, /* Was campaignHash */
 	documentsReviewedJSON string,
 ) error {
+	// Privacy (PR11): document references come from transient["private"].documents, not from the block
+	docs, derr := privateDocs(ctx, documentsReviewedJSON)
+	if derr != nil {
+		return derr
+	}
+	documentsReviewedJSON = docs
 
 	// Get campaign submission from StartupValidatorCollection
 	submissionJSON, err := CrossChannelGet(ctx, StartupValidatorCollection, "VALIDATION_REQUEST_"+campaignID)
@@ -314,7 +320,14 @@ func (v *ValidatorContract) ApproveOrRejectCampaign(
 		json.Unmarshal([]byte(issuesJSON), &issues)
 	}
 
-	timestamp := txNow(ctx).Format(time.RFC3339)
+	// Deterministic timestamp: the transaction's proposal timestamp is identical on every endorser.
+	// (time.Now() differs between endorsers and, under an AND policy, produced different
+	// validationProofHash values -> "ProposalResponsePayloads do not match".)
+	txTs, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return fmt.Errorf("failed to read transaction timestamp: %v", err)
+	}
+	timestamp := time.Unix(txTs.Seconds, int64(txTs.Nanos)).UTC().Format(time.RFC3339)
 
 	// Update validation
 	validation.Status = status
