@@ -9,6 +9,7 @@ ARCH="${1:?single|dual}"
 WS="$(cd "$(dirname "$0")/../.." && pwd)"; BM="$WS/../benchmarks"
 BENCH="${2:-benchconfig-$ARCH-full.yaml}"
 REPORT="${3:-report-v3-$ARCH-full.html}"
+TAG="${TAG:-$ARCH}"   # log/oplog suffix, e.g. TAG=single-isolated
 NODE_IMG=node:22-slim
 cd "$BM"
 ./build_chaincode.sh >/dev/null
@@ -22,8 +23,8 @@ else
   sleep 5
 fi
 python3 "$WS/scripts/v3/make-network.py" "$ARCH" "$BM/work/net/crypto"
-RUN=(docker run --rm --network cfnet -v "$WS":/ws -w /ws -e CALIPER_TX_TIMEOUT_MS="${CALIPER_TX_TIMEOUT_MS:-30000}" -e BRIDGE_WAIT_MS="${BRIDGE_WAIT_MS:-4000}" -e CALIPER_OPLOG_DIR="/ws/oplog-v3-$ARCH" $NODE_IMG)
-rm -rf "$WS/oplog-v3-$ARCH"
+RUN=(docker run --rm --network cfnet -v "$WS":/ws -w /ws -e CALIPER_TX_TIMEOUT_MS="${CALIPER_TX_TIMEOUT_MS:-30000}" -e BRIDGE_WAIT_MS="${BRIDGE_WAIT_MS:-4000}" -e CALIPER_OPLOG_DIR="/ws/oplog-v3-$TAG" -e PREP_CONCURRENCY="${PREP_CONCURRENCY:-20}" $NODE_IMG)
+rm -rf "$WS/oplog-v3-$TAG"
 "${RUN[@]}" node scripts/v3/seed-v3.js "$ARCH"
 "${RUN[@]}" npx caliper launch manager \
   --caliper-workspace ./ \
@@ -31,7 +32,7 @@ rm -rf "$WS/oplog-v3-$ARCH"
   --caliper-benchconfig "$BENCH" \
   --caliper-report-path "$REPORT" \
   --caliper-flow-only-test \
-  --caliper-fabric-gateway-enabled 2>&1 | tee "$WS/caliper-v3-$ARCH.log" | grep -E "Finished round|Started round|Failed|Error|error" | grep -v "^\s*$" || true
+  --caliper-fabric-gateway-enabled 2>&1 | tee "$WS/caliper-v3-$TAG.log" | grep -E "Finished round|Started round|Failed|Error|error" | grep -v "^\s*$" || true
 docker rm -f relay >/dev/null 2>&1 || true
 cd "$BM" && ./network.sh down
 echo "V3_CALIPER_DONE $ARCH $REPORT"

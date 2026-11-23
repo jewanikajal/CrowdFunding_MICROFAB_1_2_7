@@ -16,11 +16,12 @@ import glob, html, json, os, re, sys
 from collections import Counter, defaultdict
 from datetime import datetime
 
-ARCH = sys.argv[1]
+ARCH = sys.argv[1]            # single | dual | single-isolated | dual-isolated
 WS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 REPORT = sys.argv[2] if len(sys.argv) > 2 else f'{WS}/report-v3-{ARCH}-full.html'
 LOG = sys.argv[3] if len(sys.argv) > 3 else f'{WS}/caliper-v3-{ARCH}.log'
 OPLOG = sys.argv[4] if len(sys.argv) > 4 else f'{WS}/oplog-v3-{ARCH}'
+ARCH_BASE = ARCH.split('-')[0]
 OUT = f'{WS}/results-v3'; os.makedirs(OUT, exist_ok=True)
 
 # round label -> named contract function

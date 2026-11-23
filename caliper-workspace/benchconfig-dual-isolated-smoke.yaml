@@ -1,0 +1,137 @@
+---
+# Dual-channel — all 25 T12 ops × low / medium / stress.
+# Default for: bash scripts/run-dual-caliper.sh
+# (seed-dual-full.sh → seed-state.json → Caliper → report)
+test:
+  name: crowdfunding-dual-isolated
+  description: Dual T12 — 25 ops × L/M/S + cool-down after each medium and each stress (op TPS unchanged)
+  workers:
+    number: 2
+  rounds:
+    - label: low-P01-createStartup
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createStartup, poolSize: 5, arch: dual } }
+
+    - label: low-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createCampaign, poolSize: 5, arch: dual } }
+
+    - label: low-P03-submitForValidation
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitForValidation, poolSize: 5, arch: dual } }
+
+    - label: low-P04-validateCampaign
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: validateCampaign, poolSize: 5, arch: dual } }
+
+    - label: low-P05-approveOrRejectCampaign
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: approveOrRejectCampaign, poolSize: 5, arch: dual } }
+
+    - label: low-P06-shareCampaignToPlatform
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: shareCampaignToPlatform, poolSize: 5, arch: dual } }
+
+    - label: low-P07-publishCampaignToPortal
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: publishCampaignToPortal, poolSize: 5, arch: dual } }
+
+    - label: low-P08-registerInvestor
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: registerInvestor, poolSize: 5, arch: dual } }
+
+    - label: low-P09-viewCampaign
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 5, arch: dual } }
+
+    - label: low-P10-makeInvestment
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: makeInvestment, poolSize: 5, arch: dual, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+    - label: low-P11-createInvestmentProposal
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createInvestmentProposal, poolSize: 5, arch: dual } }
+
+    - label: low-P12-respondToInvestmentProposal
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: respondToInvestmentProposal, poolSize: 5, arch: dual } }
+
+    - label: low-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: initializeToken, poolSize: 5, arch: dual } }
+
+    - label: low-P14-mintTokens
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: mintTokens, poolSize: 5, arch: dual, amount: "100" } }
+
+    - label: low-P15-transferTokens
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: transferTokens, poolSize: 5, arch: dual, amount: "1" } }
+
+    - label: low-P16-submitMilestoneReport
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitMilestoneReport, poolSize: 5, arch: dual } }
+
+    - label: low-P17-verifyMilestoneCompletion
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: verifyMilestoneCompletion, poolSize: 5, arch: dual } }
+
+    - label: low-P18-triggerFundRelease
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 5, arch: dual } }
+
+    - label: low-P19-createDispute
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createDispute, poolSize: 5, arch: dual } }
+
+    - label: low-P20-collectCampaignFee
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: collectCampaignFee, poolSize: 5, arch: dual } }
+
+    - label: low-P21-setFeeTiers
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: setFeeTiers, poolSize: 5, arch: dual } }
+
+    - label: low-P22-deleteCampaign
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: deleteCampaign, poolSize: 5, arch: dual } }
+
+    - label: low-P23-withdrawInvestment
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: withdrawInvestment, poolSize: 5, arch: dual } }
+
+    - label: low-P24-requestRefund
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: requestRefund, poolSize: 5, arch: dual } }
+
+    - label: low-P25-closeCampaign
+      txNumber: 6
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: closeCampaign, poolSize: 5, arch: dual } }
+

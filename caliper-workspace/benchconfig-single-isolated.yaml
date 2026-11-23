@@ -1,0 +1,409 @@
+---
+# Single-channel — all 25 T12 ops × low / medium / stress.
+# Default for: bash scripts/run-single-caliper.sh
+# (seed-single-full.sh → seed-state.json → Caliper → report)
+test:
+  name: crowdfunding-single-isolated
+  description: T12 catalog — 25 ops × low (50@10) / medium (100@25) / stress (1000@100) + peer cool-down after stress-P20
+  workers:
+    number: 2
+  rounds:
+    - label: low-P01-createStartup
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createStartup, poolSize: 30, arch: single } }
+
+    - label: medium-P01-createStartup
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createStartup, poolSize: 55, arch: single } }
+
+    - label: stress-P01-createStartup
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createStartup, poolSize: 505, arch: single } }
+
+    - label: low-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createCampaign, poolSize: 505, arch: single } }
+
+    - label: low-P03-submitForValidation
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitForValidation, poolSize: 30, arch: single } }
+
+    - label: medium-P03-submitForValidation
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitForValidation, poolSize: 55, arch: single } }
+
+    - label: stress-P03-submitForValidation
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitForValidation, poolSize: 505, arch: single } }
+
+    - label: low-P04-validateCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: validateCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P04-validateCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: validateCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P04-validateCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: validateCampaign, poolSize: 505, arch: single } }
+
+    - label: low-P05-approveOrRejectCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: approveOrRejectCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P05-approveOrRejectCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: approveOrRejectCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P05-approveOrRejectCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: approveOrRejectCampaign, poolSize: 505, arch: single } }
+
+    - label: low-P06-shareCampaignToPlatform
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: shareCampaignToPlatform, poolSize: 30, arch: single } }
+
+    - label: medium-P06-shareCampaignToPlatform
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: shareCampaignToPlatform, poolSize: 55, arch: single } }
+
+    - label: stress-P06-shareCampaignToPlatform
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: shareCampaignToPlatform, poolSize: 505, arch: single } }
+
+    - label: low-P07-publishCampaignToPortal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: publishCampaignToPortal, poolSize: 30, arch: single } }
+
+    - label: medium-P07-publishCampaignToPortal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: publishCampaignToPortal, poolSize: 55, arch: single } }
+
+    - label: stress-P07-publishCampaignToPortal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: publishCampaignToPortal, poolSize: 505, arch: single } }
+
+    - label: low-P08-registerInvestor
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: registerInvestor, poolSize: 30, arch: single } }
+
+    - label: medium-P08-registerInvestor
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: registerInvestor, poolSize: 55, arch: single } }
+
+    - label: stress-P08-registerInvestor
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: registerInvestor, poolSize: 505, arch: single } }
+
+    - label: low-P09-viewCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P09-viewCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P09-viewCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 505, arch: single } }
+
+    - label: low-P10-makeInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: makeInvestment, poolSize: 30, arch: single, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+    - label: medium-P10-makeInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: makeInvestment, poolSize: 55, arch: single, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+    - label: stress-P10-makeInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: makeInvestment, poolSize: 505, arch: single, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+    - label: low-P11-createInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createInvestmentProposal, poolSize: 30, arch: single } }
+
+    - label: medium-P11-createInvestmentProposal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createInvestmentProposal, poolSize: 55, arch: single } }
+
+    - label: stress-P11-createInvestmentProposal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createInvestmentProposal, poolSize: 505, arch: single } }
+
+    - label: low-P12-respondToInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: respondToInvestmentProposal, poolSize: 30, arch: single } }
+
+    - label: medium-P12-respondToInvestmentProposal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: respondToInvestmentProposal, poolSize: 55, arch: single } }
+
+    - label: stress-P12-respondToInvestmentProposal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: respondToInvestmentProposal, poolSize: 505, arch: single } }
+
+    - label: low-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: initializeToken, poolSize: 30, arch: single } }
+
+    - label: medium-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: initializeToken, poolSize: 55, arch: single } }
+
+    - label: stress-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: initializeToken, poolSize: 505, arch: single } }
+
+    - label: low-P14-mintTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: mintTokens, poolSize: 30, arch: single, amount: "100" } }
+
+    - label: medium-P14-mintTokens
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: mintTokens, poolSize: 55, arch: single, amount: "100" } }
+
+    - label: stress-P14-mintTokens
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: mintTokens, poolSize: 505, arch: single, amount: "100" } }
+
+    - label: low-P15-transferTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: transferTokens, poolSize: 30, arch: single, amount: "1" } }
+
+    - label: medium-P15-transferTokens
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: transferTokens, poolSize: 55, arch: single, amount: "1" } }
+
+    - label: stress-P15-transferTokens
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: transferTokens, poolSize: 505, arch: single, amount: "1" } }
+
+    - label: low-P16-submitMilestoneReport
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitMilestoneReport, poolSize: 30, arch: single } }
+
+    - label: medium-P16-submitMilestoneReport
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitMilestoneReport, poolSize: 55, arch: single } }
+
+    - label: stress-P16-submitMilestoneReport
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: submitMilestoneReport, poolSize: 505, arch: single } }
+
+    - label: low-P17-verifyMilestoneCompletion
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: verifyMilestoneCompletion, poolSize: 30, arch: single } }
+
+    - label: medium-P17-verifyMilestoneCompletion
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: verifyMilestoneCompletion, poolSize: 55, arch: single } }
+
+    - label: stress-P17-verifyMilestoneCompletion
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: verifyMilestoneCompletion, poolSize: 505, arch: single } }
+
+    - label: low-P18-triggerFundRelease
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 30, arch: single } }
+
+    - label: medium-P18-triggerFundRelease
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 55, arch: single } }
+
+    - label: stress-P18-triggerFundRelease
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 505, arch: single } }
+
+    - label: low-P19-createDispute
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createDispute, poolSize: 30, arch: single } }
+
+    - label: medium-P19-createDispute
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createDispute, poolSize: 55, arch: single } }
+
+    - label: stress-P19-createDispute
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: createDispute, poolSize: 505, arch: single } }
+
+    - label: low-P20-collectCampaignFee
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: collectCampaignFee, poolSize: 30, arch: single } }
+
+    - label: medium-P20-collectCampaignFee
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: collectCampaignFee, poolSize: 55, arch: single } }
+
+    - label: stress-P20-collectCampaignFee
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: collectCampaignFee, poolSize: 505, arch: single } }
+
+    # After stress-P20: settle + prove Platform write path before P21 (op TPS unchanged).
+    - label: cooldown-after-stress-P20
+      description: 60s settle + HTTP + GetCampaign + SetCampaignFeeTiers until ready
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: single
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          healthUrl: http://127.0.0.1:9090/ak/api/v1/health
+
+    - label: low-P21-setFeeTiers
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: setFeeTiers, poolSize: 30, arch: single } }
+
+    - label: medium-P21-setFeeTiers
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: setFeeTiers, poolSize: 55, arch: single } }
+
+    - label: stress-P21-setFeeTiers
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: setFeeTiers, poolSize: 505, arch: single } }
+
+    - label: low-P22-deleteCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: deleteCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P22-deleteCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: deleteCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P22-deleteCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: deleteCampaign, poolSize: 505, arch: single } }
+
+    - label: low-P23-withdrawInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: withdrawInvestment, poolSize: 30, arch: single } }
+
+    - label: medium-P23-withdrawInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: withdrawInvestment, poolSize: 55, arch: single } }
+
+    - label: stress-P23-withdrawInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: withdrawInvestment, poolSize: 505, arch: single } }
+
+    - label: low-P24-requestRefund
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: requestRefund, poolSize: 30, arch: single } }
+
+    - label: medium-P24-requestRefund
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: requestRefund, poolSize: 55, arch: single } }
+
+    - label: stress-P24-requestRefund
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: requestRefund, poolSize: 505, arch: single } }
+
+    - label: low-P25-closeCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: closeCampaign, poolSize: 30, arch: single } }
+
+    - label: medium-P25-closeCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: closeCampaign, poolSize: 55, arch: single } }
+
+    - label: stress-P25-closeCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: closeCampaign, poolSize: 505, arch: single } }
+
+monitor:
+  type:
+    - none
