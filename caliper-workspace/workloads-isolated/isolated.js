@@ -21,6 +21,11 @@ const PREP_CONCURRENCY = Number(process.env.PREP_CONCURRENCY || 20);
 const BRIDGE_WAIT_MS = Number(process.env.BRIDGE_WAIT_MS || 4000);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const ok = (s, req) => H.sendOk(s, req);
+// prerequisite writes to a hot key (the PLATFORM token account) conflict with each other (code 11): retry them
+async function okRetry(s, mk, tries = 10) {
+    for (let t = 0; t < tries; t++) { if (await H.sendOk(s, mk(t))) return true; await sleep(200 + Math.random() * 800); }
+    return false;
+}
 const B = (op, args, a) => H.buildRequest(op, args, a);
 
 async function startup(s, a, w, i) {
@@ -104,7 +109,7 @@ const OPS = {
             const investorId = H.uniqueId('INVESTOR', c.w, i), agreementId = H.uniqueId('AGREE', c.w, i);
             if (!await ok(c.s, B('registerInvestor', c.a, [investorId, `Dispute Investor ${investorId}`, '25000000', String(300000000000 + c.w * 100000 + i), (`DSP${c.w}${String(i).padStart(4, '0')}Z`).slice(0, 10)]))) return null;
             await H.ensureTokenAccount(c.s, c.a, investorId, 'INVESTOR');
-            if (!await ok(c.s, B('transferTokens', c.a, [H.uniqueId('TRX', c.w, i), 'CFT', 'PLATFORM', investorId, '5000', 'INR', 'DISPUTE_FUNDING', '']))) return null;
+            if (!await okRetry(c.s, () => B('transferTokens', c.a, [H.uniqueId('TRX', c.w, i), 'CFT', 'PLATFORM', investorId, '5000', 'INR', 'DISPUTE_FUNDING', '']))) return null;
             if (!await ok(c.s, B('witnessAgreement', c.a, [agreementId, sh.campaignId, sh.startupId, investorId, '20000000', 'USD', '[{"milestoneId":"M1","title":"Beta","amount":10000000}]']))) return null;
             return { investorId, agreementId }; },
         run: (c, i, p, sh) => ['createDispute', [H.uniqueId('DISPUTE', c.w, i), 'INVESTOR', p.investorId, 'STARTUP', sh.startupId, 'MILESTONE_DISPUTE', sh.campaignId, p.agreementId, 'Caliper dispute', 'Load-test dispute filing', c.a.claimAmount || '1000']] },
@@ -120,6 +125,9 @@ const OPS = {
     closeCampaign: { prepare: (c, i) => published(c.s, c.a, c.w, i), run: (c, i, b) => ['closeCampaign', [H.uniqueId('CLOSE', c.w, i), b.campaignId, c.a.finalStatus || 'SUCCESSFUL', 'Caliper close']] },
 };
 
+// stands in for a prerequisite that could not be prepared: every field reads 'PREP_MISSING'
+const MISSING = new Proxy({}, { get: (t, k) => (k === Symbol.toPrimitive ? () => 'PREP_MISSING' : (k === 'toString' ? () => 'PREP_MISSING' : 'PREP_MISSING')) });
+
 class IsolatedWorkload extends WorkloadModuleBase {
     async initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext) {
         await super.initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext);
@@ -133,7 +141,7 @@ class IsolatedWorkload extends WorkloadModuleBase {
         if (this.op.prepare) {
             const n = Number(this.args.poolSize || 50), items = new Array(n);
             let next = 0;
-            const lane = async () => { while (next < n) { const i = next++; items[i] = await this.op.prepare(this.ctx, i + 1, this.sharedItem); } };
+            const lane = async () => { while (next < n) { const i = next++; items[i] = await this.op.prepare(this.ctx, i + 1, this.sharedItem) || await this.op.prepare(this.ctx, n + i + 1, this.sharedItem); } };
             await Promise.all(Array.from({ length: Math.min(PREP_CONCURRENCY, n) }, lane));
             this.pool = items.filter(Boolean);
         }
@@ -148,9 +156,14 @@ class IsolatedWorkload extends WorkloadModuleBase {
         let item = null;
         if (this.op.prepare) {
             item = this.pool[(this.txIndex - 1) % Math.max(1, this.pool.length)];
-            if (!item) return; // no prerequisites could be prepared
+            // no prerequisites could be prepared: still submit the named operation (it fails and is counted),
+            // otherwise Caliper's submitted-transaction counter never reaches txNumber and the round never ends
+            if (!item) item = MISSING;
         }
-        const [op, args] = this.op.run(this.ctx, this.txIndex, item, this.sharedItem);
+        let op, raw;
+        try { [op, raw] = this.op.run(this.ctx, this.txIndex, item, this.sharedItem || MISSING); }
+        catch (e) { op = this.args.op === 'setFeeTiers' ? 'setCampaignFeeTier' : this.args.op; raw = ['PREP_MISSING']; } // never skip a submission
+        const args = raw.map((x) => (typeof x === 'string' ? x : (x === undefined || typeof x === 'object' ? 'PREP_MISSING' : String(x))));
         await H.sendTimed(this.sutAdapter, H.buildRequest(op, this.args, args));
     }
 }
