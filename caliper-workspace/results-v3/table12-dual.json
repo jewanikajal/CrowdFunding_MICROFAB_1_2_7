@@ -1,0 +1,847 @@
+[
+  {
+    "id": "P01",
+    "operation": "createStartup",
+    "load": "light",
+    "function": "StartupContract:CreateStartup",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.9,
+    "throughput_tps": 10.5,
+    "lat_avg_s": 0.16,
+    "lat_max_s": 0.2,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P01",
+    "operation": "createStartup",
+    "load": "medium",
+    "function": "StartupContract:CreateStartup",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 25.5,
+    "lat_avg_s": 0.13,
+    "lat_max_s": 0.19,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P01",
+    "operation": "createStartup",
+    "load": "stress",
+    "function": "StartupContract:CreateStartup",
+    "caliper_succ": 1002,
+    "caliper_fail": 0,
+    "caliper_total": 1002,
+    "caliper_success_pct": 100.0,
+    "send_tps": 97.1,
+    "throughput_tps": 83.2,
+    "lat_avg_s": 1.9,
+    "lat_max_s": 3.69,
+    "named_invocations": 1002,
+    "named_committed": 1002,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P02",
+    "operation": "createCampaign",
+    "load": "light",
+    "function": "StartupContract:CreateCampaign",
+    "caliper_succ": 52,
+    "caliper_fail": 0,
+    "caliper_total": 52,
+    "caliper_success_pct": 100.0,
+    "send_tps": 11.4,
+    "throughput_tps": 10.9,
+    "lat_avg_s": 0.18,
+    "lat_max_s": 0.24,
+    "named_invocations": 28,
+    "named_committed": 28,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P02",
+    "operation": "createCampaign",
+    "load": "medium",
+    "function": "StartupContract:CreateCampaign",
+    "caliper_succ": 104,
+    "caliper_fail": 0,
+    "caliper_total": 104,
+    "caliper_success_pct": 100.0,
+    "send_tps": 25.8,
+    "throughput_tps": 24.6,
+    "lat_avg_s": 0.2,
+    "lat_max_s": 0.26,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P02",
+    "operation": "createCampaign",
+    "load": "stress",
+    "function": "StartupContract:CreateCampaign",
+    "caliper_succ": 1172,
+    "caliper_fail": 220,
+    "caliper_total": 1392,
+    "caliper_success_pct": 84.2,
+    "send_tps": 69.3,
+    "throughput_tps": 58.7,
+    "lat_avg_s": 6.95,
+    "lat_max_s": 11.92,
+    "named_invocations": 696,
+    "named_committed": 561,
+    "named_success_pct": 80.6,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 85
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 113,
+        "endorsement: startup <id> not found": 22
+      }
+    }
+  },
+  {
+    "id": "P03",
+    "operation": "submitForValidation",
+    "load": "light",
+    "function": "StartupContract:SubmitForValidation",
+    "caliper_succ": 54,
+    "caliper_fail": 0,
+    "caliper_total": 54,
+    "caliper_success_pct": 100.0,
+    "send_tps": 11.9,
+    "throughput_tps": 11.4,
+    "lat_avg_s": 0.23,
+    "lat_max_s": 0.39,
+    "named_invocations": 20,
+    "named_committed": 20,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P03",
+    "operation": "submitForValidation",
+    "load": "medium",
+    "function": "StartupContract:SubmitForValidation",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 24.3,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.31,
+    "named_invocations": 36,
+    "named_committed": 36,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P03",
+    "operation": "submitForValidation",
+    "load": "stress",
+    "function": "StartupContract:SubmitForValidation",
+    "caliper_succ": 1594,
+    "caliper_fail": 182,
+    "caliper_total": 1776,
+    "caliper_success_pct": 89.8,
+    "send_tps": 58.3,
+    "throughput_tps": 53.8,
+    "lat_avg_s": 8.03,
+    "lat_max_s": 12.29,
+    "named_invocations": 525,
+    "named_committed": 515,
+    "named_success_pct": 98.1,
+    "tx_per_iteration": 3.38,
+    "failure_causes": {
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 29
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 10
+      },
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 143
+      }
+    }
+  },
+  {
+    "id": "P04",
+    "operation": "validateCampaign",
+    "load": "light",
+    "function": "ValidatorContract:ValidateCampaign",
+    "caliper_succ": 56,
+    "caliper_fail": 0,
+    "caliper_total": 56,
+    "caliper_success_pct": 100.0,
+    "send_tps": 12.4,
+    "throughput_tps": 11.9,
+    "lat_avg_s": 0.24,
+    "lat_max_s": 0.4,
+    "named_invocations": 16,
+    "named_committed": 16,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P04",
+    "operation": "validateCampaign",
+    "load": "medium",
+    "function": "ValidatorContract:ValidateCampaign",
+    "caliper_succ": 112,
+    "caliper_fail": 0,
+    "caliper_total": 112,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.4,
+    "throughput_tps": 25.4,
+    "lat_avg_s": 0.19,
+    "lat_max_s": 0.28,
+    "named_invocations": 28,
+    "named_committed": 28,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P04",
+    "operation": "validateCampaign",
+    "load": "stress",
+    "function": "ValidatorContract:ValidateCampaign",
+    "caliper_succ": 2181,
+    "caliper_fail": 93,
+    "caliper_total": 2274,
+    "caliper_success_pct": 95.9,
+    "send_tps": 57.2,
+    "throughput_tps": 57.0,
+    "lat_avg_s": 6.56,
+    "lat_max_s": 12.87,
+    "named_invocations": 541,
+    "named_committed": 541,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.2,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 79
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 11
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 3
+      }
+    }
+  },
+  {
+    "id": "P05",
+    "operation": "approveOrRejectCampaign",
+    "load": "light",
+    "function": "ValidatorContract:ApproveOrRejectCampaign",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 23.4,
+    "throughput_tps": 21.5,
+    "lat_avg_s": 0.28,
+    "lat_max_s": 0.41,
+    "named_invocations": 12,
+    "named_committed": 12,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 5.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P05",
+    "operation": "approveOrRejectCampaign",
+    "load": "medium",
+    "function": "ValidatorContract:ApproveOrRejectCampaign",
+    "caliper_succ": 120,
+    "caliper_fail": 0,
+    "caliper_total": 120,
+    "caliper_success_pct": 100.0,
+    "send_tps": 25.5,
+    "throughput_tps": 24.5,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.37,
+    "named_invocations": 24,
+    "named_committed": 24,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 5.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P05",
+    "operation": "approveOrRejectCampaign",
+    "load": "stress",
+    "function": "ValidatorContract:ApproveOrRejectCampaign",
+    "caliper_succ": 2673,
+    "caliper_fail": 161,
+    "caliper_total": 2834,
+    "caliper_success_pct": 94.3,
+    "send_tps": 54.4,
+    "throughput_tps": 53.4,
+    "lat_avg_s": 7.19,
+    "lat_max_s": 16.71,
+    "named_invocations": 527,
+    "named_committed": 527,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 5.38,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 129
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 6
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 26
+      }
+    }
+  },
+  {
+    "id": "P06",
+    "operation": "shareCampaignToPlatform",
+    "load": "light",
+    "function": "StartupContract:ShareCampaignToPlatform",
+    "caliper_succ": 86,
+    "caliper_fail": 0,
+    "caliper_total": 86,
+    "caliper_success_pct": 100.0,
+    "send_tps": 21.9,
+    "throughput_tps": 20.9,
+    "lat_avg_s": 0.26,
+    "lat_max_s": 0.48,
+    "named_invocations": 12,
+    "named_committed": 12,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 6.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P06",
+    "operation": "shareCampaignToPlatform",
+    "load": "medium",
+    "function": "StartupContract:ShareCampaignToPlatform",
+    "caliper_succ": 112,
+    "caliper_fail": 0,
+    "caliper_total": 112,
+    "caliper_success_pct": 100.0,
+    "send_tps": 36.4,
+    "throughput_tps": 34.5,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.47,
+    "named_invocations": 18,
+    "named_committed": 18,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 6.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P06",
+    "operation": "shareCampaignToPlatform",
+    "load": "stress",
+    "function": "StartupContract:ShareCampaignToPlatform",
+    "caliper_succ": 7880,
+    "caliper_fail": 185,
+    "caliper_total": 8065,
+    "caliper_success_pct": 97.7,
+    "send_tps": 103.1,
+    "throughput_tps": 103.0,
+    "lat_avg_s": 3.54,
+    "lat_max_s": 30.52,
+    "named_invocations": 11,
+    "named_committed": 9,
+    "named_success_pct": 81.8,
+    "tx_per_iteration": 231.82,
+    "failure_causes": {
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 32,
+        "endorsement: Channel has been shut down": 368
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 28
+      },
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 118
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 5
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 2
+      }
+    }
+  },
+  {
+    "id": "P07",
+    "operation": "publishCampaignToPortal",
+    "load": "light",
+    "function": "PlatformContract:PublishCampaignToPortal",
+    "caliper_succ": 70,
+    "caliper_fail": 10,
+    "caliper_total": 80,
+    "caliper_success_pct": 87.5,
+    "send_tps": 23.0,
+    "throughput_tps": 22.9,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.49,
+    "named_invocations": 11,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 7.0,
+    "failure_causes": {
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 10,
+        "endorsement: Channel has been shut down": 1
+      }
+    }
+  },
+  {
+    "id": "P07",
+    "operation": "publishCampaignToPortal",
+    "load": "medium",
+    "function": "PlatformContract:PublishCampaignToPortal",
+    "caliper_succ": 119,
+    "caliper_fail": 17,
+    "caliper_total": 136,
+    "caliper_success_pct": 87.5,
+    "send_tps": 31.0,
+    "throughput_tps": 30.8,
+    "lat_avg_s": 0.26,
+    "lat_max_s": 0.59,
+    "named_invocations": 17,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 7.35,
+    "failure_causes": {
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 17
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: Channel has been shut down": 1
+      }
+    }
+  },
+  {
+    "id": "P07",
+    "operation": "publishCampaignToPortal",
+    "load": "stress",
+    "function": "PlatformContract:PublishCampaignToPortal",
+    "caliper_succ": 8768,
+    "caliper_fail": 224,
+    "caliper_total": 8992,
+    "caliper_success_pct": 97.5,
+    "send_tps": 113.8,
+    "throughput_tps": 113.7,
+    "lat_avg_s": 3.15,
+    "lat_max_s": 30.59,
+    "named_invocations": 11,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 241.64,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 126
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 10
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 32,
+        "endorsement: Channel has been shut down": 46
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 44
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 1
+      },
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 11
+      }
+    }
+  },
+  {
+    "id": "P08",
+    "operation": "registerInvestor",
+    "load": "light",
+    "function": "InvestorContract:RegisterInvestor",
+    "caliper_succ": 52,
+    "caliper_fail": 0,
+    "caliper_total": 52,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.8,
+    "throughput_tps": 10.1,
+    "lat_avg_s": 0.3,
+    "lat_max_s": 0.54,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P08",
+    "operation": "registerInvestor",
+    "load": "medium",
+    "function": "InvestorContract:RegisterInvestor",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 25.9,
+    "throughput_tps": 23.1,
+    "lat_avg_s": 0.58,
+    "lat_max_s": 0.99,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P08",
+    "operation": "registerInvestor",
+    "load": "stress",
+    "function": "InvestorContract:RegisterInvestor",
+    "caliper_succ": 689,
+    "caliper_fail": 313,
+    "caliper_total": 1002,
+    "caliper_success_pct": 68.8,
+    "send_tps": 97.2,
+    "throughput_tps": 55.5,
+    "lat_avg_s": 8.02,
+    "lat_max_s": 11.61,
+    "named_invocations": 1002,
+    "named_committed": 689,
+    "named_success_pct": 68.8,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {
+      "InvestorContract:RegisterInvestor": {
+        "endorsement: exceeding concurrency limit": 313
+      }
+    }
+  },
+  {
+    "id": "P09",
+    "operation": "viewCampaign",
+    "load": "light",
+    "function": "InvestorContract:ViewCampaign",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 23.6,
+    "throughput_tps": 22.6,
+    "lat_avg_s": 0.27,
+    "lat_max_s": 0.51,
+    "named_invocations": 12,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "InvestorContract:ViewCampaign": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P09",
+    "operation": "viewCampaign",
+    "load": "medium",
+    "function": "InvestorContract:ViewCampaign",
+    "caliper_succ": 144,
+    "caliper_fail": 0,
+    "caliper_total": 144,
+    "caliper_success_pct": 100.0,
+    "send_tps": 35.9,
+    "throughput_tps": 34.1,
+    "lat_avg_s": 0.24,
+    "lat_max_s": 0.41,
+    "named_invocations": 16,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "InvestorContract:ViewCampaign": {
+        "endorsement: Channel has been shut down": 16
+      }
+    }
+  },
+  {
+    "id": "P09",
+    "operation": "viewCampaign",
+    "load": "stress",
+    "function": "InvestorContract:ViewCampaign",
+    "caliper_succ": 9139,
+    "caliper_fail": 168,
+    "caliper_total": 9307,
+    "caliper_success_pct": 98.2,
+    "send_tps": 114.3,
+    "throughput_tps": 114.3,
+    "lat_avg_s": 3.11,
+    "lat_max_s": 30.62,
+    "named_invocations": 14,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 195.36,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 93
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 10
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 24
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 26,
+        "endorsement: Channel has been shut down": 281
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 1
+      },
+      "InvestorContract:ViewCampaign": {
+        "endorsement: not found": 14
+      }
+    }
+  },
+  {
+    "id": "P10",
+    "operation": "makeInvestment",
+    "load": "light",
+    "function": "InvestorContract:MakeInvestment",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 24.1,
+    "throughput_tps": 23.2,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.44,
+    "named_invocations": 12,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "InvestorContract:MakeInvestment": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P10",
+    "operation": "makeInvestment",
+    "load": "medium",
+    "function": "InvestorContract:MakeInvestment",
+    "caliper_succ": 144,
+    "caliper_fail": 0,
+    "caliper_total": 144,
+    "caliper_success_pct": 100.0,
+    "send_tps": 34.2,
+    "throughput_tps": 32.9,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.48,
+    "named_invocations": 16,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "InvestorContract:MakeInvestment": {
+        "endorsement: Channel has been shut down": 16
+      }
+    }
+  },
+  {
+    "id": "P10",
+    "operation": "makeInvestment",
+    "load": "stress",
+    "function": "InvestorContract:MakeInvestment",
+    "caliper_succ": 8235,
+    "caliper_fail": 209,
+    "caliper_total": 8444,
+    "caliper_success_pct": 97.5,
+    "send_tps": 107.0,
+    "throughput_tps": 106.9,
+    "lat_avg_s": 3.38,
+    "lat_max_s": 30.55,
+    "named_invocations": 9,
+    "named_committed": 9,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 291.11,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 125
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 25
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 15
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 1
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 43,
+        "endorsement: Channel has been shut down": 257
+      }
+    }
+  },
+  {
+    "id": "P11",
+    "operation": "createInvestmentProposal",
+    "load": "light",
+    "function": "InvestorContract:CreateInvestmentProposal",
+    "caliper_succ": 90,
+    "caliper_fail": 0,
+    "caliper_total": 90,
+    "caliper_success_pct": 100.0,
+    "send_tps": 30.3,
+    "throughput_tps": 28.5,
+    "lat_avg_s": 0.23,
+    "lat_max_s": 0.47,
+    "named_invocations": 10,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 10.4,
+    "failure_causes": {
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: Channel has been shut down": 2
+      },
+      "InvestorContract:CreateInvestmentProposal": {
+        "endorsement: Channel has been shut down": 10
+      }
+    }
+  },
+  {
+    "id": "P11",
+    "operation": "createInvestmentProposal",
+    "load": "medium",
+    "function": "InvestorContract:CreateInvestmentProposal",
+    "caliper_succ": 144,
+    "caliper_fail": 0,
+    "caliper_total": 144,
+    "caliper_success_pct": 100.0,
+    "send_tps": 36.0,
+    "throughput_tps": 34.4,
+    "lat_avg_s": 0.24,
+    "lat_max_s": 0.48,
+    "named_invocations": 16,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "InvestorContract:CreateInvestmentProposal": {
+        "endorsement: Channel has been shut down": 16
+      }
+    }
+  },
+  {
+    "id": "P11",
+    "operation": "createInvestmentProposal",
+    "load": "stress",
+    "function": "InvestorContract:CreateInvestmentProposal",
+    "caliper_succ": 8507,
+    "caliper_fail": 147,
+    "caliper_total": 8654,
+    "caliper_success_pct": 98.3,
+    "send_tps": 100.5,
+    "throughput_tps": 100.4,
+    "lat_avg_s": 3.51,
+    "lat_max_s": 30.66,
+    "named_invocations": 10,
+    "named_committed": 10,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 260.5,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 94
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 21
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 6
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 26,
+        "endorsement: Channel has been shut down": 190
+      }
+    }
+  },
+  {
+    "id": "P12",
+    "operation": "respondToInvestmentProposal",
+    "load": "light",
+    "function": "StartupContract:RespondToInvestmentProposal",
+    "caliper_succ": 90,
+    "caliper_fail": 0,
+    "caliper_total": 90,
+    "caliper_success_pct": 100.0,
+    "send_tps": 24.1,
+    "throughput_tps": 22.9,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.35,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "InvestorContract:CreateInvestmentProposal": {
+        "endorsement: Channel has been shut down": 10
+      }
+    }
+  },
+  {
+    "id": "P12",
+    "operation": "respondToInvestmentProposal",
+    "load": "medium",
+    "function": "StartupContract:RespondToInvestmentProposal",
+    "caliper_succ": 150,
+    "caliper_fail": 2,
+    "caliper_total": 152,
+    "caliper_success_pct": 98.7,
+    "send_tps": 28.2,
+    "throughput_tps": 27.4,
+    "lat_avg_s": 0.31,
+    "lat_max_s": 0.79,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "ValidatorContract:ValidateCampaign": {
+        "endorsement: not found": 2
+      },
+      "InvestorContract:CreateInvestmentProposal": {
+        "endorsement: Channel has been shut down": 13
+      }
+    }
+  }
+]

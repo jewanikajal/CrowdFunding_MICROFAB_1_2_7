@@ -42,18 +42,25 @@ NAMED = {
 LOAD = {'low': 'light', 'medium': 'medium', 'stress': 'stress'}
 
 # ---------- Caliper HTML report ----------
-s = open(REPORT, encoding='utf-8', errors='ignore').read()
-t = s[s.find('<table'):s.find('</table>')]
+# REPORT and LOG may be comma-separated (a run resumed in a second Caliper invocation)
 rep = {}
-for r in re.findall(r'<tr>(.*?)</tr>', t, re.S)[1:]:
-    c = [html.unescape(re.sub('<.*?>', '', x)).strip() for x in re.findall(r'<td[^>]*>(.*?)</td>', r, re.S)]
-    rep[c[0]] = dict(succ=int(c[1]), fail=int(c[2]), send=float(c[3]), lat_max=float(c[4]), lat_min=float(c[5]), lat_avg=float(c[6]), tput=float(c[7]))
+for f in LOG.split(','):   # per-round result tables that Caliper prints into its log
+    for m in re.finditer(r'^\| ([\w-]+-P\d\d-\w+)\s*\| (\d+)\s*\| (\d+)\s*\| ([\d.]+)\s*\| ([\d.-]+)\s*\| ([\d.-]+)\s*\| ([\d.-]+)\s*\| ([\d.]+)', open(f, errors='ignore').read(), re.M):
+        g = m.groups(); num = lambda x: float(x) if x != '-' else 0.0
+        rep[g[0]] = dict(succ=int(g[1]), fail=int(g[2]), send=float(g[3]), lat_max=num(g[4]), lat_min=num(g[5]), lat_avg=num(g[6]), tput=float(g[7]))
+for f in REPORT.split(','):
+    if not os.path.exists(f): continue
+    s = open(f, encoding='utf-8', errors='ignore').read()
+    t = s[s.find('<table'):s.find('</table>')]
+    for r in re.findall(r'<tr>(.*?)</tr>', t, re.S)[1:]:
+        c = [html.unescape(re.sub('<.*?>', '', x)).strip() for x in re.findall(r'<td[^>]*>(.*?)</td>', r, re.S)]
+        rep[c[0]] = dict(succ=int(c[1]), fail=int(c[2]), send=float(c[3]), lat_max=float(c[4]), lat_min=float(c[5]), lat_avg=float(c[6]), tput=float(c[7]))
 
 # ---------- Caliper log: round windows + failures ----------
 ts = lambda x: datetime.strptime(x, '%Y.%m.%d-%H:%M:%S.%f').timestamp() * 1000
 windows, cur = [], None
 fails = defaultdict(Counter)  # (round label, fcn) -> cause counts
-lines = open(LOG, errors='ignore').read().split('\n')
+lines = sum((open(f, errors='ignore').read().split('\n') for f in LOG.split(',')), [])
 for i, line in enumerate(lines):
     m = re.match(r'(\S+) info .*Started round \d+ \((.+?)\)', line)
     if m:
