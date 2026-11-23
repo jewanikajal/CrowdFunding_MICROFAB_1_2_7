@@ -37,6 +37,7 @@ short_of()    { jq_py "print([p['short'] for p in d['peers'] if p['host']=='$1']
 cc_for()      { case "$1" in crowdfunding-channel) echo crowdfunding;; governance-validation-channel) echo governance;; investment-execution-channel) echo investment;; esac; }
 collections_for() {
   if [ -n "${HARDENED:-}" ]; then case "$1" in   # hardened v3: PDC-consistent collection policies
+    crowdfunding) echo "$HERE/../CF_SingleChannel/crowdfundingv2_hardened/collections_config.json"; return;;
     governance) echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v3/collections_config_governance_hardened.json"; return;;
     investment) echo "$HERE/../CF_DualChannel/crowdfunding_dualchannel_v3/collections_config_investment_hardened.json"; return;;
   esac; fi

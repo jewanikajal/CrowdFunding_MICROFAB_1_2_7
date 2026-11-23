@@ -50,7 +50,7 @@
   {
     "name": "StartupInvestorShared",
     "policy": "OR('StartupOrgMSP.member', 'InvestorOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 2,
     "blockToLive": 0,
     "memberOnlyRead": true,
@@ -62,7 +62,7 @@
   {
     "name": "InvestorPlatformShared",
     "policy": "OR('InvestorOrgMSP.member', 'PlatformOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 2,
     "blockToLive": 0,
     "memberOnlyRead": true,
@@ -74,7 +74,7 @@
   {
     "name": "ValidatorPlatformShared",
     "policy": "OR('ValidatorOrgMSP.member', 'PlatformOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 2,
     "blockToLive": 0,
     "memberOnlyRead": true,
@@ -86,7 +86,7 @@
   {
     "name": "InvestorValidatorShared",
     "policy": "OR('InvestorOrgMSP.member', 'ValidatorOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 2,
     "blockToLive": 0,
     "memberOnlyRead": true,
@@ -98,7 +98,7 @@
   {
     "name": "ThreePartyShared",
     "policy": "OR('StartupOrgMSP.member', 'InvestorOrgMSP.member', 'PlatformOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 3,
     "blockToLive": 0,
     "memberOnlyRead": true,
@@ -110,7 +110,7 @@
   {
     "name": "AllOrgsShared",
     "policy": "OR('StartupOrgMSP.member', 'InvestorOrgMSP.member', 'ValidatorOrgMSP.member', 'PlatformOrgMSP.member')",
-    "requiredPeerCount": 0,
+    "requiredPeerCount": 1,
     "maxPeerCount": 4,
     "blockToLive": 0,
     "memberOnlyRead": true,

@@ -501,6 +501,12 @@ async function ensureTokenAccount(sutAdapter, workerArgs, accountId, ownerType) 
  * Returns true once Share commits.
  */
 async function ensureMilestoneVerificationShared(sutAdapter, workerArgs, verificationId, opts) {
+    // Fix (affects the original harness too): ShareMilestoneValidationToPlatform exists only in the
+    // dual/multi-channel chaincodes. On the single channel TriggerFundRelease needs no share step, but
+    // the original helper retried the missing function 8 times and aborted every iteration.
+    if (archOf(workerArgs) === 'single') {
+        return true;
+    }
     const attempts = (opts && opts.attempts) || 8;
     const delayMs = (opts && opts.delayMs) || 350;
     for (let i = 0; i < attempts; i++) {
