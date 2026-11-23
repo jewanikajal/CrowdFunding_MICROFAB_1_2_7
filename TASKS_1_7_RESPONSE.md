@@ -280,3 +280,94 @@ Sources:
 >
 > None of these failures depends on the channel architecture. They can be removed with per-transfer keys
 > for the platform account and client retries on "not found".
+
+---
+
+## Tasks 3 and 4: FINAL answers, v3 Caliper, both architectures (use these in the paper)
+
+### Runs
+
+* **Faithful run.** The original workload design, in which prerequisites are submitted inside the measured round.
+  * `caliper-workspace/results-v3/table12-single.md`
+  * `caliper-workspace/results-v3/table12-dual.md`
+* **Corrected-design run.** Every prerequisite is created in `initializeWorkloadModule()`, before Caliper's transaction
+  observer is activated (Caliper 0.5.0 `caliper-worker.js`), so each measured round submits only the named operation.
+  * The arguments are those of the original workloads (`workloads-isolated/isolated.js`).
+  * Combined table: `caliper-workspace/results-v3/table12-isolated-combined.md`.
+* **Common settings for both runs.** 25 operations, at light (50 transactions @ 10 TPS), medium (100 @ 25 TPS) and stress (1,000 @ 100 TPS) load, with 2 workers.
+  * Network: Fabric 2.5.16, 4 organisations × 1 peer, Raft, CouchDB, TLS, and Microfab batching (100 ms / 10 transactions).
+
+### Chaincode / harness defects found by the runs, and fixed
+
+1. **Harness, `resultToString`.** The original harness did not handle Fabric query results returned as bytes. As a result,
+   bootstraps of published campaigns never reached the named operation. This affects the original v2 Table 12 rows P06, P07, P09–P12,
+   P18, P19, P23 and P25.
+2. **Dual, P07.** `publishCampaignToPortal.js` never called `ShareValidationToPlatform`. Every publish was
+   rejected with "validation approval not found".
+3. **Dual, P09 (v3 chaincode).** `GetPublicCampaign` read world state, but the bridge stores published campaigns in
+   `AllOrgsShared`. It now reads the bridged record.
+4. **Dual, P18 (v3 chaincode).** `TriggerFundRelease` on the investment channel tried to write a governance collection,
+   and was refused by the outbox privacy guard.
+   * Fund release now runs on the governance channel.
+   * The escrow is updated on the investment channel by `ExecuteFundReleaseTransfer`, so PlatformOrg's private escrow never passes through an outbox that StartupOrg and ValidatorOrg can read.
+
+### Task 3: answer
+
+* **Faithful design.** Stress rounds counted between 1,002 and 8,032 transactions (single) and between 1,002 and 9,307 (dual).
+  * Operations that need a published campaign reached the named operation at most 14 times in a stress round.
+  * On dual, light and medium rounds often never reached it at all: the 4 s bridge wait outlasted the round.
+* **Corrected design.** **Every round counts exactly the named operation.** The totals are 50–52 (light), 102 (medium) and
+  1,000–1,002 (stress). 1,002 is 1,000 plus one extra iteration per worker, started before Caliper's submission counter updates.
+
+> In the original workloads, each iteration of a multi-step operation submitted its prerequisite transactions
+> (and status queries) before the named operation. Caliper 0.5.0 ends a fixed-number round when each worker has
+> submitted its share of `txNumber` transactions of any kind, so stress rounds counted 1,002–8,032 transactions,
+> and for operations requiring a published campaign almost none of them were the named operation.
+>
+> We therefore moved all prerequisites into `initializeWorkloadModule()`, which Caliper executes before it starts
+> recording the round. Every round now submits only the named operation. Each round counts 50–52, 102 and
+> 1,000–1,002 transactions at light, medium and stress load; the two extra transactions are one iteration per
+> worker started before Caliper's counter is updated.
+
+### Corrected Table 12 summary
+
+| | Single channel | Dual channel |
+|---|---|---|
+| Light / medium: operations at 100 % | 24 of 25 (all except TransferTokens) | 24 of 25 (all except TransferTokens) |
+| Stress: operations at 100 % | P13, P20, P21 | P01, P09, P13, P16, P20, P21, P24 |
+| Stress: median success over 25 operations | 75.4 % | 79.0 % |
+| Stress: dual vs single | | dual higher on 16 operations, lower on 5, equal on 4 |
+| TransferTokens (light / medium / stress) | 48.0 / 24.5 / 2.7 % | 48.0 / 23.5 / 2.7 % |
+
+* Stress failures of every operation except TransferTokens are endorsement-time "exceeding concurrency limit" errors.
+  * Each peer's Fabric Gateway admits at most 500 requests in flight at once (the default `peer.gateway.concurrencyLimit`).
+  * At 100 TPS offered, with 5–10 s latency on this 4-vCPU host, that limit is reached.
+  * This is a capacity limit of the test host, not a chaincode error.
+
+### Task 4: answer
+
+| Operation | Light / medium / stress (single) | (dual) | Cause from the Caliper log |
+|---|---|---|---|
+| TransferTokens | 48.0 / 24.5 / 2.7 % | 48.0 / 23.5 / 2.7 % | **Validation code 11 (MVCC_READ_CONFLICT)**, plus at medium and stress load endorsement errors "ProposalResponsePayloads do not match" (stress: 548 + 427 single, 583 + 392 dual) |
+| RespondToInvestmentProposal | 100 / 100 / 84.6 % | 100 / 100 / 80.4 % | No validation code. Stress failures: "exceeding concurrency limit" only. |
+| CreateDispute | 100 / 100 / 83.7 % | 100 / 100 / 79.0 % | No validation code. Stress failures: "exceeding concurrency limit" only. |
+
+**Why RespondToInvestmentProposal and CreateDispute behave differently in the two designs.**
+
+* In the faithful design, RespondToInvestmentProposal failed with "proposal not found", because it was endorsed by StartupOrg's peer
+  moments after the proposal committed on InvestorOrg's peer.
+* In the faithful design, CreateDispute's row carried code 11 failures of the TransferTokens that funds the investor.
+* With prerequisites prepared in advance, both disappear. CreateDispute's own transactions never failed validation.
+
+> Only TransferTokens fails Fabric validation: its failures carry code 11 (MVCC_READ_CONFLICT), because every
+> transfer debits the same PLATFORM account. Under higher load the two-of-four token endorsers also return
+> different results ("ProposalResponsePayloads do not match"), because their copies of that account are at
+> different heights.
+>
+> RespondToInvestmentProposal and CreateDispute commit 100 % of transactions at light and medium load on both
+> architectures; at stress load their only failures are gateway admission limits ("exceeding concurrency limit"),
+> with no validation code.
+>
+> In the original workloads these two operations appeared to fail because of their prerequisites: the proposal
+> had not yet reached StartupOrg's peer, and the transfer that funds the disputing investor conflicted on the
+> PLATFORM account.
