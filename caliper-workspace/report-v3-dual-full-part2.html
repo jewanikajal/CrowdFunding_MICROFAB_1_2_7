@@ -1,0 +1,2648 @@
+<!doctype html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script>
+    function plotChart(divId, chartData) {
+        // Convert from stringified html, to valid JSON
+        const chartDetails = JSON.parse(chartData.replace(/&quot;/g,'"'));
+        new Chart(document.getElementById(divId), {
+            type: chartDetails.type,
+            data: {
+                labels: chartDetails.labels,
+                datasets: chartDetails.datasets
+            },
+            options: {
+                legend: { display: chartDetails.legend },
+                title: {
+                    display: true,
+                    text: chartDetails.title
+                }
+            }
+        });
+    }
+</script>
+<html>
+<head>
+    <title>Hyperledger Caliper Report</title>
+    <meta charset="UTF-8"/>
+    <style type="text/css">
+        .left-column {
+            position: fixed;
+            width:20%;
+        }
+        .left-column ul {
+            display: block;
+            padding: 0;
+            list-style: none;
+            border-bottom: 1px solid #d9d9d9;
+            font-size: 14px;
+        }
+        .left-column h2{
+            font-size: 24px;
+            font-weight: 400;
+            margin-block-end: 0.5em;
+        }
+        .left-column h3{
+            font-size: 18px;
+            font-weight: 400;
+            margin-block-end: 0.5em;
+        }
+        .left-column li{
+            margin-left: 10px;
+            margin-bottom: 5px;
+            color: #5e6b73;
+        }
+        .right-column {
+            margin-left: 22%;
+            width:60%;
+        }
+        .right-column table {
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .right-column h2{
+            font-weight: 400;
+        }
+        .right-column h3{
+            font-weight: 400;
+        }
+        .right-column h4 {
+            font-weight: 400;
+            margin-block-end: 0;
+        }
+        .right-column th {
+            border-width: 1px;
+            font-size: small;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #f2f2f2;
+        }
+        .right-column td {
+            border-width: 1px;
+            font-size: small;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+            font-weight: 400;
+        }
+        .tag {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+        }
+        pre {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            -khtml-border-radius: 5px;
+            overflow:auto;
+            max-height:300px;
+            font-size:12px;
+        }
+        .charting {
+            display:flex;
+            flex-direction:row;
+            flex-wrap: wrap;
+            page-break-inside: auto;
+        }
+        .chart {
+            display:flex;
+            flex:1;
+            max-width: 50%;
+        }
+    </style>
+</head>
+<body style="font-family: IBM Plex Sans; font-weight: 200;">
+    <main>
+        <div class="left-column">
+            <img src="https://hyperledger.github.io/caliper/assets/img/hyperledger_caliper_logo_color.png" style="width:95%;" alt="">
+            <ul>
+                <h3>&nbspBasic information</h3>
+                <li>DLT: &nbsp<span style="font-weight: 500;">fabric</span></li>
+                <li>Name: &nbsp<span style="font-weight: 500;">crowdfunding-dual-full</span></li>
+                <li>Description: &nbsp<span style="font-weight: 500;">Dual T12 — 25 ops × L&#x2F;M&#x2F;S + cool-down after each medium and each stress (op TPS unchanged)</span></li>
+                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">67</span></li>
+                <li><a href="#benchmarkInfo">Details</a></li>
+            </ul>
+            <ul>
+                <h3>&nbspBenchmark results</h3>
+                <li><a href="#benchmarksummary">Summary</a></li>
+                    <li><a href="#cooldown-after-medium-P12-respondToInvestmentProposal">cooldown-after-medium-P12-respondToInvestmentProposal</a></li>
+                    <li><a href="#stress-P12-respondToInvestmentProposal">stress-P12-respondToInvestmentProposal</a></li>
+                    <li><a href="#cooldown-after-stress-P12-respondToInvestmentProposal">cooldown-after-stress-P12-respondToInvestmentProposal</a></li>
+                    <li><a href="#low-P13-initializeToken">low-P13-initializeToken</a></li>
+                    <li><a href="#medium-P13-initializeToken">medium-P13-initializeToken</a></li>
+                    <li><a href="#cooldown-after-medium-P13-initializeToken">cooldown-after-medium-P13-initializeToken</a></li>
+                    <li><a href="#stress-P13-initializeToken">stress-P13-initializeToken</a></li>
+                    <li><a href="#cooldown-after-stress-P13-initializeToken">cooldown-after-stress-P13-initializeToken</a></li>
+                    <li><a href="#low-P14-mintTokens">low-P14-mintTokens</a></li>
+                    <li><a href="#medium-P14-mintTokens">medium-P14-mintTokens</a></li>
+                    <li><a href="#cooldown-after-medium-P14-mintTokens">cooldown-after-medium-P14-mintTokens</a></li>
+                    <li><a href="#stress-P14-mintTokens">stress-P14-mintTokens</a></li>
+                    <li><a href="#cooldown-after-stress-P14-mintTokens">cooldown-after-stress-P14-mintTokens</a></li>
+                    <li><a href="#low-P15-transferTokens">low-P15-transferTokens</a></li>
+                    <li><a href="#medium-P15-transferTokens">medium-P15-transferTokens</a></li>
+                    <li><a href="#cooldown-after-medium-P15-transferTokens">cooldown-after-medium-P15-transferTokens</a></li>
+                    <li><a href="#stress-P15-transferTokens">stress-P15-transferTokens</a></li>
+                    <li><a href="#cooldown-after-stress-P15-transferTokens">cooldown-after-stress-P15-transferTokens</a></li>
+                    <li><a href="#low-P16-submitMilestoneReport">low-P16-submitMilestoneReport</a></li>
+                    <li><a href="#medium-P16-submitMilestoneReport">medium-P16-submitMilestoneReport</a></li>
+                    <li><a href="#cooldown-after-medium-P16-submitMilestoneReport">cooldown-after-medium-P16-submitMilestoneReport</a></li>
+                    <li><a href="#stress-P16-submitMilestoneReport">stress-P16-submitMilestoneReport</a></li>
+                    <li><a href="#cooldown-after-stress-P16-submitMilestoneReport">cooldown-after-stress-P16-submitMilestoneReport</a></li>
+                    <li><a href="#low-P17-verifyMilestoneCompletion">low-P17-verifyMilestoneCompletion</a></li>
+                    <li><a href="#medium-P17-verifyMilestoneCompletion">medium-P17-verifyMilestoneCompletion</a></li>
+                    <li><a href="#cooldown-after-medium-P17-verifyMilestoneCompletion">cooldown-after-medium-P17-verifyMilestoneCompletion</a></li>
+                    <li><a href="#stress-P17-verifyMilestoneCompletion">stress-P17-verifyMilestoneCompletion</a></li>
+                    <li><a href="#cooldown-after-stress-P17-verifyMilestoneCompletion">cooldown-after-stress-P17-verifyMilestoneCompletion</a></li>
+                    <li><a href="#low-P18-triggerFundRelease">low-P18-triggerFundRelease</a></li>
+                    <li><a href="#medium-P18-triggerFundRelease">medium-P18-triggerFundRelease</a></li>
+                    <li><a href="#cooldown-after-medium-P18-triggerFundRelease">cooldown-after-medium-P18-triggerFundRelease</a></li>
+                    <li><a href="#stress-P18-triggerFundRelease">stress-P18-triggerFundRelease</a></li>
+                    <li><a href="#cooldown-after-stress-P18-triggerFundRelease">cooldown-after-stress-P18-triggerFundRelease</a></li>
+                    <li><a href="#low-P19-createDispute">low-P19-createDispute</a></li>
+                    <li><a href="#medium-P19-createDispute">medium-P19-createDispute</a></li>
+                    <li><a href="#cooldown-after-medium-P19-createDispute">cooldown-after-medium-P19-createDispute</a></li>
+                    <li><a href="#stress-P19-createDispute">stress-P19-createDispute</a></li>
+                    <li><a href="#cooldown-after-stress-P19-createDispute">cooldown-after-stress-P19-createDispute</a></li>
+                    <li><a href="#low-P20-collectCampaignFee">low-P20-collectCampaignFee</a></li>
+                    <li><a href="#medium-P20-collectCampaignFee">medium-P20-collectCampaignFee</a></li>
+                    <li><a href="#cooldown-after-medium-P20-collectCampaignFee">cooldown-after-medium-P20-collectCampaignFee</a></li>
+                    <li><a href="#stress-P20-collectCampaignFee">stress-P20-collectCampaignFee</a></li>
+                    <li><a href="#cooldown-after-stress-P20-collectCampaignFee">cooldown-after-stress-P20-collectCampaignFee</a></li>
+                    <li><a href="#low-P21-setFeeTiers">low-P21-setFeeTiers</a></li>
+                    <li><a href="#medium-P21-setFeeTiers">medium-P21-setFeeTiers</a></li>
+                    <li><a href="#cooldown-after-medium-P21-setFeeTiers">cooldown-after-medium-P21-setFeeTiers</a></li>
+                    <li><a href="#stress-P21-setFeeTiers">stress-P21-setFeeTiers</a></li>
+                    <li><a href="#cooldown-after-stress-P21-setFeeTiers">cooldown-after-stress-P21-setFeeTiers</a></li>
+                    <li><a href="#low-P22-deleteCampaign">low-P22-deleteCampaign</a></li>
+                    <li><a href="#medium-P22-deleteCampaign">medium-P22-deleteCampaign</a></li>
+                    <li><a href="#cooldown-after-medium-P22-deleteCampaign">cooldown-after-medium-P22-deleteCampaign</a></li>
+                    <li><a href="#stress-P22-deleteCampaign">stress-P22-deleteCampaign</a></li>
+                    <li><a href="#cooldown-after-stress-P22-deleteCampaign">cooldown-after-stress-P22-deleteCampaign</a></li>
+                    <li><a href="#low-P23-withdrawInvestment">low-P23-withdrawInvestment</a></li>
+                    <li><a href="#medium-P23-withdrawInvestment">medium-P23-withdrawInvestment</a></li>
+                    <li><a href="#cooldown-after-medium-P23-withdrawInvestment">cooldown-after-medium-P23-withdrawInvestment</a></li>
+                    <li><a href="#stress-P23-withdrawInvestment">stress-P23-withdrawInvestment</a></li>
+                    <li><a href="#cooldown-after-stress-P23-withdrawInvestment">cooldown-after-stress-P23-withdrawInvestment</a></li>
+                    <li><a href="#low-P24-requestRefund">low-P24-requestRefund</a></li>
+                    <li><a href="#medium-P24-requestRefund">medium-P24-requestRefund</a></li>
+                    <li><a href="#cooldown-after-medium-P24-requestRefund">cooldown-after-medium-P24-requestRefund</a></li>
+                    <li><a href="#stress-P24-requestRefund">stress-P24-requestRefund</a></li>
+                    <li><a href="#cooldown-after-stress-P24-requestRefund">cooldown-after-stress-P24-requestRefund</a></li>
+                    <li><a href="#low-P25-closeCampaign">low-P25-closeCampaign</a></li>
+                    <li><a href="#medium-P25-closeCampaign">medium-P25-closeCampaign</a></li>
+                    <li><a href="#cooldown-after-medium-P25-closeCampaign">cooldown-after-medium-P25-closeCampaign</a></li>
+                    <li><a href="#stress-P25-closeCampaign">stress-P25-closeCampaign</a></li>
+            </ul>
+            <ul>
+                <h3>&nbspSystem under test</h3>
+                <li><a href="#sutdetails">Details</a></li>
+            </ul>
+        </div>
+
+        <div class="right-column">
+            <h1 style="padding-top: 3em; font-weight: 500;">Caliper report</h1>
+            <div style="border-bottom: 1px solid #d9d9d9; margin-bottom: 10px;" id="benchmarksummary">
+                <table style="min-width: 100%;">
+                    <h3>Summary of performance metrics</h3>
+                    <tr>
+                         <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                    </tr>
+
+                    <tr>
+                         <td>cooldown-after-medium-P12-respondToInvestmentProposal</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P12-respondToInvestmentProposal</td> <td>7545</td> <td>125</td> <td>90.3</td> <td>30.79</td> <td>0.03</td> <td>3.85</td> <td>90.2</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P12-respondToInvestmentProposal</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.7</td>
+                    </tr>
+                    <tr>
+                         <td>low-P13-initializeToken</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.23</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P13-initializeToken</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.23</td> <td>0.10</td> <td>0.17</td> <td>25.2</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P13-initializeToken</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.8</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P13-initializeToken</td> <td>1002</td> <td>0</td> <td>87.7</td> <td>3.37</td> <td>0.11</td> <td>1.70</td> <td>77.7</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P13-initializeToken</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.15</td> <td>0.15</td> <td>25.6</td>
+                    </tr>
+                    <tr>
+                         <td>low-P14-mintTokens</td> <td>54</td> <td>0</td> <td>12.0</td> <td>0.21</td> <td>0.15</td> <td>0.18</td> <td>11.6</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P14-mintTokens</td> <td>108</td> <td>0</td> <td>26.3</td> <td>0.22</td> <td>0.07</td> <td>0.16</td> <td>25.3</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P14-mintTokens</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.17</td> <td>0.16</td> <td>0.16</td> <td>24.0</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P14-mintTokens</td> <td>1773</td> <td>0</td> <td>78.5</td> <td>6.88</td> <td>0.18</td> <td>4.35</td> <td>73.9</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P14-mintTokens</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>25.0</td>
+                    </tr>
+                    <tr>
+                         <td>low-P15-transferTokens</td> <td>38</td> <td>14</td> <td>11.4</td> <td>0.39</td> <td>0.08</td> <td>0.20</td> <td>11.0</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P15-transferTokens</td> <td>76</td> <td>32</td> <td>26.7</td> <td>0.22</td> <td>0.08</td> <td>0.15</td> <td>25.6</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P15-transferTokens</td> <td>4</td> <td>0</td> <td>2000.0</td> <td>0.15</td> <td>0.15</td> <td>0.15</td> <td>26.7</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P15-transferTokens</td> <td>536</td> <td>488</td> <td>99.0</td> <td>1.04</td> <td>0.15</td> <td>0.55</td> <td>98.2</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P15-transferTokens</td> <td>4</td> <td>0</td> <td>400.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>24.4</td>
+                    </tr>
+                    <tr>
+                         <td>low-P16-submitMilestoneReport</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.21</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P16-submitMilestoneReport</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.23</td> <td>0.08</td> <td>0.16</td> <td>25.5</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P16-submitMilestoneReport</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P16-submitMilestoneReport</td> <td>1002</td> <td>0</td> <td>96.8</td> <td>3.31</td> <td>0.11</td> <td>1.71</td> <td>80.1</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P16-submitMilestoneReport</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.5</td>
+                    </tr>
+                    <tr>
+                         <td>low-P17-verifyMilestoneCompletion</td> <td>56</td> <td>0</td> <td>12.4</td> <td>0.27</td> <td>0.14</td> <td>0.19</td> <td>12.0</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P17-verifyMilestoneCompletion</td> <td>120</td> <td>0</td> <td>26.8</td> <td>0.34</td> <td>0.08</td> <td>0.21</td> <td>25.8</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P17-verifyMilestoneCompletion</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P17-verifyMilestoneCompletion</td> <td>2161</td> <td>182</td> <td>60.8</td> <td>12.90</td> <td>0.11</td> <td>6.83</td> <td>60.5</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P17-verifyMilestoneCompletion</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.4</td>
+                    </tr>
+                    <tr>
+                         <td>low-P18-triggerFundRelease</td> <td>108</td> <td>0</td> <td>26.5</td> <td>0.37</td> <td>0.03</td> <td>0.22</td> <td>25.4</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P18-triggerFundRelease</td> <td>142</td> <td>2</td> <td>39.0</td> <td>0.73</td> <td>0.04</td> <td>0.25</td> <td>37.2</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P18-triggerFundRelease</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.16</td> <td>0.14</td> <td>0.15</td> <td>25.5</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P18-triggerFundRelease</td> <td>7974</td> <td>235</td> <td>96.0</td> <td>31.73</td> <td>0.02</td> <td>3.76</td> <td>96.0</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P18-triggerFundRelease</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>22.7</td>
+                    </tr>
+                    <tr>
+                         <td>low-P19-createDispute</td> <td>108</td> <td>0</td> <td>23.9</td> <td>0.37</td> <td>0.03</td> <td>0.25</td> <td>22.8</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P19-createDispute</td> <td>210</td> <td>4</td> <td>19.0</td> <td>0.99</td> <td>0.03</td> <td>0.33</td> <td>18.7</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P19-createDispute</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.8</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P19-createDispute</td> <td>8771</td> <td>151</td> <td>100.5</td> <td>30.58</td> <td>0.02</td> <td>3.40</td> <td>100.4</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P19-createDispute</td> <td>4</td> <td>0</td> <td>500.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                    </tr>
+                    <tr>
+                         <td>low-P20-collectCampaignFee</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.18</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P20-collectCampaignFee</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.27</td> <td>0.09</td> <td>0.17</td> <td>24.7</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P20-collectCampaignFee</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.18</td> <td>0.17</td> <td>0.18</td> <td>22.3</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P20-collectCampaignFee</td> <td>1002</td> <td>0</td> <td>98.6</td> <td>5.42</td> <td>0.13</td> <td>2.91</td> <td>77.3</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P20-collectCampaignFee</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>25.3</td>
+                    </tr>
+                    <tr>
+                         <td>low-P21-setFeeTiers</td> <td>52</td> <td>0</td> <td>10.8</td> <td>0.32</td> <td>0.08</td> <td>0.16</td> <td>10.6</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P21-setFeeTiers</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.17</td> <td>0.07</td> <td>0.12</td> <td>25.4</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P21-setFeeTiers</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.8</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P21-setFeeTiers</td> <td>1002</td> <td>0</td> <td>98.8</td> <td>1.05</td> <td>0.07</td> <td>0.39</td> <td>96.0</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P21-setFeeTiers</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.7</td>
+                    </tr>
+                    <tr>
+                         <td>low-P22-deleteCampaign</td> <td>60</td> <td>0</td> <td>11.6</td> <td>0.33</td> <td>0.16</td> <td>0.22</td> <td>11.1</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P22-deleteCampaign</td> <td>114</td> <td>0</td> <td>25.4</td> <td>0.44</td> <td>0.12</td> <td>0.28</td> <td>23.8</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P22-deleteCampaign</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P22-deleteCampaign</td> <td>1581</td> <td>252</td> <td>46.5</td> <td>16.01</td> <td>0.15</td> <td>10.85</td> <td>42.4</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P22-deleteCampaign</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>25.0</td>
+                    </tr>
+                    <tr>
+                         <td>low-P23-withdrawInvestment</td> <td>108</td> <td>0</td> <td>23.6</td> <td>0.53</td> <td>0.02</td> <td>0.26</td> <td>22.6</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P23-withdrawInvestment</td> <td>157</td> <td>5</td> <td>27.7</td> <td>0.99</td> <td>0.03</td> <td>0.30</td> <td>26.8</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P23-withdrawInvestment</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.7</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P23-withdrawInvestment</td> <td>8113</td> <td>220</td> <td>97.2</td> <td>31.60</td> <td>0.02</td> <td>3.74</td> <td>97.1</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P23-withdrawInvestment</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.4</td>
+                    </tr>
+                    <tr>
+                         <td>low-P24-requestRefund</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.27</td> <td>0.15</td> <td>0.18</td> <td>10.5</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P24-requestRefund</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.25</td> <td>0.07</td> <td>0.17</td> <td>24.5</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P24-requestRefund</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.4</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P24-requestRefund</td> <td>966</td> <td>36</td> <td>96.0</td> <td>6.58</td> <td>0.16</td> <td>3.80</td> <td>70.7</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-stress-P24-requestRefund</td> <td>4</td> <td>0</td> <td>571.4</td> <td>0.19</td> <td>0.18</td> <td>0.18</td> <td>21.4</td>
+                    </tr>
+                    <tr>
+                         <td>low-P25-closeCampaign</td> <td>108</td> <td>0</td> <td>24.5</td> <td>0.42</td> <td>0.04</td> <td>0.25</td> <td>23.5</td>
+                    </tr>
+                    <tr>
+                         <td>medium-P25-closeCampaign</td> <td>156</td> <td>2</td> <td>27.0</td> <td>0.81</td> <td>0.05</td> <td>0.38</td> <td>25.7</td>
+                    </tr>
+                    <tr>
+                         <td>cooldown-after-medium-P25-closeCampaign</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                    </tr>
+                    <tr>
+                         <td>stress-P25-closeCampaign</td> <td>8107</td> <td>266</td> <td>92.9</td> <td>33.10</td> <td>0.02</td> <td>3.85</td> <td>92.9</td>
+                    </tr>
+                </table>
+            </div>
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P12-respondToInvestmentProposal">
+                <h2>Benchmark round: cooldown-after-medium-P12-respondToInvestmentProposal</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P12-respondToInvestmentProposal</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P12-respondToInvestmentProposal</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P12-respondToInvestmentProposal</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P12-respondToInvestmentProposal">
+                <h2>Benchmark round: stress-P12-respondToInvestmentProposal</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P12-respondToInvestmentProposal</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P12-respondToInvestmentProposal</td> <td>7545</td> <td>125</td> <td>90.3</td> <td>30.79</td> <td>0.03</td> <td>3.85</td> <td>90.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P12-respondToInvestmentProposal</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P12-respondToInvestmentProposal">
+                <h2>Benchmark round: cooldown-after-stress-P12-respondToInvestmentProposal</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P12-respondToInvestmentProposal</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P12-respondToInvestmentProposal</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P12-respondToInvestmentProposal</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P13-initializeToken">
+                <h2>Benchmark round: low-P13-initializeToken</h2>
+                <p>Unique token symbols per tx</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P13-initializeToken</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P13-initializeToken</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.23</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P13-initializeToken</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P13-initializeToken">
+                <h2>Benchmark round: medium-P13-initializeToken</h2>
+                <p>Unique token symbols per tx</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P13-initializeToken</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P13-initializeToken</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.23</td> <td>0.10</td> <td>0.17</td> <td>25.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P13-initializeToken</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P13-initializeToken">
+                <h2>Benchmark round: cooldown-after-medium-P13-initializeToken</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P13-initializeToken</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P13-initializeToken</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P13-initializeToken</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P13-initializeToken">
+                <h2>Benchmark round: stress-P13-initializeToken</h2>
+                <p>Unique token symbols per tx</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P13-initializeToken</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P13-initializeToken</td> <td>1002</td> <td>0</td> <td>87.7</td> <td>3.37</td> <td>0.11</td> <td>1.70</td> <td>77.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P13-initializeToken</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P13-initializeToken">
+                <h2>Benchmark round: cooldown-after-stress-P13-initializeToken</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P13-initializeToken</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P13-initializeToken</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.15</td> <td>0.15</td> <td>25.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P13-initializeToken</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P14-mintTokens">
+                <h2>Benchmark round: low-P14-mintTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P14-mintTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P14-mintTokens</td> <td>54</td> <td>0</td> <td>12.0</td> <td>0.21</td> <td>0.15</td> <td>0.18</td> <td>11.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P14-mintTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P14-mintTokens">
+                <h2>Benchmark round: medium-P14-mintTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P14-mintTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P14-mintTokens</td> <td>108</td> <td>0</td> <td>26.3</td> <td>0.22</td> <td>0.07</td> <td>0.16</td> <td>25.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P14-mintTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P14-mintTokens">
+                <h2>Benchmark round: cooldown-after-medium-P14-mintTokens</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P14-mintTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P14-mintTokens</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.17</td> <td>0.16</td> <td>0.16</td> <td>24.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P14-mintTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P14-mintTokens">
+                <h2>Benchmark round: stress-P14-mintTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P14-mintTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P14-mintTokens</td> <td>1773</td> <td>0</td> <td>78.5</td> <td>6.88</td> <td>0.18</td> <td>4.35</td> <td>73.9</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P14-mintTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P14-mintTokens">
+                <h2>Benchmark round: cooldown-after-stress-P14-mintTokens</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P14-mintTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P14-mintTokens</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>25.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P14-mintTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P15-transferTokens">
+                <h2>Benchmark round: low-P15-transferTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P15-transferTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P15-transferTokens</td> <td>38</td> <td>14</td> <td>11.4</td> <td>0.39</td> <td>0.08</td> <td>0.20</td> <td>11.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P15-transferTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P15-transferTokens">
+                <h2>Benchmark round: medium-P15-transferTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P15-transferTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P15-transferTokens</td> <td>76</td> <td>32</td> <td>26.7</td> <td>0.22</td> <td>0.08</td> <td>0.15</td> <td>25.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P15-transferTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P15-transferTokens">
+                <h2>Benchmark round: cooldown-after-medium-P15-transferTokens</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P15-transferTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P15-transferTokens</td> <td>4</td> <td>0</td> <td>2000.0</td> <td>0.15</td> <td>0.15</td> <td>0.15</td> <td>26.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P15-transferTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P15-transferTokens">
+                <h2>Benchmark round: stress-P15-transferTokens</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P15-transferTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P15-transferTokens</td> <td>536</td> <td>488</td> <td>99.0</td> <td>1.04</td> <td>0.15</td> <td>0.55</td> <td>98.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P15-transferTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P15-transferTokens">
+                <h2>Benchmark round: cooldown-after-stress-P15-transferTokens</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P15-transferTokens</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P15-transferTokens</td> <td>4</td> <td>0</td> <td>400.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>24.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P15-transferTokens</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P16-submitMilestoneReport">
+                <h2>Benchmark round: low-P16-submitMilestoneReport</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P16-submitMilestoneReport</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P16-submitMilestoneReport</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.21</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P16-submitMilestoneReport</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P16-submitMilestoneReport">
+                <h2>Benchmark round: medium-P16-submitMilestoneReport</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P16-submitMilestoneReport</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P16-submitMilestoneReport</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.23</td> <td>0.08</td> <td>0.16</td> <td>25.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P16-submitMilestoneReport</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P16-submitMilestoneReport">
+                <h2>Benchmark round: cooldown-after-medium-P16-submitMilestoneReport</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P16-submitMilestoneReport</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P16-submitMilestoneReport</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P16-submitMilestoneReport</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P16-submitMilestoneReport">
+                <h2>Benchmark round: stress-P16-submitMilestoneReport</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P16-submitMilestoneReport</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P16-submitMilestoneReport</td> <td>1002</td> <td>0</td> <td>96.8</td> <td>3.31</td> <td>0.11</td> <td>1.71</td> <td>80.1</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P16-submitMilestoneReport</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P16-submitMilestoneReport">
+                <h2>Benchmark round: cooldown-after-stress-P16-submitMilestoneReport</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P16-submitMilestoneReport</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P16-submitMilestoneReport</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P16-submitMilestoneReport</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P17-verifyMilestoneCompletion">
+                <h2>Benchmark round: low-P17-verifyMilestoneCompletion</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P17-verifyMilestoneCompletion</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P17-verifyMilestoneCompletion</td> <td>56</td> <td>0</td> <td>12.4</td> <td>0.27</td> <td>0.14</td> <td>0.19</td> <td>12.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P17-verifyMilestoneCompletion</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P17-verifyMilestoneCompletion">
+                <h2>Benchmark round: medium-P17-verifyMilestoneCompletion</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P17-verifyMilestoneCompletion</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P17-verifyMilestoneCompletion</td> <td>120</td> <td>0</td> <td>26.8</td> <td>0.34</td> <td>0.08</td> <td>0.21</td> <td>25.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P17-verifyMilestoneCompletion</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P17-verifyMilestoneCompletion">
+                <h2>Benchmark round: cooldown-after-medium-P17-verifyMilestoneCompletion</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P17-verifyMilestoneCompletion</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P17-verifyMilestoneCompletion</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P17-verifyMilestoneCompletion</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P17-verifyMilestoneCompletion">
+                <h2>Benchmark round: stress-P17-verifyMilestoneCompletion</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P17-verifyMilestoneCompletion</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P17-verifyMilestoneCompletion</td> <td>2161</td> <td>182</td> <td>60.8</td> <td>12.90</td> <td>0.11</td> <td>6.83</td> <td>60.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P17-verifyMilestoneCompletion</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P17-verifyMilestoneCompletion">
+                <h2>Benchmark round: cooldown-after-stress-P17-verifyMilestoneCompletion</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P17-verifyMilestoneCompletion</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P17-verifyMilestoneCompletion</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P17-verifyMilestoneCompletion</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P18-triggerFundRelease">
+                <h2>Benchmark round: low-P18-triggerFundRelease</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P18-triggerFundRelease</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P18-triggerFundRelease</td> <td>108</td> <td>0</td> <td>26.5</td> <td>0.37</td> <td>0.03</td> <td>0.22</td> <td>25.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P18-triggerFundRelease</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P18-triggerFundRelease">
+                <h2>Benchmark round: medium-P18-triggerFundRelease</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P18-triggerFundRelease</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P18-triggerFundRelease</td> <td>142</td> <td>2</td> <td>39.0</td> <td>0.73</td> <td>0.04</td> <td>0.25</td> <td>37.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P18-triggerFundRelease</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P18-triggerFundRelease">
+                <h2>Benchmark round: cooldown-after-medium-P18-triggerFundRelease</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P18-triggerFundRelease</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P18-triggerFundRelease</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.16</td> <td>0.14</td> <td>0.15</td> <td>25.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P18-triggerFundRelease</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P18-triggerFundRelease">
+                <h2>Benchmark round: stress-P18-triggerFundRelease</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P18-triggerFundRelease</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P18-triggerFundRelease</td> <td>7974</td> <td>235</td> <td>96.0</td> <td>31.73</td> <td>0.02</td> <td>3.76</td> <td>96.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P18-triggerFundRelease</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P18-triggerFundRelease">
+                <h2>Benchmark round: cooldown-after-stress-P18-triggerFundRelease</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P18-triggerFundRelease</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P18-triggerFundRelease</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>22.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P18-triggerFundRelease</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P19-createDispute">
+                <h2>Benchmark round: low-P19-createDispute</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P19-createDispute</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P19-createDispute</td> <td>108</td> <td>0</td> <td>23.9</td> <td>0.37</td> <td>0.03</td> <td>0.25</td> <td>22.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P19-createDispute</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P19-createDispute">
+                <h2>Benchmark round: medium-P19-createDispute</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P19-createDispute</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P19-createDispute</td> <td>210</td> <td>4</td> <td>19.0</td> <td>0.99</td> <td>0.03</td> <td>0.33</td> <td>18.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P19-createDispute</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P19-createDispute">
+                <h2>Benchmark round: cooldown-after-medium-P19-createDispute</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P19-createDispute</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P19-createDispute</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P19-createDispute</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P19-createDispute">
+                <h2>Benchmark round: stress-P19-createDispute</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P19-createDispute</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P19-createDispute</td> <td>8771</td> <td>151</td> <td>100.5</td> <td>30.58</td> <td>0.02</td> <td>3.40</td> <td>100.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P19-createDispute</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P19-createDispute">
+                <h2>Benchmark round: cooldown-after-stress-P19-createDispute</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P19-createDispute</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P19-createDispute</td> <td>4</td> <td>0</td> <td>500.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P19-createDispute</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P20-collectCampaignFee">
+                <h2>Benchmark round: low-P20-collectCampaignFee</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P20-collectCampaignFee</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P20-collectCampaignFee</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.18</td> <td>0.15</td> <td>0.17</td> <td>10.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P20-collectCampaignFee</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P20-collectCampaignFee">
+                <h2>Benchmark round: medium-P20-collectCampaignFee</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P20-collectCampaignFee</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P20-collectCampaignFee</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.27</td> <td>0.09</td> <td>0.17</td> <td>24.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P20-collectCampaignFee</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P20-collectCampaignFee">
+                <h2>Benchmark round: cooldown-after-medium-P20-collectCampaignFee</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P20-collectCampaignFee</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P20-collectCampaignFee</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.18</td> <td>0.17</td> <td>0.18</td> <td>22.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P20-collectCampaignFee</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P20-collectCampaignFee">
+                <h2>Benchmark round: stress-P20-collectCampaignFee</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P20-collectCampaignFee</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P20-collectCampaignFee</td> <td>1002</td> <td>0</td> <td>98.6</td> <td>5.42</td> <td>0.13</td> <td>2.91</td> <td>77.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P20-collectCampaignFee</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P20-collectCampaignFee">
+                <h2>Benchmark round: cooldown-after-stress-P20-collectCampaignFee</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P20-collectCampaignFee</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P20-collectCampaignFee</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.15</td> <td>0.16</td> <td>25.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P20-collectCampaignFee</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P21-setFeeTiers">
+                <h2>Benchmark round: low-P21-setFeeTiers</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P21-setFeeTiers</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P21-setFeeTiers</td> <td>52</td> <td>0</td> <td>10.8</td> <td>0.32</td> <td>0.08</td> <td>0.16</td> <td>10.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P21-setFeeTiers</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P21-setFeeTiers">
+                <h2>Benchmark round: medium-P21-setFeeTiers</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P21-setFeeTiers</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P21-setFeeTiers</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.17</td> <td>0.07</td> <td>0.12</td> <td>25.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P21-setFeeTiers</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P21-setFeeTiers">
+                <h2>Benchmark round: cooldown-after-medium-P21-setFeeTiers</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P21-setFeeTiers</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P21-setFeeTiers</td> <td>4</td> <td>0</td> <td>666.7</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P21-setFeeTiers</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P21-setFeeTiers">
+                <h2>Benchmark round: stress-P21-setFeeTiers</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P21-setFeeTiers</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P21-setFeeTiers</td> <td>1002</td> <td>0</td> <td>98.8</td> <td>1.05</td> <td>0.07</td> <td>0.39</td> <td>96.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P21-setFeeTiers</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P21-setFeeTiers">
+                <h2>Benchmark round: cooldown-after-stress-P21-setFeeTiers</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P21-setFeeTiers</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P21-setFeeTiers</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.16</td> <td>0.17</td> <td>23.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P21-setFeeTiers</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P22-deleteCampaign">
+                <h2>Benchmark round: low-P22-deleteCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P22-deleteCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P22-deleteCampaign</td> <td>60</td> <td>0</td> <td>11.6</td> <td>0.33</td> <td>0.16</td> <td>0.22</td> <td>11.1</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P22-deleteCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P22-deleteCampaign">
+                <h2>Benchmark round: medium-P22-deleteCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P22-deleteCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P22-deleteCampaign</td> <td>114</td> <td>0</td> <td>25.4</td> <td>0.44</td> <td>0.12</td> <td>0.28</td> <td>23.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P22-deleteCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P22-deleteCampaign">
+                <h2>Benchmark round: cooldown-after-medium-P22-deleteCampaign</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P22-deleteCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P22-deleteCampaign</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P22-deleteCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P22-deleteCampaign">
+                <h2>Benchmark round: stress-P22-deleteCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P22-deleteCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P22-deleteCampaign</td> <td>1581</td> <td>252</td> <td>46.5</td> <td>16.01</td> <td>0.15</td> <td>10.85</td> <td>42.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P22-deleteCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P22-deleteCampaign">
+                <h2>Benchmark round: cooldown-after-stress-P22-deleteCampaign</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P22-deleteCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P22-deleteCampaign</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>25.0</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P22-deleteCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P23-withdrawInvestment">
+                <h2>Benchmark round: low-P23-withdrawInvestment</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P23-withdrawInvestment</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P23-withdrawInvestment</td> <td>108</td> <td>0</td> <td>23.6</td> <td>0.53</td> <td>0.02</td> <td>0.26</td> <td>22.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P23-withdrawInvestment</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P23-withdrawInvestment">
+                <h2>Benchmark round: medium-P23-withdrawInvestment</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P23-withdrawInvestment</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P23-withdrawInvestment</td> <td>157</td> <td>5</td> <td>27.7</td> <td>0.99</td> <td>0.03</td> <td>0.30</td> <td>26.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P23-withdrawInvestment</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P23-withdrawInvestment">
+                <h2>Benchmark round: cooldown-after-medium-P23-withdrawInvestment</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P23-withdrawInvestment</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P23-withdrawInvestment</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P23-withdrawInvestment</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P23-withdrawInvestment">
+                <h2>Benchmark round: stress-P23-withdrawInvestment</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P23-withdrawInvestment</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P23-withdrawInvestment</td> <td>8113</td> <td>220</td> <td>97.2</td> <td>31.60</td> <td>0.02</td> <td>3.74</td> <td>97.1</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P23-withdrawInvestment</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P23-withdrawInvestment">
+                <h2>Benchmark round: cooldown-after-stress-P23-withdrawInvestment</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P23-withdrawInvestment</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P23-withdrawInvestment</td> <td>4</td> <td>0</td> <td>1333.3</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P23-withdrawInvestment</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P24-requestRefund">
+                <h2>Benchmark round: low-P24-requestRefund</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P24-requestRefund</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P24-requestRefund</td> <td>50</td> <td>0</td> <td>10.9</td> <td>0.27</td> <td>0.15</td> <td>0.18</td> <td>10.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P24-requestRefund</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P24-requestRefund">
+                <h2>Benchmark round: medium-P24-requestRefund</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P24-requestRefund</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P24-requestRefund</td> <td>102</td> <td>0</td> <td>26.0</td> <td>0.25</td> <td>0.07</td> <td>0.17</td> <td>24.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P24-requestRefund</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P24-requestRefund">
+                <h2>Benchmark round: cooldown-after-medium-P24-requestRefund</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P24-requestRefund</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P24-requestRefund</td> <td>4</td> <td>0</td> <td>1000.0</td> <td>0.16</td> <td>0.16</td> <td>0.16</td> <td>24.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P24-requestRefund</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P24-requestRefund">
+                <h2>Benchmark round: stress-P24-requestRefund</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P24-requestRefund</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P24-requestRefund</td> <td>966</td> <td>36</td> <td>96.0</td> <td>6.58</td> <td>0.16</td> <td>3.80</td> <td>70.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P24-requestRefund</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-stress-P24-requestRefund">
+                <h2>Benchmark round: cooldown-after-stress-P24-requestRefund</h2>
+                <p>Settle peers before next op (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-stress-P24-requestRefund</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-stress-P24-requestRefund</td> <td>4</td> <td>0</td> <td>571.4</td> <td>0.19</td> <td>0.18</td> <td>0.18</td> <td>21.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-stress-P24-requestRefund</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="low-P25-closeCampaign">
+                <h2>Benchmark round: low-P25-closeCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 10
+</pre>
+                        <h3>Performance metrics for low-P25-closeCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>low-P25-closeCampaign</td> <td>108</td> <td>0</td> <td>24.5</td> <td>0.42</td> <td>0.04</td> <td>0.25</td> <td>23.5</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for low-P25-closeCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="medium-P25-closeCampaign">
+                <h2>Benchmark round: medium-P25-closeCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 25
+</pre>
+                        <h3>Performance metrics for medium-P25-closeCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>medium-P25-closeCampaign</td> <td>156</td> <td>2</td> <td>27.0</td> <td>0.81</td> <td>0.05</td> <td>0.38</td> <td>25.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for medium-P25-closeCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="cooldown-after-medium-P25-closeCampaign">
+                <h2>Benchmark round: cooldown-after-medium-P25-closeCampaign</h2>
+                <p>Settle peers before stress (op TPS unchanged)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 1
+</pre>
+                        <h3>Performance metrics for cooldown-after-medium-P25-closeCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>cooldown-after-medium-P25-closeCampaign</td> <td>4</td> <td>0</td> <td>800.0</td> <td>0.17</td> <td>0.17</td> <td>0.17</td> <td>23.3</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for cooldown-after-medium-P25-closeCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="stress-P25-closeCampaign">
+                <h2>Benchmark round: stress-P25-closeCampaign</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for stress-P25-closeCampaign</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>stress-P25-closeCampaign</td> <td>8107</td> <td>266</td> <td>92.9</td> <td>33.10</td> <td>0.02</td> <td>3.85</td> <td>92.9</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for stress-P25-closeCampaign</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;">
+                <h2>Test Environment</h2>
+                <h3>benchmark config</h3>
+                <pre id="benchmarkInfo" style="overflow: visible;white-space: pre-wrap;max-height:100%;">name: crowdfunding-dual-full
+description: &gt;-
+  Dual T12 — 25 ops × L&#x2F;M&#x2F;S + cool-down after each medium and each stress (op
+  TPS unchanged)
+workers:
+  number: 2
+rounds:
+  - label: cooldown-after-medium-P12-respondToInvestmentProposal
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P12-respondToInvestmentProposal
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;respondToInvestmentProposal.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P12-respondToInvestmentProposal
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P13-initializeToken
+    description: Unique token symbols per tx
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;initializeToken.js
+      arguments:
+        arch: dual
+  - label: medium-P13-initializeToken
+    description: Unique token symbols per tx
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;initializeToken.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P13-initializeToken
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P13-initializeToken
+    description: Unique token symbols per tx
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;initializeToken.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P13-initializeToken
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P14-mintTokens
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;mintTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;100&#39;
+  - label: medium-P14-mintTokens
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;mintTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;100&#39;
+  - label: cooldown-after-medium-P14-mintTokens
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P14-mintTokens
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;mintTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;100&#39;
+  - label: cooldown-after-stress-P14-mintTokens
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P15-transferTokens
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;transferTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;1&#39;
+  - label: medium-P15-transferTokens
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;transferTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;1&#39;
+  - label: cooldown-after-medium-P15-transferTokens
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P15-transferTokens
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;transferTokens.js
+      arguments:
+        arch: dual
+        amount: &#39;1&#39;
+  - label: cooldown-after-stress-P15-transferTokens
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P16-submitMilestoneReport
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;submitMilestoneReport.js
+      arguments:
+        arch: dual
+  - label: medium-P16-submitMilestoneReport
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;submitMilestoneReport.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P16-submitMilestoneReport
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P16-submitMilestoneReport
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;submitMilestoneReport.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P16-submitMilestoneReport
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P17-verifyMilestoneCompletion
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;verifyMilestoneCompletion.js
+      arguments:
+        arch: dual
+  - label: medium-P17-verifyMilestoneCompletion
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;verifyMilestoneCompletion.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P17-verifyMilestoneCompletion
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P17-verifyMilestoneCompletion
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;verifyMilestoneCompletion.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P17-verifyMilestoneCompletion
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P18-triggerFundRelease
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;triggerFundRelease.js
+      arguments:
+        arch: dual
+  - label: medium-P18-triggerFundRelease
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;triggerFundRelease.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P18-triggerFundRelease
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P18-triggerFundRelease
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;triggerFundRelease.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P18-triggerFundRelease
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P19-createDispute
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;createDispute.js
+      arguments:
+        arch: dual
+  - label: medium-P19-createDispute
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;createDispute.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P19-createDispute
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P19-createDispute
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;createDispute.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P19-createDispute
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P20-collectCampaignFee
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;collectCampaignFee.js
+      arguments:
+        arch: dual
+  - label: medium-P20-collectCampaignFee
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;collectCampaignFee.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P20-collectCampaignFee
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P20-collectCampaignFee
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;collectCampaignFee.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P20-collectCampaignFee
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P21-setFeeTiers
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;setFeeTiers.js
+      arguments:
+        arch: dual
+  - label: medium-P21-setFeeTiers
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;setFeeTiers.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P21-setFeeTiers
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P21-setFeeTiers
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;setFeeTiers.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P21-setFeeTiers
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P22-deleteCampaign
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;deleteCampaign.js
+      arguments:
+        arch: dual
+  - label: medium-P22-deleteCampaign
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;deleteCampaign.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P22-deleteCampaign
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P22-deleteCampaign
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;deleteCampaign.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P22-deleteCampaign
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P23-withdrawInvestment
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;withdrawInvestment.js
+      arguments:
+        arch: dual
+  - label: medium-P23-withdrawInvestment
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;withdrawInvestment.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P23-withdrawInvestment
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P23-withdrawInvestment
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;withdrawInvestment.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P23-withdrawInvestment
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P24-requestRefund
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;requestRefund.js
+      arguments:
+        arch: dual
+  - label: medium-P24-requestRefund
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;requestRefund.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P24-requestRefund
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P24-requestRefund
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;requestRefund.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-stress-P24-requestRefund
+    description: Settle peers before next op (op TPS unchanged)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 90000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: low-P25-closeCampaign
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 10
+    workload:
+      module: workloads&#x2F;closeCampaign.js
+      arguments:
+        arch: dual
+  - label: medium-P25-closeCampaign
+    txNumber: 100
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 25
+    workload:
+      module: workloads&#x2F;closeCampaign.js
+      arguments:
+        arch: dual
+  - label: cooldown-after-medium-P25-closeCampaign
+    description: Settle peers before stress (op TPS unchanged)
+    txNumber: 2
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 1
+    workload:
+      module: workloads&#x2F;peerCooldown.js
+      arguments:
+        arch: dual
+        pauseMs: 60000
+        pollMs: 2000
+        maxWaitMs: 180000
+        readyQueries: 2
+        probeGovernance: false
+        healthUrl: &#39;http:&#x2F;&#x2F;127.0.0.1:7070&#x2F;ak&#x2F;api&#x2F;v1&#x2F;health&#39;
+  - label: stress-P25-closeCampaign
+    txNumber: 1000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: workloads&#x2F;closeCampaign.js
+      arguments:
+        arch: dual
+</pre>
+                <h3>SUT</h3>
+                <pre id="sutdetails">not provided</pre>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -843,5 +843,950 @@
         "endorsement: Channel has been shut down": 13
       }
     }
+  },
+  {
+    "id": "P12",
+    "operation": "respondToInvestmentProposal",
+    "load": "stress",
+    "function": "StartupContract:RespondToInvestmentProposal",
+    "caliper_succ": 7545,
+    "caliper_fail": 125,
+    "caliper_total": 7670,
+    "caliper_success_pct": 98.4,
+    "send_tps": 90.3,
+    "throughput_tps": 90.2,
+    "lat_avg_s": 3.85,
+    "lat_max_s": 30.79,
+    "named_invocations": 12,
+    "named_committed": 11,
+    "named_success_pct": 91.7,
+    "tx_per_iteration": 206.83,
+    "failure_causes": {
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 11
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 14
+      },
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 75
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 24,
+        "endorsement: Channel has been shut down": 360
+      },
+      "StartupContract:RespondToInvestmentProposal": {
+        "endorsement: proposal not found": 1
+      }
+    }
+  },
+  {
+    "id": "P13",
+    "operation": "initializeToken",
+    "load": "light",
+    "function": "TokenContract:InitializeToken",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.9,
+    "throughput_tps": 10.5,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.23,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P13",
+    "operation": "initializeToken",
+    "load": "medium",
+    "function": "TokenContract:InitializeToken",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 25.2,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.23,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P13",
+    "operation": "initializeToken",
+    "load": "stress",
+    "function": "TokenContract:InitializeToken",
+    "caliper_succ": 1002,
+    "caliper_fail": 0,
+    "caliper_total": 1002,
+    "caliper_success_pct": 100.0,
+    "send_tps": 87.7,
+    "throughput_tps": 77.7,
+    "lat_avg_s": 1.7,
+    "lat_max_s": 3.37,
+    "named_invocations": 1002,
+    "named_committed": 1002,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P14",
+    "operation": "mintTokens",
+    "load": "light",
+    "function": "TokenContract:MintTokens",
+    "caliper_succ": 54,
+    "caliper_fail": 0,
+    "caliper_total": 54,
+    "caliper_success_pct": 100.0,
+    "send_tps": 12.0,
+    "throughput_tps": 11.6,
+    "lat_avg_s": 0.18,
+    "lat_max_s": 0.21,
+    "named_invocations": 20,
+    "named_committed": 20,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P14",
+    "operation": "mintTokens",
+    "load": "medium",
+    "function": "TokenContract:MintTokens",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.3,
+    "throughput_tps": 25.3,
+    "lat_avg_s": 0.16,
+    "lat_max_s": 0.22,
+    "named_invocations": 36,
+    "named_committed": 36,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P14",
+    "operation": "mintTokens",
+    "load": "stress",
+    "function": "TokenContract:MintTokens",
+    "caliper_succ": 1773,
+    "caliper_fail": 0,
+    "caliper_total": 1773,
+    "caliper_success_pct": 100.0,
+    "send_tps": 78.5,
+    "throughput_tps": 73.9,
+    "lat_avg_s": 4.35,
+    "lat_max_s": 6.88,
+    "named_invocations": 591,
+    "named_committed": 591,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P15",
+    "operation": "transferTokens",
+    "load": "light",
+    "function": "TokenContract:TransferTokens",
+    "caliper_succ": 38,
+    "caliper_fail": 14,
+    "caliper_total": 52,
+    "caliper_success_pct": 73.1,
+    "send_tps": 11.4,
+    "throughput_tps": 11.0,
+    "lat_avg_s": 0.2,
+    "lat_max_s": 0.39,
+    "named_invocations": 28,
+    "named_committed": 13,
+    "named_success_pct": 46.4,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {
+      "TokenContract:TransferTokens": {
+        "validation code 11 (MVCC_READ_CONFLICT)": 15
+      }
+    }
+  },
+  {
+    "id": "P15",
+    "operation": "transferTokens",
+    "load": "medium",
+    "function": "TokenContract:TransferTokens",
+    "caliper_succ": 76,
+    "caliper_fail": 32,
+    "caliper_total": 108,
+    "caliper_success_pct": 70.4,
+    "send_tps": 26.7,
+    "throughput_tps": 25.6,
+    "lat_avg_s": 0.15,
+    "lat_max_s": 0.22,
+    "named_invocations": 54,
+    "named_committed": 22,
+    "named_success_pct": 40.7,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {
+      "TokenContract:TransferTokens": {
+        "validation code 11 (MVCC_READ_CONFLICT)": 32
+      }
+    }
+  },
+  {
+    "id": "P15",
+    "operation": "transferTokens",
+    "load": "stress",
+    "function": "TokenContract:TransferTokens",
+    "caliper_succ": 536,
+    "caliper_fail": 488,
+    "caliper_total": 1024,
+    "caliper_success_pct": 52.3,
+    "send_tps": 99.0,
+    "throughput_tps": 98.2,
+    "lat_avg_s": 0.55,
+    "lat_max_s": 1.04,
+    "named_invocations": 512,
+    "named_committed": 24,
+    "named_success_pct": 4.7,
+    "tx_per_iteration": 2.0,
+    "failure_causes": {
+      "TokenContract:TransferTokens": {
+        "validation code 11 (MVCC_READ_CONFLICT)": 228,
+        "endorsement: ProposalResponsePayloads do not match": 260
+      }
+    }
+  },
+  {
+    "id": "P16",
+    "operation": "submitMilestoneReport",
+    "load": "light",
+    "function": "StartupContract:SubmitMilestoneReport",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.9,
+    "throughput_tps": 10.5,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.21,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P16",
+    "operation": "submitMilestoneReport",
+    "load": "medium",
+    "function": "StartupContract:SubmitMilestoneReport",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 25.5,
+    "lat_avg_s": 0.16,
+    "lat_max_s": 0.23,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P16",
+    "operation": "submitMilestoneReport",
+    "load": "stress",
+    "function": "StartupContract:SubmitMilestoneReport",
+    "caliper_succ": 1002,
+    "caliper_fail": 0,
+    "caliper_total": 1002,
+    "caliper_success_pct": 100.0,
+    "send_tps": 96.8,
+    "throughput_tps": 80.1,
+    "lat_avg_s": 1.71,
+    "lat_max_s": 3.31,
+    "named_invocations": 1002,
+    "named_committed": 1002,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P17",
+    "operation": "verifyMilestoneCompletion",
+    "load": "light",
+    "function": "ValidatorContract:VerifyMilestoneCompletion",
+    "caliper_succ": 56,
+    "caliper_fail": 0,
+    "caliper_total": 56,
+    "caliper_success_pct": 100.0,
+    "send_tps": 12.4,
+    "throughput_tps": 12.0,
+    "lat_avg_s": 0.19,
+    "lat_max_s": 0.27,
+    "named_invocations": 16,
+    "named_committed": 16,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P17",
+    "operation": "verifyMilestoneCompletion",
+    "load": "medium",
+    "function": "ValidatorContract:VerifyMilestoneCompletion",
+    "caliper_succ": 120,
+    "caliper_fail": 0,
+    "caliper_total": 120,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.8,
+    "throughput_tps": 25.8,
+    "lat_avg_s": 0.21,
+    "lat_max_s": 0.34,
+    "named_invocations": 30,
+    "named_committed": 30,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P17",
+    "operation": "verifyMilestoneCompletion",
+    "load": "stress",
+    "function": "ValidatorContract:VerifyMilestoneCompletion",
+    "caliper_succ": 2161,
+    "caliper_fail": 182,
+    "caliper_total": 2343,
+    "caliper_success_pct": 92.2,
+    "send_tps": 60.8,
+    "throughput_tps": 60.5,
+    "lat_avg_s": 6.83,
+    "lat_max_s": 12.9,
+    "named_invocations": 529,
+    "named_committed": 529,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 4.43,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 149
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 21
+      },
+      "StartupContract:SubmitMilestoneReport": {
+        "endorsement: exceeding concurrency limit": 12
+      }
+    }
+  },
+  {
+    "id": "P18",
+    "operation": "triggerFundRelease",
+    "load": "light",
+    "function": "PlatformContract:TriggerFundRelease",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.5,
+    "throughput_tps": 25.4,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.37,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "TokenContract:CreateTokenAccount": {
+        "endorsement: Channel has been shut down": 24
+      },
+      "PlatformContract:WitnessAgreement": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P18",
+    "operation": "triggerFundRelease",
+    "load": "medium",
+    "function": "PlatformContract:TriggerFundRelease",
+    "caliper_succ": 142,
+    "caliper_fail": 2,
+    "caliper_total": 144,
+    "caliper_success_pct": 98.6,
+    "send_tps": 39.0,
+    "throughput_tps": 37.2,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.73,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 2
+      },
+      "TokenContract:CreateTokenAccount": {
+        "endorsement: Channel has been shut down": 28
+      },
+      "PlatformContract:WitnessAgreement": {
+        "endorsement: Channel has been shut down": 14
+      }
+    }
+  },
+  {
+    "id": "P18",
+    "operation": "triggerFundRelease",
+    "load": "stress",
+    "function": "PlatformContract:TriggerFundRelease",
+    "caliper_succ": 7974,
+    "caliper_fail": 235,
+    "caliper_total": 8209,
+    "caliper_success_pct": 97.1,
+    "send_tps": 96.0,
+    "throughput_tps": 96.0,
+    "lat_avg_s": 3.76,
+    "lat_max_s": 31.73,
+    "named_invocations": 1,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 2587.0,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 154
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 49
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 30,
+        "endorsement: Channel has been shut down": 141
+      },
+      "TokenContract:CreateTokenAccount": {
+        "endorsement: already exists": 1
+      },
+      "PlatformContract:TriggerFundRelease": {
+        "endorsement: EndorseError: 10 ABORTED: failed to endorse transaction, see attached details fo": 1
+      }
+    }
+  },
+  {
+    "id": "P19",
+    "operation": "createDispute",
+    "load": "light",
+    "function": "PlatformContract:CreateDispute",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 23.9,
+    "throughput_tps": 22.8,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.37,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "InvestorContract:RegisterInvestor": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P19",
+    "operation": "createDispute",
+    "load": "medium",
+    "function": "PlatformContract:CreateDispute",
+    "caliper_succ": 210,
+    "caliper_fail": 4,
+    "caliper_total": 214,
+    "caliper_success_pct": 98.1,
+    "send_tps": 19.0,
+    "throughput_tps": 18.7,
+    "lat_avg_s": 0.33,
+    "lat_max_s": 0.99,
+    "named_invocations": 6,
+    "named_committed": 6,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 33.33,
+    "failure_causes": {
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 1
+      },
+      "TokenContract:CreateTokenAccount": {
+        "endorsement: Channel has been shut down": 2
+      },
+      "TokenContract:TransferTokens": {
+        "endorsement: Channel has been shut down": 1,
+        "validation code 11 (MVCC_READ_CONFLICT)": 3
+      },
+      "InvestorContract:RegisterInvestor": {
+        "endorsement: Channel has been shut down": 4
+      }
+    }
+  },
+  {
+    "id": "P19",
+    "operation": "createDispute",
+    "load": "stress",
+    "function": "PlatformContract:CreateDispute",
+    "caliper_succ": 8771,
+    "caliper_fail": 151,
+    "caliper_total": 8922,
+    "caliper_success_pct": 98.3,
+    "send_tps": 100.5,
+    "throughput_tps": 100.4,
+    "lat_avg_s": 3.4,
+    "lat_max_s": 30.58,
+    "named_invocations": 5,
+    "named_committed": 5,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 532.8,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 86
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 25
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 7
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 27,
+        "endorsement: Channel has been shut down": 149
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 2
+      },
+      "TokenContract:TransferTokens": {
+        "validation code 11 (MVCC_READ_CONFLICT)": 4
+      }
+    }
+  },
+  {
+    "id": "P20",
+    "operation": "collectCampaignFee",
+    "load": "light",
+    "function": "PlatformContract:CollectCampaignFee",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.9,
+    "throughput_tps": 10.5,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.18,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P20",
+    "operation": "collectCampaignFee",
+    "load": "medium",
+    "function": "PlatformContract:CollectCampaignFee",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 24.7,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.27,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P20",
+    "operation": "collectCampaignFee",
+    "load": "stress",
+    "function": "PlatformContract:CollectCampaignFee",
+    "caliper_succ": 1002,
+    "caliper_fail": 0,
+    "caliper_total": 1002,
+    "caliper_success_pct": 100.0,
+    "send_tps": 98.6,
+    "throughput_tps": 77.3,
+    "lat_avg_s": 2.91,
+    "lat_max_s": 5.42,
+    "named_invocations": 1002,
+    "named_committed": 1002,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P21",
+    "operation": "setFeeTiers",
+    "load": "light",
+    "function": "PlatformContract:SetCampaignFeeTier",
+    "caliper_succ": 52,
+    "caliper_fail": 0,
+    "caliper_total": 52,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.8,
+    "throughput_tps": 10.6,
+    "lat_avg_s": 0.16,
+    "lat_max_s": 0.32,
+    "named_invocations": 54,
+    "named_committed": 54,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P21",
+    "operation": "setFeeTiers",
+    "load": "medium",
+    "function": "PlatformContract:SetCampaignFeeTier",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 25.4,
+    "lat_avg_s": 0.12,
+    "lat_max_s": 0.17,
+    "named_invocations": 104,
+    "named_committed": 104,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P21",
+    "operation": "setFeeTiers",
+    "load": "stress",
+    "function": "PlatformContract:SetCampaignFeeTier",
+    "caliper_succ": 1002,
+    "caliper_fail": 0,
+    "caliper_total": 1002,
+    "caliper_success_pct": 100.0,
+    "send_tps": 98.8,
+    "throughput_tps": 96.0,
+    "lat_avg_s": 0.39,
+    "lat_max_s": 1.05,
+    "named_invocations": 1004,
+    "named_committed": 1004,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P22",
+    "operation": "deleteCampaign",
+    "load": "light",
+    "function": "StartupContract:DeleteCampaign",
+    "caliper_succ": 60,
+    "caliper_fail": 0,
+    "caliper_total": 60,
+    "caliper_success_pct": 100.0,
+    "send_tps": 11.6,
+    "throughput_tps": 11.1,
+    "lat_avg_s": 0.22,
+    "lat_max_s": 0.33,
+    "named_invocations": 20,
+    "named_committed": 20,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P22",
+    "operation": "deleteCampaign",
+    "load": "medium",
+    "function": "StartupContract:DeleteCampaign",
+    "caliper_succ": 114,
+    "caliper_fail": 0,
+    "caliper_total": 114,
+    "caliper_success_pct": 100.0,
+    "send_tps": 25.4,
+    "throughput_tps": 23.8,
+    "lat_avg_s": 0.28,
+    "lat_max_s": 0.44,
+    "named_invocations": 38,
+    "named_committed": 38,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 3.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P22",
+    "operation": "deleteCampaign",
+    "load": "stress",
+    "function": "StartupContract:DeleteCampaign",
+    "caliper_succ": 1581,
+    "caliper_fail": 252,
+    "caliper_total": 1833,
+    "caliper_success_pct": 86.3,
+    "send_tps": 46.5,
+    "throughput_tps": 42.4,
+    "lat_avg_s": 10.85,
+    "lat_max_s": 16.01,
+    "named_invocations": 522,
+    "named_committed": 514,
+    "named_success_pct": 98.5,
+    "tx_per_iteration": 3.51,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 221
+      },
+      "StartupContract:DeleteCampaign": {
+        "endorsement: exceeding concurrency limit": 8
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 23
+      }
+    }
+  },
+  {
+    "id": "P23",
+    "operation": "withdrawInvestment",
+    "load": "light",
+    "function": "InvestorContract:WithdrawInvestment",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 23.6,
+    "throughput_tps": 22.6,
+    "lat_avg_s": 0.26,
+    "lat_max_s": 0.53,
+    "named_invocations": 0,
+    "named_committed": 0,
+    "named_success_pct": null,
+    "tx_per_iteration": null,
+    "failure_causes": {
+      "InvestorContract:MakeInvestment": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P23",
+    "operation": "withdrawInvestment",
+    "load": "medium",
+    "function": "InvestorContract:WithdrawInvestment",
+    "caliper_succ": 157,
+    "caliper_fail": 5,
+    "caliper_total": 162,
+    "caliper_success_pct": 96.9,
+    "send_tps": 27.7,
+    "throughput_tps": 26.8,
+    "lat_avg_s": 0.3,
+    "lat_max_s": 0.99,
+    "named_invocations": 3,
+    "named_committed": 2,
+    "named_success_pct": 66.7,
+    "tx_per_iteration": 52.0,
+    "failure_causes": {
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 5
+      },
+      "InvestorContract:MakeInvestment": {
+        "endorsement: Channel has been shut down": 6
+      },
+      "InvestorContract:WithdrawInvestment": {
+        "endorsement: Channel has been shut down": 1
+      }
+    }
+  },
+  {
+    "id": "P23",
+    "operation": "withdrawInvestment",
+    "load": "stress",
+    "function": "InvestorContract:WithdrawInvestment",
+    "caliper_succ": 8113,
+    "caliper_fail": 220,
+    "caliper_total": 8333,
+    "caliper_success_pct": 97.4,
+    "send_tps": 97.2,
+    "throughput_tps": 97.1,
+    "lat_avg_s": 3.74,
+    "lat_max_s": 31.6,
+    "named_invocations": 7,
+    "named_committed": 7,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 378.86,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 148
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 37
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 12
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 22,
+        "endorsement: Channel has been shut down": 232
+      },
+      "StartupContract:ShareCampaignToPlatform": {
+        "endorsement: exceeding concurrency limit": 1
+      }
+    }
+  },
+  {
+    "id": "P24",
+    "operation": "requestRefund",
+    "load": "light",
+    "function": "InvestorContract:RequestRefund",
+    "caliper_succ": 50,
+    "caliper_fail": 0,
+    "caliper_total": 50,
+    "caliper_success_pct": 100.0,
+    "send_tps": 10.9,
+    "throughput_tps": 10.5,
+    "lat_avg_s": 0.18,
+    "lat_max_s": 0.27,
+    "named_invocations": 52,
+    "named_committed": 52,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P24",
+    "operation": "requestRefund",
+    "load": "medium",
+    "function": "InvestorContract:RequestRefund",
+    "caliper_succ": 102,
+    "caliper_fail": 0,
+    "caliper_total": 102,
+    "caliper_success_pct": 100.0,
+    "send_tps": 26.0,
+    "throughput_tps": 24.5,
+    "lat_avg_s": 0.17,
+    "lat_max_s": 0.25,
+    "named_invocations": 102,
+    "named_committed": 102,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {}
+  },
+  {
+    "id": "P24",
+    "operation": "requestRefund",
+    "load": "stress",
+    "function": "InvestorContract:RequestRefund",
+    "caliper_succ": 966,
+    "caliper_fail": 36,
+    "caliper_total": 1002,
+    "caliper_success_pct": 96.4,
+    "send_tps": 96.0,
+    "throughput_tps": 70.7,
+    "lat_avg_s": 3.8,
+    "lat_max_s": 6.58,
+    "named_invocations": 1002,
+    "named_committed": 966,
+    "named_success_pct": 96.4,
+    "tx_per_iteration": 1.0,
+    "failure_causes": {
+      "InvestorContract:RequestRefund": {
+        "endorsement: exceeding concurrency limit": 36
+      }
+    }
+  },
+  {
+    "id": "P25",
+    "operation": "closeCampaign",
+    "load": "light",
+    "function": "PlatformContract:CloseCampaign",
+    "caliper_succ": 108,
+    "caliper_fail": 0,
+    "caliper_total": 108,
+    "caliper_success_pct": 100.0,
+    "send_tps": 24.5,
+    "throughput_tps": 23.5,
+    "lat_avg_s": 0.25,
+    "lat_max_s": 0.42,
+    "named_invocations": 12,
+    "named_committed": 0,
+    "named_success_pct": 0.0,
+    "tx_per_iteration": 9.0,
+    "failure_causes": {
+      "PlatformContract:CloseCampaign": {
+        "endorsement: Channel has been shut down": 12
+      }
+    }
+  },
+  {
+    "id": "P25",
+    "operation": "closeCampaign",
+    "load": "medium",
+    "function": "PlatformContract:CloseCampaign",
+    "caliper_succ": 156,
+    "caliper_fail": 2,
+    "caliper_total": 158,
+    "caliper_success_pct": 98.7,
+    "send_tps": 27.0,
+    "throughput_tps": 25.7,
+    "lat_avg_s": 0.38,
+    "lat_max_s": 0.81,
+    "named_invocations": 16,
+    "named_committed": 3,
+    "named_success_pct": 18.8,
+    "tx_per_iteration": 9.75,
+    "failure_causes": {
+      "ValidatorContract:ValidateCampaign": {
+        "endorsement: not found": 1
+      },
+      "PlatformContract:PublishCampaignToPortal": {
+        "endorsement: not found": 1
+      },
+      "PlatformContract:CloseCampaign": {
+        "endorsement: Channel has been shut down": 13
+      }
+    }
+  },
+  {
+    "id": "P25",
+    "operation": "closeCampaign",
+    "load": "stress",
+    "function": "PlatformContract:CloseCampaign",
+    "caliper_succ": 8107,
+    "caliper_fail": 266,
+    "caliper_total": 8373,
+    "caliper_success_pct": 96.8,
+    "send_tps": 92.9,
+    "throughput_tps": 92.9,
+    "lat_avg_s": 3.85,
+    "lat_max_s": 33.1,
+    "named_invocations": 4,
+    "named_committed": 4,
+    "named_success_pct": 100.0,
+    "tx_per_iteration": 654.5,
+    "failure_causes": {
+      "StartupContract:CreateStartup": {
+        "endorsement: exceeding concurrency limit": 225
+      },
+      "StartupContract:GetCampaign": {
+        "endorsement: exceeding concurrency limit": 15,
+        "endorsement: Channel has been shut down": 8
+      },
+      "StartupContract:CreateCampaign": {
+        "endorsement: exceeding concurrency limit": 11
+      },
+      "StartupContract:SubmitForValidation": {
+        "endorsement: exceeding concurrency limit": 15
+      }
+    }
   }
 ]
