@@ -52,7 +52,8 @@ for r in re.findall(r'<tr>(.*?)</tr>', t, re.S)[1:]:
 ts = lambda x: datetime.strptime(x, '%Y.%m.%d-%H:%M:%S.%f').timestamp() * 1000
 windows, cur = [], None
 fails = defaultdict(Counter)  # (round label, fcn) -> cause counts
-for line in open(LOG, errors='ignore'):
+lines = open(LOG, errors='ignore').read().split('\n')
+for i, line in enumerate(lines):
     m = re.match(r'(\S+) info .*Started round \d+ \((.+?)\)', line)
     if m:
         cur = {'label': m.group(2), 'start': ts(m.group(1))}; continue
@@ -62,12 +63,19 @@ for line in open(LOG, errors='ignore'):
     m = re.match(r'\S+ error .*Failed to perform (submit|query) transaction \[([^\]]+)\].*with error: (.*)', line)
     if m and cur:
         err = m.group(3)
+        # Caliper appends the peer messages on the following lines ("-  peer:message")
+        for nxt in lines[i + 1:i + 6]:
+            if nxt.startswith('-  '):
+                err += ' | ' + nxt
+            elif not nxt.startswith('Details'):
+                break
         code = re.search(r'status code: (\d+)', err)
         if code:
             cause = f'validation code {code.group(1)}' + {'11': ' (MVCC_READ_CONFLICT)', '12': ' (PHANTOM_READ_CONFLICT)', '10': ' (ENDORSEMENT_POLICY_FAILURE)'}.get(code.group(1), '')
         else:
-            k = re.search(r'(not found|already exists|does not match|exceeding concurrency limit|DEADLINE_EXCEEDED|access denied[^,;]*|not published[^,;]*|blacklisted|insufficient balance|Channel has been shut down|timed out)', err, re.I)
+            k = re.search(r'(startup \S+ not found|proposal not found|campaign \S+ not found|not found|already exists|ProposalResponsePayloads do not match|does not match|exceeding concurrency limit|DEADLINE_EXCEEDED|access denied[^,;]*|not published[^,;]*|blacklisted|insufficient balance|Channel has been shut down|timed out)', err, re.I)
             cause = 'endorsement: ' + (k.group(1) if k else err[:80])
+        cause = re.sub(r'\S*_W\d+_T\d+\S*', '<id>', cause)
         fails[(cur['label'], m.group(2))][cause] += 1
 
 # ---------- per-function operation log ----------

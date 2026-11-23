@@ -348,6 +348,12 @@ function resultToString(status) {
     if (Buffer.isBuffer(raw)) {
         return raw.toString('utf8');
     }
+    // Fix (affects the original harness too): with the peer-gateway connector, evaluate() results are
+    // Uint8Array. String(Uint8Array) yields "123,34,..." so queryJson() never parsed GetCampaign and every
+    // published-campaign bootstrap stopped before its named operation.
+    if (raw instanceof Uint8Array) {
+        return Buffer.from(raw).toString('utf8');
+    }
     if (typeof raw === 'string') {
         return raw;
     }

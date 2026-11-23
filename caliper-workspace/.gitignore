@@ -5,3 +5,4 @@ network-v3-*.yaml
 seed-state.json
 oplog-v3-*/
 run-v3-*.out
+results-v3/buggy-run/
