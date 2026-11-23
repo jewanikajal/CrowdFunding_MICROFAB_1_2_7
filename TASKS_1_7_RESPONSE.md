@@ -340,7 +340,7 @@ Sources:
 | TransferTokens (light / medium / stress) | 48.0 / 24.5 / 2.7 % | 48.0 / 23.5 / 2.7 % |
 
 * Stress failures of every operation except TransferTokens are endorsement-time "exceeding concurrency limit" errors.
-  * Each peer's Fabric Gateway admits at most 500 requests in flight at once (the default `peer.gateway.concurrencyLimit`).
+  * Each peer's Fabric Gateway admits at most 500 requests in flight at once (Fabric 2.5 `core.yaml` default `peer.limits.concurrency.gatewayService: 500`).
   * At 100 TPS offered, with 5–10 s latency on this 4-vCPU host, that limit is reached.
   * This is a capacity limit of the test host, not a chaincode error.
 
