@@ -211,3 +211,72 @@ What changed:
 * Document fields are removed from every public or bridged campaign record (19 write sites).
 * In dual, the investment chaincode refuses writes to governance-private collections, because these would
   pass through the investment channel's public outbox.
+
+---
+
+## Tasks 3 and 4: v3 Caliper rerun, single channel (replaces the v2-based answers above for the paper)
+
+Sources:
+
+* `caliper-workspace/report-v3-single-full.html`
+* `caliper-workspace/caliper-v3-single.log`
+* `caliper-workspace/results-v3/table12-single.md`
+* The configuration is unchanged: the same 25 operations, light 50@10 TPS, medium 100@25 TPS, stress 1,000@100 TPS, and 2 workers.
+* The dual-channel run and the isolated (named-operation-only) run are in progress.
+
+### Task 3: stress-round transaction counts (v3 single)
+
+| Group | Operations | Caliper total tx in stress round |
+|---|---|---|
+| Single transaction | P01, P08, P13, P16, P20, P21, P24 | 1,002 |
+| Short prerequisite chain | P14 1,194; P15 1,048; P02 1,388; P03 1,855; P22 1,895; P17 2,356; P04 2,380; P05 2,865 | 1,048–2,865 |
+| Published-campaign chain | P06 7,912; P07 7,716; P09 7,914; P10 7,572; P11 7,715; P12 7,559; P18 7,804; P19 8,008; P23 8,032; P25 7,905 | 7,559–8,032 |
+
+* **Published-campaign operations reached the named operation at most 7 times in their stress rounds**
+  (0 to 7 times; P06 once). Most of their transactions are prerequisites plus `GetCampaign` polling
+  queries, and Caliper counts queries too.
+* Under overload the poll times out, and Caliper closes the round while iterations are still running
+  ("Channel has been shut down").
+* Light and medium rounds do reach the named operation. For example, P10 committed 8 of 8 at light load and 12 of 12 at medium load.
+
+> In stress rounds Caliper counted between 1,002 and 8,032 transactions per round. A fixed-number round
+> ends when each worker has submitted its share of `txNumber` (500) Fabric transactions, counting the
+> prerequisite transactions and status queries that a workload issues inside each iteration. Iterations
+> in flight at that point are also counted.
+>
+> Single-transaction operations therefore show 1,002 (each of the two workers starts one extra iteration).
+> Operations that first create, validate and publish a campaign show 7,559–8,032 transactions, of which at
+> most 7 were the named operation.
+>
+> For these operations the stress row characterises the campaign-onboarding pipeline rather than the
+> named operation. Section X therefore reports them from a second run in which prerequisites are created
+> before measurement.
+
+### Task 4: validation codes (v3 single, from the Caliper log)
+
+| Operation | Caliper success (light / medium / stress) | Named op committed | Failure cause in Caliper log |
+|---|---|---|---|
+| TransferTokens (P15) | 73.1 % / 70.2 % / 52.4 % | 13/28, 21/52, 25/524 | **code 11 MVCC_READ_CONFLICT** ×15 / ×31 / ×219. Stress also has ×280 endorsement error "ProposalResponsePayloads do not match": the 2-of-4 `cftoken` endorsers read different `PLATFORM` balances. |
+| RespondToInvestmentProposal (P12) | 98.0 % / 96.8 % / 96.5 % | 8/10, 13/17, 0/4 | **No validation code.** Endorsement error "proposal not found" ×2 / ×4 / ×4. |
+| CreateDispute (P19) | 96.2 % / 92.1 % / 97.1 % | 5/5, 3/3, 3/3 (100 %) | CreateDispute never failed. The failures are the **funding TransferTokens (code 11)** ×5 / ×9 / ×1, plus prerequisite errors. |
+
+**Why RespondToInvestmentProposal still fails with `requiredPeerCount: 1`.**
+
+* The proposal's private data now reaches StartupOrg's peer at endorsement.
+* The client waits only until its own gateway peer has committed the block.
+* StartupOrg's peer may not have committed that block yet when the response is endorsed there, so the proposal is not yet in its private state.
+
+> TransferTokens failures are Fabric validation code 11 (MVCC_READ_CONFLICT): all transfers debit the
+> same PLATFORM account. Under stress, the two-of-four token endorsers also returned different results
+> ("ProposalResponsePayloads do not match"), because their copies of that account were at different
+> heights.
+>
+> CreateDispute committed every time it was invoked. The failures in its row come from the TransferTokens
+> that funds the disputing investor (code 11).
+>
+> RespondToInvestmentProposal failures carry no validation code. They are endorsement-time "proposal not
+> found" errors: the response is endorsed by StartupOrg's peer before that peer has committed the block
+> containing the proposal.
+>
+> None of these failures depends on the channel architecture. They can be removed with per-transfer keys
+> for the platform account and client retries on "not found".
