@@ -1,0 +1,62 @@
+name: crowdfunding-single
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+  sutOptions:
+    diagnoseErrors: true
+
+channels:
+  - channelName: crowdfunding-channel
+    contracts:
+    - id: crowdfunding
+      contractID: crowdfunding
+
+organizations:
+  - mspid: StartupOrgMSP
+    identities:
+      certificates:
+      - name: startuporgadmin
+        clientPrivateKey:
+          path: crypto/single/StartupOrg/key.pem
+        clientSignedCert:
+          path: crypto/single/StartupOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-single-startuporg.json
+      discover: false
+
+  - mspid: InvestorOrgMSP
+    identities:
+      certificates:
+      - name: investororgadmin
+        clientPrivateKey:
+          path: crypto/single/InvestorOrg/key.pem
+        clientSignedCert:
+          path: crypto/single/InvestorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-single-investororg.json
+      discover: false
+
+  - mspid: PlatformOrgMSP
+    identities:
+      certificates:
+      - name: platformorgadmin
+        clientPrivateKey:
+          path: crypto/single/PlatformOrg/key.pem
+        clientSignedCert:
+          path: crypto/single/PlatformOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-single-platformorg.json
+      discover: false
+
+  - mspid: ValidatorOrgMSP
+    identities:
+      certificates:
+      - name: validatororgadmin
+        clientPrivateKey:
+          path: crypto/single/ValidatorOrg/key.pem
+        clientSignedCert:
+          path: crypto/single/ValidatorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-single-validatororg.json
+      discover: false

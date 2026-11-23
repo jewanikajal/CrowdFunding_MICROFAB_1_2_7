@@ -1,0 +1,1178 @@
+---
+# Dual-channel — all 25 T12 ops × low / medium / stress.
+# Default for: bash scripts/run-dual-caliper.sh
+# (seed-dual-full.sh → seed-state.json → Caliper → report)
+test:
+  name: crowdfunding-dual-full
+  description: Dual T12 — 25 ops × L/M/S + cool-down after each medium and each stress (op TPS unchanged)
+  workers:
+    number: 2
+  rounds:
+    - label: low-P01-createStartup
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createStartup.js, arguments: { arch: dual } }
+
+    - label: medium-P01-createStartup
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/createStartup.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P01-createStartup
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P01-createStartup
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/createStartup.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P01-createStartup
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/createCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P02-createCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/createCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P02-createCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P03-submitForValidation
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/submitForValidation.js, arguments: { arch: dual } }
+
+    - label: medium-P03-submitForValidation
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/submitForValidation.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P03-submitForValidation
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P03-submitForValidation
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/submitForValidation.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P03-submitForValidation
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P04-validateCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/validateCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P04-validateCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/validateCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P04-validateCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P04-validateCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/validateCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P04-validateCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P05-approveOrRejectCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/approveOrRejectCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P05-approveOrRejectCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/approveOrRejectCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P05-approveOrRejectCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P05-approveOrRejectCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/approveOrRejectCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P05-approveOrRejectCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P06-shareCampaignToPlatform
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/shareCampaignToPlatform.js, arguments: { arch: dual } }
+
+    - label: medium-P06-shareCampaignToPlatform
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/shareCampaignToPlatform.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P06-shareCampaignToPlatform
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P06-shareCampaignToPlatform
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/shareCampaignToPlatform.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P06-shareCampaignToPlatform
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P07-publishCampaignToPortal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/publishCampaignToPortal.js, arguments: { arch: dual } }
+
+    - label: medium-P07-publishCampaignToPortal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/publishCampaignToPortal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P07-publishCampaignToPortal
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P07-publishCampaignToPortal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/publishCampaignToPortal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P07-publishCampaignToPortal
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P08-registerInvestor
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/registerInvestor.js, arguments: { arch: dual } }
+
+    - label: medium-P08-registerInvestor
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/registerInvestor.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P08-registerInvestor
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P08-registerInvestor
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/registerInvestor.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P08-registerInvestor
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P09-viewCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/viewCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P09-viewCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/viewCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P09-viewCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P09-viewCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/viewCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P09-viewCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P10-makeInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: dual, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+    - label: medium-P10-makeInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: dual, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+
+    - label: cooldown-after-medium-P10-makeInvestment
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P10-makeInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: dual, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" } }
+
+
+    - label: cooldown-after-stress-P10-makeInvestment
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P11-createInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: dual } }
+
+    - label: medium-P11-createInvestmentProposal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P11-createInvestmentProposal
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P11-createInvestmentProposal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P11-createInvestmentProposal
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P12-respondToInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/respondToInvestmentProposal.js, arguments: { arch: dual } }
+
+    - label: medium-P12-respondToInvestmentProposal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/respondToInvestmentProposal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P12-respondToInvestmentProposal
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P12-respondToInvestmentProposal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/respondToInvestmentProposal.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P12-respondToInvestmentProposal
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/initializeToken.js, arguments: { arch: dual } }
+
+    - label: medium-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/initializeToken.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P13-initializeToken
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/initializeToken.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P13-initializeToken
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P14-mintTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/mintTokens.js, arguments: { arch: dual, amount: "100" } }
+
+    - label: medium-P14-mintTokens
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/mintTokens.js, arguments: { arch: dual, amount: "100" } }
+
+
+    - label: cooldown-after-medium-P14-mintTokens
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P14-mintTokens
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/mintTokens.js, arguments: { arch: dual, amount: "100" } }
+
+
+    - label: cooldown-after-stress-P14-mintTokens
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P15-transferTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/transferTokens.js, arguments: { arch: dual, amount: "1" } }
+
+    - label: medium-P15-transferTokens
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/transferTokens.js, arguments: { arch: dual, amount: "1" } }
+
+
+    - label: cooldown-after-medium-P15-transferTokens
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P15-transferTokens
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/transferTokens.js, arguments: { arch: dual, amount: "1" } }
+
+
+    - label: cooldown-after-stress-P15-transferTokens
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P16-submitMilestoneReport
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/submitMilestoneReport.js, arguments: { arch: dual } }
+
+    - label: medium-P16-submitMilestoneReport
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/submitMilestoneReport.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P16-submitMilestoneReport
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P16-submitMilestoneReport
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/submitMilestoneReport.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P16-submitMilestoneReport
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P17-verifyMilestoneCompletion
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/verifyMilestoneCompletion.js, arguments: { arch: dual } }
+
+    - label: medium-P17-verifyMilestoneCompletion
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/verifyMilestoneCompletion.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P17-verifyMilestoneCompletion
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P17-verifyMilestoneCompletion
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/verifyMilestoneCompletion.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P17-verifyMilestoneCompletion
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P18-triggerFundRelease
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: dual } }
+
+    - label: medium-P18-triggerFundRelease
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P18-triggerFundRelease
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P18-triggerFundRelease
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P18-triggerFundRelease
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P19-createDispute
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createDispute.js, arguments: { arch: dual } }
+
+    - label: medium-P19-createDispute
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/createDispute.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P19-createDispute
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P19-createDispute
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/createDispute.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P19-createDispute
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P20-collectCampaignFee
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/collectCampaignFee.js, arguments: { arch: dual } }
+
+    - label: medium-P20-collectCampaignFee
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/collectCampaignFee.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P20-collectCampaignFee
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P20-collectCampaignFee
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/collectCampaignFee.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P20-collectCampaignFee
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P21-setFeeTiers
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/setFeeTiers.js, arguments: { arch: dual } }
+
+    - label: medium-P21-setFeeTiers
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/setFeeTiers.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P21-setFeeTiers
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P21-setFeeTiers
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/setFeeTiers.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P21-setFeeTiers
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P22-deleteCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/deleteCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P22-deleteCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/deleteCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P22-deleteCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P22-deleteCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/deleteCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P22-deleteCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P23-withdrawInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: dual } }
+
+    - label: medium-P23-withdrawInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P23-withdrawInvestment
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P23-withdrawInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P23-withdrawInvestment
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P24-requestRefund
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/requestRefund.js, arguments: { arch: dual } }
+
+    - label: medium-P24-requestRefund
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/requestRefund.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P24-requestRefund
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P24-requestRefund
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/requestRefund.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-stress-P24-requestRefund
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P25-closeCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/closeCampaign.js, arguments: { arch: dual } }
+
+    - label: medium-P25-closeCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/closeCampaign.js, arguments: { arch: dual } }
+
+
+    - label: cooldown-after-medium-P25-closeCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P25-closeCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/closeCampaign.js, arguments: { arch: dual } }
+
+monitor:
+  type:
+    - none

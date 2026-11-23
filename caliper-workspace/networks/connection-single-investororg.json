@@ -1,0 +1,53 @@
+{
+  "name": "single-InvestorOrg",
+  "version": "1.0.0",
+  "client": {
+    "organization": "InvestorOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "organizations": {
+    "InvestorOrg": {
+      "mspid": "InvestorOrgMSP",
+      "peers": [
+        "investororgpeer-api.127-0-0-1.nip.io:9090"
+      ],
+      "certificateAuthorities": [
+        "investororgca-api.127-0-0-1.nip.io:9090"
+      ]
+    }
+  },
+  "peers": {
+    "investororgpeer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://investororgpeer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "investororgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "investororgpeer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "orderers": {
+    "orderer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://orderer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "orderer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "orderer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "investororgca-api.127-0-0-1.nip.io:9090": {
+      "url": "http://investororgca-api.127-0-0-1.nip.io:9090",
+      "httpOptions": {
+        "verify": false
+      },
+      "caName": "investororgca"
+    }
+  }
+}

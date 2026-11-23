@@ -1,0 +1,78 @@
+---
+# Dual smoke — CreateStartup L/M/S with cool-downs between levels (op TPS unchanged).
+# Full catalog: benchconfig-dual-full.yaml via bash scripts/run-dual-caliper.sh
+test:
+  name: crowdfunding-dual
+  description: Dual smoke CreateStartup L/M/S + cool-down after low and after medium (port 7070)
+  workers:
+    number: 2
+  rounds:
+    - label: low-createStartup-governance
+      description: Low load CreateStartup on governance-validation-channel
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: dual
+
+    - label: cooldown-after-low-createStartup
+      description: Settle peers before medium (does not change op TPS)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 120000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: medium-createStartup-governance
+      description: Medium load CreateStartup (25 TPS, 100 txs)
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: dual
+
+    - label: cooldown-after-medium-createStartup
+      description: Settle peers before stress (does not change op TPS)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-createStartup-governance
+      description: Stress CreateStartup (100 TPS, 1000 txs)
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: dual
+
+monitor:
+  type:
+    - none

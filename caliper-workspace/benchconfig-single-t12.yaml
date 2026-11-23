@@ -1,0 +1,158 @@
+---
+# Single-channel — T12 all 25 performance ops (low load smoke).
+# Preferred: bash scripts/run-single-caliper.sh t12
+# (runs seed-single-full.sh → writes seed-state.json → Caliper)
+#
+# P06/P07/P12/P25 read validationProofHash + IDs from seed-state.json.
+# Re-invoking share/publish/respond on the same seeded IDs may Fail (already done).
+test:
+  name: crowdfunding-single-t12
+  description: T12 catalog — 25 ops at low load (50 txs @ 10 TPS)
+  workers:
+    number: 2
+  rounds:
+    - label: P01-createStartup
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createStartup.js, arguments: { arch: single } }
+
+    - label: P02-createCampaign
+      description: Self-contained (startup+campaign per submit)
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createCampaign.js, arguments: { arch: single } }
+
+    - label: P03-submitForValidation
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/submitForValidation.js, arguments: { arch: single } }
+
+    - label: P04-validateCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/validateCampaign.js, arguments: { arch: single } }
+
+    - label: P05-approveOrRejectCampaign
+      description: Needs seeded VAL001/CAMP001 from E2E approve path
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/approveOrRejectCampaign.js
+        arguments: { arch: single, validationId: VAL001, campaignId: CAMP001 }
+
+    - label: P06-shareCampaignToPlatform
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/shareCampaignToPlatform.js
+        arguments: { arch: single, campaignId: CAMP001 }
+
+    - label: P07-publishCampaignToPortal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/publishCampaignToPortal.js
+        arguments: { arch: single, campaignId: CAMP001 }
+
+    - label: P08-registerInvestor
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/registerInvestor.js, arguments: { arch: single } }
+
+    - label: P09-viewCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/viewCampaign.js, arguments: { arch: single } }
+
+    - label: P10-makeInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/makeInvestment.js
+        arguments: { arch: single, campaignId: CAMP001, investorId: INVESTOR001, amount: "20000000" }
+
+    - label: P11-createInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: single } }
+
+    - label: P12-respondToInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/respondToInvestmentProposal.js
+        arguments: { arch: single, proposalId: PROPOSAL001 }
+
+    - label: P13-initializeToken
+      description: Unique token symbols per tx
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/initializeToken.js, arguments: { arch: single } }
+
+    - label: P14-mintTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/mintTokens.js, arguments: { arch: single, amount: "100" } }
+
+    - label: P15-transferTokens
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/transferTokens.js
+        arguments: { arch: single, recipient: STARTUP001, amount: "1" }
+
+    - label: P16-submitMilestoneReport
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/submitMilestoneReport.js, arguments: { arch: single } }
+
+    - label: P17-verifyMilestoneCompletion
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/verifyMilestoneCompletion.js, arguments: { arch: single } }
+
+    - label: P18-triggerFundRelease
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: single } }
+
+    - label: P19-createDispute
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload:
+        module: workloads/createDispute.js
+        arguments: { arch: single, initiatorId: INVESTOR001, campaignId: CAMP001 }
+
+    - label: P20-collectCampaignFee
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/collectCampaignFee.js, arguments: { arch: single } }
+
+    - label: P21-setFeeTiers
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/setFeeTiers.js, arguments: { arch: single } }
+
+    - label: P22-deleteCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/deleteCampaign.js, arguments: { arch: single } }
+
+    - label: P23-withdrawInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: single } }
+
+    - label: P24-requestRefund
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/requestRefund.js, arguments: { arch: single } }
+
+    - label: P25-closeCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/closeCampaign.js, arguments: { arch: single } }
+
+monitor:
+  type:
+    - none

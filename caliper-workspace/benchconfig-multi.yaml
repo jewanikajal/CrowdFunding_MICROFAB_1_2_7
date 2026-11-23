@@ -1,0 +1,78 @@
+---
+# Multi smoke — CreateStartup L/M/S with cool-downs between levels (op TPS unchanged).
+# Full catalog: benchconfig-multi-full.yaml via bash scripts/run-multi-caliper.sh
+test:
+  name: crowdfunding-multi
+  description: Multi smoke CreateStartup L/M/S + cool-down after low and after medium (port 8080)
+  workers:
+    number: 2
+  rounds:
+    - label: low-createStartup
+      description: Low load CreateStartup on startup-validator-channel
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: multi
+
+    - label: cooldown-after-low-createStartup
+      description: Settle peers before medium (does not change op TPS)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 30000
+          pollMs: 2000
+          maxWaitMs: 120000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: medium-createStartup
+      description: Medium load CreateStartup (25 TPS, 100 txs)
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: multi
+
+    - label: cooldown-after-medium-createStartup
+      description: Settle peers before stress (does not change op TPS)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: stress-createStartup
+      description: Stress CreateStartup (100 TPS, 1000 txs)
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: multi
+
+monitor:
+  type:
+    - none

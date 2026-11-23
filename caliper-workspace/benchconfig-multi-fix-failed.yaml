@@ -1,0 +1,172 @@
+---
+# Focused re-run: P10 / P11 / P18 / P23 × L/M/S (same measured TPS as full).
+# Usage:
+#   SKIP_SEED=1 bash scripts/run-multi-caliper.sh fix
+#   bash scripts/run-multi-caliper.sh fix   # re-seed then run
+test:
+  name: crowdfunding-multi-fix-failed
+  description: Multi retry for ops that failed in full report (bootstrap-fixed workloads)
+  workers:
+    number: 2
+  rounds:
+    - label: low-P10-makeInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: multi } }
+
+    - label: medium-P10-makeInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-medium-P10-makeInvestment
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 30000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: stress-P10-makeInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/makeInvestment.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-stress-P10-makeInvestment
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: low-P11-createInvestmentProposal
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: multi } }
+
+    - label: medium-P11-createInvestmentProposal
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-medium-P11-createInvestmentProposal
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 30000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: stress-P11-createInvestmentProposal
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/createInvestmentProposal.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-stress-P11-createInvestmentProposal
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: low-P18-triggerFundRelease
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: multi } }
+
+    - label: medium-P18-triggerFundRelease
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-medium-P18-triggerFundRelease
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 30000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: stress-P18-triggerFundRelease
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/triggerFundRelease.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-stress-P18-triggerFundRelease
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: low-P23-withdrawInvestment
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: multi } }
+
+    - label: medium-P23-withdrawInvestment
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: multi } }
+
+    - label: cooldown-after-medium-P23-withdrawInvestment
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: multi
+          pauseMs: 30000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: true
+          healthUrl: http://127.0.0.1:8080/ak/api/v1/health
+
+    - label: stress-P23-withdrawInvestment
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads/withdrawInvestment.js, arguments: { arch: multi } }
+
+monitor:
+  type:
+    - none

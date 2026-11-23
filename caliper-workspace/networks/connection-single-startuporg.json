@@ -1,0 +1,53 @@
+{
+  "name": "single-StartupOrg",
+  "version": "1.0.0",
+  "client": {
+    "organization": "StartupOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "organizations": {
+    "StartupOrg": {
+      "mspid": "StartupOrgMSP",
+      "peers": [
+        "startuporgpeer-api.127-0-0-1.nip.io:9090"
+      ],
+      "certificateAuthorities": [
+        "startuporgca-api.127-0-0-1.nip.io:9090"
+      ]
+    }
+  },
+  "peers": {
+    "startuporgpeer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://startuporgpeer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "startuporgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "startuporgpeer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "orderers": {
+    "orderer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://orderer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "orderer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "orderer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "startuporgca-api.127-0-0-1.nip.io:9090": {
+      "url": "http://startuporgca-api.127-0-0-1.nip.io:9090",
+      "httpOptions": {
+        "verify": false
+      },
+      "caName": "startuporgca"
+    }
+  }
+}
