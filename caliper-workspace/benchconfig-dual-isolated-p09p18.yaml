@@ -1,0 +1,104 @@
+---
+# Dual-channel — all 25 T12 ops × low / medium / stress.
+# Default for: bash scripts/run-dual-caliper.sh
+# (seed-dual-full.sh → seed-state.json → Caliper → report)
+test:
+  name: crowdfunding-dual-isolated
+  description: Dual T12 — 25 ops × L/M/S + cool-down after each medium and each stress (op TPS unchanged)
+  workers:
+    number: 2
+  rounds:
+    - label: low-P09-viewCampaign
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 30, arch: dual } }
+
+    - label: medium-P09-viewCampaign
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 55, arch: dual } }
+
+
+    - label: cooldown-after-medium-P09-viewCampaign
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P09-viewCampaign
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: viewCampaign, poolSize: 505, arch: dual } }
+
+
+    - label: cooldown-after-stress-P09-viewCampaign
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: low-P18-triggerFundRelease
+      txNumber: 50
+      rateControl: { type: fixed-rate, opts: { tps: 10 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 30, arch: dual } }
+
+    - label: medium-P18-triggerFundRelease
+      txNumber: 100
+      rateControl: { type: fixed-rate, opts: { tps: 25 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 55, arch: dual } }
+
+
+    - label: cooldown-after-medium-P18-triggerFundRelease
+      description: Settle peers before stress (op TPS unchanged)
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 60000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+
+    - label: stress-P18-triggerFundRelease
+      txNumber: 1000
+      rateControl: { type: fixed-rate, opts: { tps: 100 } }
+      workload: { module: workloads-isolated/isolated.js, arguments: { op: triggerFundRelease, poolSize: 505, arch: dual } }
+
+
+    - label: cooldown-after-stress-P18-triggerFundRelease
+      description: Settle peers before next op (op TPS unchanged)
+      txNumber: 4
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload:
+        module: workloads/peerCooldown.js
+        arguments:
+          arch: dual
+          pauseMs: 90000
+          pollMs: 2000
+          maxWaitMs: 180000
+          readyQueries: 2
+          probeGovernance: false
+          healthUrl: http://127.0.0.1:7070/ak/api/v1/health
+

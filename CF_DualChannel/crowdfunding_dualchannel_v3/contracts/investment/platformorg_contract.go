@@ -824,6 +824,26 @@ func (p *PlatformContract) ExecuteFundReleaseTransfer(ctx contractapi.Transactio
 	timestamp := txNow(ctx).Format(time.RFC3339)
 	ctx.GetStub().PutState("PAID_RELEASE_"+releaseID, []byte(timestamp))
 
+	// 6. v3: update the escrow here (PlatformPrivateData is homed on this channel), not from the governance channel
+	if escrowJSON, err := CrossChannelGet(ctx, PlatformPrivateCollection, "ESCROW_"+release.EscrowID); err == nil && escrowJSON != nil {
+		var escrow FundEscrow
+		if json.Unmarshal(escrowJSON, &escrow) == nil {
+			escrow.ReleasedAmount += release.Amount
+			escrow.HeldAmount -= release.Amount
+			escrow.UpdatedAt = timestamp
+			if escrow.HeldAmount <= 0 {
+				escrow.Status = "FULLY_RELEASED"
+			} else {
+				escrow.Status = "PARTIALLY_RELEASED"
+			}
+			if b, err := json.Marshal(escrow); err == nil {
+				if err := CrossChannelPut(ctx, PlatformPrivateCollection, "ESCROW_"+release.EscrowID, b); err != nil {
+					return fmt.Errorf("failed to update escrow: %v", err)
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -2214,6 +2234,11 @@ func (p *PlatformContract) GetActiveCampaigns(ctx contractapi.TransactionContext
 
 // GetPublicCampaign retrieves a specific public campaign directly from world state
 func (p *PlatformContract) GetPublicCampaign(ctx contractapi.TransactionContextInterface, campaignID string) (string, error) {
+	// v3: the bridge delivers published campaigns into AllOrgsShared (as MakeInvestment reads them);
+	// fall back to world state for records written by earlier versions
+	if val, err := CrossChannelGet(ctx, AllOrgsCollection, "CAMPAIGN_PUBLIC_"+campaignID); err == nil && val != nil {
+		return string(val), nil
+	}
 	val, err := ctx.GetStub().GetState("CAMPAIGN_PUBLIC_" + campaignID)
 	if err != nil {
 		return "", err

@@ -54,7 +54,8 @@ for f in REPORT.split(','):
     t = s[s.find('<table'):s.find('</table>')]
     for r in re.findall(r'<tr>(.*?)</tr>', t, re.S)[1:]:
         c = [html.unescape(re.sub('<.*?>', '', x)).strip() for x in re.findall(r'<td[^>]*>(.*?)</td>', r, re.S)]
-        rep[c[0]] = dict(succ=int(c[1]), fail=int(c[2]), send=float(c[3]), lat_max=float(c[4]), lat_min=float(c[5]), lat_avg=float(c[6]), tput=float(c[7]))
+        num = lambda x: float(x) if x not in ('-', '') else 0.0
+        rep[c[0]] = dict(succ=int(c[1]), fail=int(c[2]), send=num(c[3]), lat_max=num(c[4]), lat_min=num(c[5]), lat_avg=num(c[6]), tput=num(c[7]))
 
 # ---------- Caliper log: round windows + failures ----------
 ts = lambda x: datetime.strptime(x, '%Y.%m.%d-%H:%M:%S.%f').timestamp() * 1000

@@ -758,23 +758,10 @@ func (p *PlatformContract) TriggerFundRelease(
 		return fmt.Errorf("failed to release funds: %v", err)
 	}
 
-	// Update escrow
-	escrowJSON, err := CrossChannelGet(ctx, PlatformPrivateCollection, "ESCROW_"+escrowID)
-	if err == nil && escrowJSON != nil {
-		var escrow FundEscrow
-		json.Unmarshal(escrowJSON, &escrow)
-		escrow.ReleasedAmount += amount
-		escrow.HeldAmount -= amount
-		escrow.UpdatedAt = timestamp
-		if escrow.HeldAmount <= 0 {
-			escrow.Status = "FULLY_RELEASED"
-		} else {
-			escrow.Status = "PARTIALLY_RELEASED"
-		}
-		escrowJSON, _ = json.Marshal(escrow)
-		CrossChannelPut(ctx, PlatformPrivateCollection, "ESCROW_"+escrowID, escrowJSON)
-	}
-
+	// v3 privacy: the escrow lives in PlatformPrivateData on the investment channel. Updating it from here
+	// would pass it through the governance-channel outbox, which StartupOrg and ValidatorOrg can read.
+	// The escrow is therefore updated on the investment channel by ExecuteFundReleaseTransfer, which reads
+	// this FUND_RELEASE record (cross-channel read) and pays it exactly once.
 	return nil
 }
 

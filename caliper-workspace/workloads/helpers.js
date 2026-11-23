@@ -149,7 +149,7 @@ const OP_MAP = {
         submitMilestoneReport: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'StartupContract:SubmitMilestoneReport' },
         verifyMilestoneCompletion: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:VerifyMilestoneCompletion' },
         shareMilestoneValidationToPlatform: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:ShareMilestoneValidationToPlatform' },
-        triggerFundRelease: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'PlatformContract:TriggerFundRelease' },
+        triggerFundRelease: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'PlatformContract:TriggerFundRelease' }, // v3: writes StartupPlatformShared (governance-homed)
         createDispute: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'PlatformContract:CreateDispute' },
         witnessAgreement: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'PlatformContract:WitnessAgreement' },
         collectCampaignFee: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'PlatformContract:CollectCampaignFee' },
