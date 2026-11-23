@@ -28,7 +28,8 @@ python3 "$WS/scripts/v3/make-network.py" "$ARCH" "$BM/work/net/crypto"
 RUN=(docker run --rm --network cfnet -v "$WS":/ws -w /ws -e CALIPER_TX_TIMEOUT_MS="${CALIPER_TX_TIMEOUT_MS:-30000}" -e BRIDGE_WAIT_MS="${BRIDGE_WAIT_MS:-4000}" -e CALIPER_OPLOG_DIR="/ws/oplog-v3-$TAG" -e PREP_CONCURRENCY="${PREP_CONCURRENCY:-20}" $NODE_IMG)
 rm -rf "$WS/oplog-v3-$TAG"
 # gossip membership needs a moment after start-up; private writes with requiredPeerCount 1 fail until then
-for try in 1 2 3 4 5 6; do "${RUN[@]}" node scripts/v3/seed-v3.js "$ARCH" && break; [ $try = 6 ] && exit 1; sleep 30; done
+[ -z "${SKIP_UP:-}" ] && sleep "${GOSSIP_WAIT_S:-45}"
+[ -n "${SKIP_SEED:-}" ] || "${RUN[@]}" node scripts/v3/seed-v3.js "$ARCH"
 "${RUN[@]}" npx caliper launch manager \
   --caliper-workspace ./ \
   --caliper-networkconfig "network-v3-$ARCH.yaml" \
