@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -1588,6 +1589,12 @@ func (p *PlatformContract) CreateDispute(
 	description string,
 	claimAmount float64,
 ) error {
+	// Hardening: a dispute is filed by the initiating party itself (or by PlatformOrg on its behalf)
+	if want, ok := initiatorMSP[strings.ToUpper(initiatorType)]; !ok {
+		return fmt.Errorf("unknown initiatorType %q", initiatorType)
+	} else if err := requireMSP(ctx, want, PlatformMSP); err != nil {
+		return fmt.Errorf("dispute initiator %s: %v", initiatorType, err)
+	}
 
 	timestamp := txNow(ctx).Format(time.RFC3339)
 

@@ -45,6 +45,12 @@ var contractRole = map[string]string{
 	"PlatformContract":  PlatformMSP,
 }
 
+// functions any participant may call (each checks the caller in its own body)
+var contractRoleOverride = map[string][]string{
+	// disputes can be raised by the affected party; CreateDispute checks initiatorType == caller org
+	"PlatformContract:CreateDispute": {StartupMSP, InvestorMSP, ValidatorMSP, PlatformMSP},
+}
+
 // privileged token operations: PlatformOrg only
 var tokenPlatformOnly = map[string]bool{
 	"InitTokenLedger": true, "IssueTokens": true, "CollectFeeTokens": true, "FreezeTokens": true,
@@ -137,6 +143,9 @@ func roleGuard(ctx contractapi.TransactionContextInterface) error {
 			return nil
 		}
 		return fmt.Errorf("access denied: unknown token function %s", method)
+	}
+	if allowed, ok := contractRoleOverride[fn]; ok {
+		return requireMSP(ctx, allowed...)
 	}
 	if role, ok := contractRole[contract]; ok {
 		return requireMSP(ctx, role)
@@ -349,3 +358,6 @@ func stripDocs(record []byte) []byte {
 	}
 	return b
 }
+
+// initiatorMSP maps a dispute initiatorType to the organisation allowed to file it.
+var initiatorMSP = map[string]string{"STARTUP": StartupMSP, "INVESTOR": InvestorMSP, "VALIDATOR": ValidatorMSP, "PLATFORM": PlatformMSP}

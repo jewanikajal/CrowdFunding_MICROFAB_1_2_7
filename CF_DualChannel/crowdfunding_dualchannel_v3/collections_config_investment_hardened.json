@@ -116,7 +116,7 @@
     "memberOnlyRead": true,
     "memberOnlyWrite": false,
     "endorsementPolicy": {
-      "signaturePolicy": "OutOf(2,'StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')"
+      "signaturePolicy": "OR('StartupOrgMSP.member', 'InvestorOrgMSP.member', 'ValidatorOrgMSP.member', 'PlatformOrgMSP.member')"
     }
   },
   {

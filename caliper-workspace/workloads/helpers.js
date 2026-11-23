@@ -30,7 +30,31 @@ function failedStatus() {
  * Never throws — returns a failed status on timeout / unexpected errors so Caliper
  * can count Fail and continue (PeerGateway already records Fail for endorse errors).
  */
+// v3 adaptation: per-function operation log (does not change Caliper's own statistics). One JSON line per
+// request: time, contract function, read/write, committed. Used to report the named operation of each
+// round separately from its prerequisite transactions (Caliper aggregates all of them per round).
+const OPLOG_DIR = process.env.CALIPER_OPLOG_DIR || '';
+let oplogStream = null;
+function oplog(request, ok) {
+    if (!OPLOG_DIR) {
+        return;
+    }
+    try {
+        if (!oplogStream) {
+            require('fs').mkdirSync(OPLOG_DIR, { recursive: true });
+            oplogStream = require('fs').createWriteStream(`${OPLOG_DIR}/ops-${process.pid}.jsonl`, { flags: 'a' });
+        }
+        oplogStream.write(JSON.stringify({ t: Date.now(), fcn: request.contractFunction, ro: !!request.readOnly, ok }) + '\n');
+    } catch (e) { /* never break the benchmark */ }
+}
+
 async function sendTimed(sutAdapter, request, timeoutMs) {
+    const status = await sendTimedInner(sutAdapter, request, timeoutMs);
+    oplog(request, isCommitted(status));
+    return status;
+}
+
+async function sendTimedInner(sutAdapter, request, timeoutMs) {
     const ms = Math.max(1000, parseInt(timeoutMs || TX_TIMEOUT_MS, 10) || 30000);
     let timer;
     // Yield once so fire-and-forget rate-control loops cannot starve gRPC I/O.
@@ -58,6 +82,9 @@ async function sendTimed(sutAdapter, request, timeoutMs) {
     }
 }
 
+/** v3 dual: time to wait for the cross-channel bridge after publishing (ms). */
+const BRIDGE_WAIT_MS = Number(process.env.BRIDGE_WAIT_MS || 4000);
+
 function uniqueId(prefix, workerIndex, txIndex) {
     return `${prefix}_W${workerIndex}_T${txIndex}_${Date.now()}_${crypto.randomBytes(2).toString('hex')}`;
 }
@@ -82,10 +109,10 @@ const OP_MAP = {
         makeInvestment: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'InvestorContract:MakeInvestment' },
         createInvestmentProposal: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'InvestorContract:CreateInvestmentProposal' },
         respondToInvestmentProposal: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'StartupContract:RespondToInvestmentProposal' },
-        initializeToken: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'TokenContract:InitializeToken' },
-        mintTokens: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'TokenContract:MintTokens' },
-        transferTokens: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'TokenContract:TransferTokens' },
-        createTokenAccount: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'TokenContract:CreateTokenAccount' },
+        initializeToken: { channel: 'crowdfunding-channel', contractId: 'cftoken', fcn: 'TokenContract:InitializeToken' },
+        mintTokens: { channel: 'crowdfunding-channel', contractId: 'cftoken', fcn: 'TokenContract:MintTokens' },
+        transferTokens: { channel: 'crowdfunding-channel', contractId: 'cftoken', fcn: 'TokenContract:TransferTokens' },
+        createTokenAccount: { channel: 'crowdfunding-channel', contractId: 'cftoken', fcn: 'TokenContract:CreateTokenAccount' },
         submitMilestoneReport: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'StartupContract:SubmitMilestoneReport' },
         verifyMilestoneCompletion: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'ValidatorContract:VerifyMilestoneCompletion' },
         shareMilestoneValidationToPlatform: { channel: 'crowdfunding-channel', contractId: 'crowdfunding', fcn: 'ValidatorContract:ShareMilestoneValidationToPlatform' },
@@ -108,17 +135,17 @@ const OP_MAP = {
         approveOrRejectCampaign: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:ApproveOrRejectCampaign' },
         shareValidationToPlatform: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:ShareValidationToPlatform' },
         shareCampaignToPlatform: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'StartupContract:ShareCampaignToPlatform' },
-        publishCampaignToPortal: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'PlatformContract:PublishCampaignToPortal' },
+        publishCampaignToPortal: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'PlatformContract:PublishCampaignToPortal' }, // v3: publish on governance, bridged to investment
         getCampaign: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'StartupContract:GetCampaign' },
         registerInvestor: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'InvestorContract:RegisterInvestor' },
         viewCampaign: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'InvestorContract:ViewCampaign' },
         makeInvestment: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'InvestorContract:MakeInvestment' },
         createInvestmentProposal: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'InvestorContract:CreateInvestmentProposal' },
         respondToInvestmentProposal: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'StartupContract:RespondToInvestmentProposal' },
-        initializeToken: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'TokenContract:InitializeToken' },
-        mintTokens: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'TokenContract:MintTokens' },
-        transferTokens: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'TokenContract:TransferTokens' },
-        createTokenAccount: { channel: 'investment-execution-channel', contractId: 'investment', fcn: 'TokenContract:CreateTokenAccount' },
+        initializeToken: { channel: 'investment-execution-channel', contractId: 'cftoken', fcn: 'TokenContract:InitializeToken' },
+        mintTokens: { channel: 'investment-execution-channel', contractId: 'cftoken', fcn: 'TokenContract:MintTokens' },
+        transferTokens: { channel: 'investment-execution-channel', contractId: 'cftoken', fcn: 'TokenContract:TransferTokens' },
+        createTokenAccount: { channel: 'investment-execution-channel', contractId: 'cftoken', fcn: 'TokenContract:CreateTokenAccount' },
         submitMilestoneReport: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'StartupContract:SubmitMilestoneReport' },
         verifyMilestoneCompletion: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:VerifyMilestoneCompletion' },
         shareMilestoneValidationToPlatform: { channel: 'governance-validation-channel', contractId: 'governance', fcn: 'ValidatorContract:ShareMilestoneValidationToPlatform' },
@@ -228,18 +255,47 @@ function invokerFor(op, workerArgs) {
     };
 }
 
+// ---------------------------------------------------------------------------------------------
+// v3 adaptation: confidential arguments are moved into the transient map (the v3 chaincode rejects
+// them as plaintext arguments because arguments are recorded in the block). Each transform returns
+// { args, transient } where args keeps the record ID and blanks the confidential fields.
+// ---------------------------------------------------------------------------------------------
+const num = (v) => Number(v);
+const docsOf = (v) => { try { return JSON.parse(v || '[]'); } catch (e) { return []; } };
+const V3_TRANSFORM = {
+    registerInvestor: (a) => ({ args: [a[0], a[1], '0', '', ''], transient: { kyc: { annualIncome: num(a[2]), aadharNumber: a[3], panNumber: a[4] } } }),
+    makeInvestment: (a) => ({ args: [a[0], '', '', '0', ''], transient: { private: { campaignId: a[1], investorId: a[2], amount: num(a[3]), currency: a[4] } } }),
+    createInvestmentProposal: (a) => ({ args: [a[0], '', '', '', '0', '', '', '', '', ''],
+        transient: { private: { campaignId: a[1], investorId: a[2], startupId: a[3], investmentAmount: num(a[4]), currency: a[5], equity: a[6], duration: a[7], milestones: a[8], proposedTerms: a[9] } } }),
+    respondToInvestmentProposal: (a) => ({ args: [a[0], '', '0', '', ''],
+        transient: { private: { action: a[1], counterAmount: num(a[2] || 0), counterTerms: a[3] || '', modifiedMilestones: a[4] || '' } } }),
+    createCampaign: (a) => ({ args: a.slice(0, a.length - 1).concat(['']), transient: { private: { documents: docsOf(a[a.length - 1]) } } }),
+    submitForValidation: (a) => ({ args: [a[0], '', a[2]], transient: { private: { documents: docsOf(a[1]) } } }),
+    validateCampaign: (a) => ({ args: [a[0], a[1], a[2], a[3], ''], transient: { private: { documents: docsOf(a[4]) } } })
+};
+
 function buildRequest(op, workerArgs, contractArguments, extra) {
     const target = resolveTarget(op, workerArgs);
     const invoker = invokerFor(op, workerArgs);
+    let args = contractArguments || [];
+    let transientMap;
+    if (V3_TRANSFORM[op]) {
+        const t = V3_TRANSFORM[op](args);
+        args = t.args;
+        transientMap = {};
+        for (const [k, v] of Object.entries(t.transient)) {
+            transientMap[k] = JSON.stringify(v);
+        }
+    }
     return Object.assign({
         contractId: target.contractId,
         channel: target.channel,
         contractFunction: target.fcn,
-        contractArguments: contractArguments || [],
+        contractArguments: args,
         invokerMspId: invoker.invokerMspId,
         invokerIdentity: invoker.invokerIdentity,
         readOnly: false
-    }, extra || {});
+    }, transientMap ? { transientMap } : {}, extra || {});
 }
 
 function campaignArgs(campaignId, startupId) {
@@ -341,11 +397,8 @@ async function bootstrapCampaign(sutAdapter, workerArgs, workerIndex, txIndex) {
  * Single-channel can use a plain create. Returns same shape as bootstrapCampaign / published.
  */
 async function bootstrapForInvestment(sutAdapter, workerArgs, workerIndex, txIndex) {
-    const arch = archOf(workerArgs);
-    if (arch === 'dual' || arch === 'multi') {
-        return bootstrapPublishedCampaign(sutAdapter, workerArgs, workerIndex, txIndex);
-    }
-    return bootstrapCampaign(sutAdapter, workerArgs, workerIndex, txIndex);
+    // v3: MakeInvestment / CreateInvestmentProposal require a published, open campaign on every architecture
+    return bootstrapPublishedCampaign(sutAdapter, workerArgs, workerIndex, txIndex);
 }
 
 /**
@@ -419,6 +472,11 @@ async function bootstrapPublishedCampaign(sutAdapter, workerArgs, workerIndex, t
         approved.campaignId, approved.proof
     ]))) {
         return null;
+    }
+    // v3 dual: the published campaign reaches the investment channel through the outbox/relay bridge
+    // (measured lag ~2-3 s). Waiting here is not a transaction and is not counted by Caliper.
+    if (archOf(workerArgs) === 'dual') {
+        await new Promise((r) => setTimeout(r, BRIDGE_WAIT_MS));
     }
     return approved;
 }
