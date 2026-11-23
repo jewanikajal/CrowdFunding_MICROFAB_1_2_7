@@ -58,3 +58,4 @@ node_modules/
 docker-compose.override.yml
 
 .github/*
+caliper-workspace/run-*.out
