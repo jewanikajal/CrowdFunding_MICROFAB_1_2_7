@@ -1,0 +1,307 @@
+[
+  {
+    "id": "HS-POS1",
+    "category": "Positive control (honest path)",
+    "claim": "Startup creates startup + campaign and submits for validation",
+    "attacker": "-",
+    "action": "Startup creates startup + campaign and submits for validation",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx a2c8919be504"
+  },
+  {
+    "id": "HS-POS2",
+    "category": "Positive control (honest path)",
+    "claim": "Validator validates and approves the campaign",
+    "attacker": "-",
+    "action": "Validator validates and approves the campaign",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 8bd8a1cef291 / committed VALID tx ca60f0b2cda9"
+  },
+  {
+    "id": "HS-POS3",
+    "category": "Positive control (honest path)",
+    "claim": "Startup shares and Platform publishes the approved campaign",
+    "attacker": "-",
+    "action": "Startup shares and Platform publishes the approved campaign",
+    "outcome": "PASS",
+    "evidence": "hash=fa59d61b8364; share: committed VALID tx 596f5e0ec659; publish: committed VALID tx 9d082ac77c7f"
+  },
+  {
+    "id": "HS-POS4",
+    "category": "Positive control (honest path)",
+    "claim": "Investor registers with KYC in the transient map",
+    "attacker": "-",
+    "action": "Investor registers with KYC in the transient map",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 304d9a0e83a3"
+  },
+  {
+    "id": "HS-POS5",
+    "category": "Positive control (honest path)",
+    "claim": "Investor invests in the published campaign (amount/campaign/investor via transient map)",
+    "attacker": "-",
+    "action": "Investor invests in the published campaign (amount/campaign/investor via transient map)",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 7eb00f287006"
+  },
+  {
+    "id": "HS-POS5b",
+    "category": "Positive control (honest path)",
+    "claim": "Investor creates a proposal with confidential terms (transient map)",
+    "attacker": "-",
+    "action": "Investor creates a proposal with confidential terms (transient map)",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx 9f9a7fa63d6c"
+  },
+  {
+    "id": "HS-POS5c",
+    "category": "Positive control (honest path)",
+    "claim": "Startup acknowledges the investment (transient map)",
+    "attacker": "-",
+    "action": "Startup acknowledges the investment (transient map)",
+    "outcome": "PASS",
+    "evidence": "committed VALID tx da7f0ff1da49"
+  },
+  {
+    "id": "HS-POS5d",
+    "category": "Positive control (honest path)",
+    "claim": "StartupOrg can read the investment record",
+    "attacker": "-",
+    "action": "StartupOrg can read the investment record",
+    "outcome": "PASS",
+    "evidence": "{\"amount\":25035921,\"campaignId\":\"CAMP_mws1yrpt\",\"committedAt\":\"2026-11-22T16:30:20Z\",\"conf"
+  },
+  {
+    "id": "HS-P4c-Validator",
+    "category": "Privacy leakage",
+    "claim": "Investment records readable only by StartupOrg and InvestorOrg",
+    "attacker": "ValidatorOrg client",
+    "action": "read INVESTMENT_ record in StartupInvestorShared",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: StartupInvestorShared"
+  },
+  {
+    "id": "HS-P4c-Platform",
+    "category": "Privacy leakage",
+    "claim": "Investment records readable only by StartupOrg and InvestorOrg",
+    "attacker": "PlatformOrg client",
+    "action": "read INVESTMENT_ record in StartupInvestorShared",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: StartupInvestorShared"
+  },
+  {
+    "id": "HS-P4-investment",
+    "category": "Privacy leakage",
+    "claim": "Investment amount not recorded in shared blocks",
+    "attacker": "ValidatorOrg client (channel member, not a collection member)",
+    "action": "qscc GetBlockByTxID on the investment tx, search for \"25035921\"",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (4804 bytes); value NOT present"
+  },
+  {
+    "id": "HS-P4-proposal",
+    "category": "Privacy leakage",
+    "claim": "Proposal terms not recorded in shared blocks",
+    "attacker": "ValidatorOrg client (channel member, not a collection member)",
+    "action": "qscc GetBlockByTxID on the proposal tx, search for \"TERMS_mws1yrpt\"",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (4656 bytes); value NOT present"
+  },
+  {
+    "id": "HS-P4b",
+    "category": "Privacy leakage",
+    "claim": "Investment data cannot be submitted as plaintext arguments",
+    "attacker": "careless client",
+    "action": "MakeInvestment with amount/campaign/investor in args",
+    "outcome": "MITIGATED",
+    "evidence": "confidential investment data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"private\""
+  },
+  {
+    "id": "HS-POS6",
+    "category": "Positive control (honest path)",
+    "claim": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
+    "attacker": "-",
+    "action": "Token flow: own accounts, Platform mint (2-of-4 endorsed), owner transfer",
+    "outcome": "PASS",
+    "evidence": "create committed VALID tx 782966ee8e34 / committed VALID tx 328f0efbd096; mint committed VALID tx c16fd606bdb7; transfer committed VALID tx 5070176f1be1; startup balance 1000"
+  },
+  {
+    "id": "HS-A1",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can mint tokens",
+    "attacker": "InvestorOrg client",
+    "action": "MintTokens(1e9) to own account",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller InvestorOrgMSP is not authorised (requires PlatformOrgMSP)"
+  },
+  {
+    "id": "HS-A2",
+    "category": "Unauthorised funding",
+    "claim": "Balances can only originate from Platform mint/transfer",
+    "attacker": "StartupOrg client",
+    "action": "CreateTokenAccount with initialBalance 5e8",
+    "outcome": "MITIGATED",
+    "evidence": "non-zero opening balance for PAYMENT_TOKEN: access denied: caller StartupOrgMSP is not authorised (requires PlatformOrgMSP)"
+  },
+  {
+    "id": "HS-A3",
+    "category": "Unauthorised funding",
+    "claim": "Only PlatformOrg can move PLATFORM treasury funds",
+    "attacker": "StartupOrg client",
+    "action": "TransferTokens(from=PLATFORM)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: account PLATFORM is platform-custodied"
+  },
+  {
+    "id": "HS-A4",
+    "category": "Unauthorised funding",
+    "claim": "Investors can only spend their own balance",
+    "attacker": "InvestorOrg User1 (account owned by User2)",
+    "action": "TransferTokens(from=victim account)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller does not control account INV_acct_mws1yrpt"
+  },
+  {
+    "id": "HS-A5",
+    "category": "Unauthorised funding",
+    "claim": "Investments only into existing, approved campaigns",
+    "attacker": "InvestorOrg client",
+    "action": "MakeInvestment(campaign=CAMP_DOES_NOT_EXIST)",
+    "outcome": "MITIGATED",
+    "evidence": "not published/open for investment"
+  },
+  {
+    "id": "HS-A6",
+    "category": "Unauthorised funding",
+    "claim": "Only investors can commit investments",
+    "attacker": "StartupOrg client",
+    "action": "MakeInvestment on behalf of an investor",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires InvestorOrgMSP)"
+  },
+  {
+    "id": "HS-A6b",
+    "category": "Unauthorised funding",
+    "claim": "An investor cannot invest in the name of another investor",
+    "attacker": "InvestorOrg User1 (investor registered by User2)",
+    "action": "MakeInvestment as INV_honest",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller is not the registered owner of investor INV_honest_mws1yrpt"
+  },
+  {
+    "id": "HS-A7",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can open a validation",
+    "attacker": "StartupOrg client",
+    "action": "ValidateCampaign on own campaign",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP)"
+  },
+  {
+    "id": "HS-A8",
+    "category": "Unauthorised approval",
+    "claim": "Only ValidatorOrg can approve a campaign",
+    "attacker": "StartupOrg client",
+    "action": "ApproveOrRejectCampaign(APPROVED)",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: caller StartupOrgMSP is not authorised (requires ValidatorOrgMSP)"
+  },
+  {
+    "id": "HS-A9",
+    "category": "Duplicate registration",
+    "claim": "An investor ID can be registered once",
+    "attacker": "InvestorOrg User1",
+    "action": "RegisterInvestor with an existing ID",
+    "outcome": "MITIGATED",
+    "evidence": "already exists"
+  },
+  {
+    "id": "HS-A10",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate registrations: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel RegisterInvestor (same ID)",
+    "outcome": "MITIGATED",
+    "evidence": {
+      "committed": 1,
+      "outcomes": {
+        "VALID": 1,
+        "code_11": 19
+      }
+    }
+  },
+  {
+    "id": "HS-A11",
+    "category": "Duplicate registration",
+    "claim": "Concurrent duplicate investment IDs: exactly one wins",
+    "attacker": "InvestorOrg client",
+    "action": "20 parallel MakeInvestment (same ID, published campaign)",
+    "outcome": "MITIGATED",
+    "evidence": {
+      "committed": 1
+    }
+  },
+  {
+    "id": "HS-A12",
+    "category": "Replay",
+    "claim": "A signed transaction cannot be replayed",
+    "attacker": "Network attacker",
+    "action": "Re-submit identical signed mint envelope (4100 -> 4200 if replayed)",
+    "outcome": "MITIGATED",
+    "evidence": "balance after replay = 4100; accepted by orderer, commit-status lookup returns original tx"
+  },
+  {
+    "id": "HS-A13",
+    "category": "Identity spoofing",
+    "claim": "Only CA-issued identities can transact",
+    "attacker": "Outsider, self-signed cert",
+    "action": "MintTokens with forged certificate",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: channel [crowdfunding-channel] creator org [InvestorOrgMSP]"
+  },
+  {
+    "id": "HS-A15",
+    "category": "Denial of service",
+    "claim": "No client input can crash the chaincode",
+    "attacker": "Any client",
+    "action": "MintTokens to a not-yet-existing account",
+    "outcome": "MITIGATED",
+    "evidence": "committed VALID (account created in memory, no crash)"
+  },
+  {
+    "id": "HS-P1",
+    "category": "Privacy leakage",
+    "claim": "Aadhaar & income not recorded in shared blocks",
+    "attacker": "StartupOrg client",
+    "action": "qscc GetBlockByTxID on the registration tx, search for Aadhaar/income",
+    "outcome": "MITIGATED",
+    "evidence": "block fetched (5140 bytes); Aadhaar and income NOT present"
+  },
+  {
+    "id": "HS-P1b",
+    "category": "Privacy leakage",
+    "claim": "KYC cannot be submitted as plaintext arguments",
+    "attacker": "careless client",
+    "action": "RegisterInvestor with KYC in args",
+    "outcome": "MITIGATED",
+    "evidence": "KYC data must not be passed as transaction arguments (it would be stored in the block); send it in the transient map under key \"kyc\""
+  },
+  {
+    "id": "HS-P2",
+    "category": "Privacy leakage",
+    "claim": "Non-members cannot read InvestorPrivateData",
+    "attacker": "StartupOrg client",
+    "action": "GetMyInvestments via StartupOrg peer",
+    "outcome": "MITIGATED",
+    "evidence": "tx creator does not have read access permission on privatedata in chaincodeName:crowdfunding collectionName: InvestorPrivateData"
+  },
+  {
+    "id": "HS-N1",
+    "category": "Unauthorised funding",
+    "claim": "Token ledger only reachable through the 2-of-4 cftoken chaincode",
+    "attacker": "PlatformOrg client",
+    "action": "TokenContract:MintTokens on the OR-policy chaincode",
+    "outcome": "MITIGATED",
+    "evidence": "access denied: token functions are served only by the \"cftoken\" chaincode (2-of-4 endorsement)"
+  }
+]

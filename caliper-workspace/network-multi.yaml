@@ -1,0 +1,104 @@
+name: crowdfunding-multi
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+  sutOptions:
+    diagnoseErrors: true
+
+# contractID = Caliper lookup key; id = on-chain chaincode name.
+# Channels/CCs match MICROFAB.txt + MULTI_CHANNEL_E2E_TESTING.md (port 8080).
+channels:
+  - channelName: common-channel
+    contracts:
+      - id: platform
+        contractID: platform
+
+  - channelName: startup-validator-channel
+    contracts:
+      - id: startup
+        contractID: startup
+      - id: validator
+        contractID: validator
+
+  - channelName: startup-platform-channel
+    contracts:
+      - id: startup
+        contractID: startup-on-startup-platform
+      - id: platform
+        contractID: platform-on-startup-platform
+
+  - channelName: validator-platform-channel
+    contracts:
+      - id: validator
+        contractID: validator-on-validator-platform
+      - id: platform
+        contractID: platform-on-validator-platform
+
+  - channelName: investor-platform-channel
+    contracts:
+      - id: investor
+        contractID: investor
+
+  - channelName: startup-investor-channel
+    contracts:
+      - id: investor
+        contractID: investor-on-startup-investor
+      - id: startup
+        contractID: startup-on-startup-investor
+
+  - channelName: investor-validator-channel
+    contracts:
+      - id: investor
+        contractID: investor-on-investor-validator
+      - id: validator
+        contractID: validator-on-investor-validator
+
+organizations:
+  - mspid: StartupOrgMSP
+    identities:
+      certificates:
+      - name: startuporgadmin
+        clientPrivateKey:
+          path: crypto/multi/StartupOrg/key.pem
+        clientSignedCert:
+          path: crypto/multi/StartupOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-multi-startuporg.json
+      discover: false
+
+  - mspid: InvestorOrgMSP
+    identities:
+      certificates:
+      - name: investororgadmin
+        clientPrivateKey:
+          path: crypto/multi/InvestorOrg/key.pem
+        clientSignedCert:
+          path: crypto/multi/InvestorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-multi-investororg.json
+      discover: false
+
+  - mspid: PlatformOrgMSP
+    identities:
+      certificates:
+      - name: platformorgadmin
+        clientPrivateKey:
+          path: crypto/multi/PlatformOrg/key.pem
+        clientSignedCert:
+          path: crypto/multi/PlatformOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-multi-platformorg.json
+      discover: false
+
+  - mspid: ValidatorOrgMSP
+    identities:
+      certificates:
+      - name: validatororgadmin
+        clientPrivateKey:
+          path: crypto/multi/ValidatorOrg/key.pem
+        clientSignedCert:
+          path: crypto/multi/ValidatorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-multi-validatororg.json
+      discover: false

@@ -1,0 +1,267 @@
+test:
+  name: crowdfunding-dual-full
+  description: "Dual T12 \u2014 25 ops \xD7 L/M/S + cool-down after each medium and\
+    \ each stress (op TPS unchanged)"
+  workers:
+    number: 2
+  rounds:
+  - label: smoke-P01-createStartup
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/createStartup.js
+      arguments:
+        arch: dual
+  - label: smoke-P02-createCampaign
+    description: Self-contained (startup+campaign per submit)
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/createCampaign.js
+      arguments:
+        arch: dual
+  - label: smoke-P03-submitForValidation
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/submitForValidation.js
+      arguments:
+        arch: dual
+  - label: smoke-P04-validateCampaign
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/validateCampaign.js
+      arguments:
+        arch: dual
+  - label: smoke-P05-approveOrRejectCampaign
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/approveOrRejectCampaign.js
+      arguments:
+        arch: dual
+  - label: smoke-P06-shareCampaignToPlatform
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/shareCampaignToPlatform.js
+      arguments:
+        arch: dual
+  - label: smoke-P07-publishCampaignToPortal
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/publishCampaignToPortal.js
+      arguments:
+        arch: dual
+  - label: smoke-P08-registerInvestor
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/registerInvestor.js
+      arguments:
+        arch: dual
+  - label: smoke-P09-viewCampaign
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/viewCampaign.js
+      arguments:
+        arch: dual
+  - label: smoke-P10-makeInvestment
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/makeInvestment.js
+      arguments:
+        arch: dual
+        campaignId: CAMP001
+        investorId: INVESTOR001
+        amount: '20000000'
+  - label: smoke-P11-createInvestmentProposal
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/createInvestmentProposal.js
+      arguments:
+        arch: dual
+  - label: smoke-P12-respondToInvestmentProposal
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/respondToInvestmentProposal.js
+      arguments:
+        arch: dual
+  - label: smoke-P13-initializeToken
+    description: Unique token symbols per tx
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/initializeToken.js
+      arguments:
+        arch: dual
+  - label: smoke-P14-mintTokens
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/mintTokens.js
+      arguments:
+        arch: dual
+        amount: '100'
+  - label: smoke-P15-transferTokens
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/transferTokens.js
+      arguments:
+        arch: dual
+        amount: '1'
+  - label: smoke-P16-submitMilestoneReport
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/submitMilestoneReport.js
+      arguments:
+        arch: dual
+  - label: smoke-P17-verifyMilestoneCompletion
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/verifyMilestoneCompletion.js
+      arguments:
+        arch: dual
+  - label: smoke-P18-triggerFundRelease
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/triggerFundRelease.js
+      arguments:
+        arch: dual
+  - label: smoke-P19-createDispute
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/createDispute.js
+      arguments:
+        arch: dual
+  - label: smoke-P20-collectCampaignFee
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/collectCampaignFee.js
+      arguments:
+        arch: dual
+  - label: smoke-P21-setFeeTiers
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/setFeeTiers.js
+      arguments:
+        arch: dual
+  - label: smoke-P22-deleteCampaign
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/deleteCampaign.js
+      arguments:
+        arch: dual
+  - label: smoke-P23-withdrawInvestment
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/withdrawInvestment.js
+      arguments:
+        arch: dual
+  - label: smoke-P24-requestRefund
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/requestRefund.js
+      arguments:
+        arch: dual
+  - label: smoke-P25-closeCampaign
+    txNumber: 4
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 2
+    workload:
+      module: workloads/closeCampaign.js
+      arguments:
+        arch: dual
+monitor:
+  type:
+  - none

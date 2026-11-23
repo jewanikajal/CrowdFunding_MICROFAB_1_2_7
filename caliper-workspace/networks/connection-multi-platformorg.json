@@ -1,0 +1,77 @@
+{
+  "name": "multi-PlatformOrg",
+  "version": "1.0.0",
+  "client": {
+    "organization": "PlatformOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "organizations": {
+    "PlatformOrg": {
+      "mspid": "PlatformOrgMSP",
+      "peers": [
+        "platformorgpeer-api.127-0-0-1.nip.io:8080",
+        "startuporgpeer-api.127-0-0-1.nip.io:8080",
+        "validatororgpeer-api.127-0-0-1.nip.io:8080",
+        "investororgpeer-api.127-0-0-1.nip.io:8080"
+      ],
+      "certificateAuthorities": [
+        "platformorgca-api.127-0-0-1.nip.io:8080"
+      ]
+    }
+  },
+  "peers": {
+    "startuporgpeer-api.127-0-0-1.nip.io:8080": {
+      "url": "grpc://startuporgpeer-api.127-0-0-1.nip.io:8080",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "startuporgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "startuporgpeer-api.127-0-0-1.nip.io"
+      }
+    },
+    "validatororgpeer-api.127-0-0-1.nip.io:8080": {
+      "url": "grpc://validatororgpeer-api.127-0-0-1.nip.io:8080",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "validatororgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "validatororgpeer-api.127-0-0-1.nip.io"
+      }
+    },
+    "investororgpeer-api.127-0-0-1.nip.io:8080": {
+      "url": "grpc://investororgpeer-api.127-0-0-1.nip.io:8080",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "investororgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "investororgpeer-api.127-0-0-1.nip.io"
+      }
+    },
+    "platformorgpeer-api.127-0-0-1.nip.io:8080": {
+      "url": "grpc://platformorgpeer-api.127-0-0-1.nip.io:8080",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "platformorgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "platformorgpeer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "orderers": {
+    "orderer-api.127-0-0-1.nip.io:8080": {
+      "url": "grpc://orderer-api.127-0-0-1.nip.io:8080",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "orderer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "orderer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "platformorgca-api.127-0-0-1.nip.io:8080": {
+      "url": "http://platformorgca-api.127-0-0-1.nip.io:8080",
+      "httpOptions": {
+        "verify": false
+      },
+      "caName": "platformorgca"
+    }
+  }
+}

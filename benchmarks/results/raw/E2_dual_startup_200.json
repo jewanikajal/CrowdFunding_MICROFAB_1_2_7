@@ -1,0 +1,90 @@
+{
+  "workload": "startup",
+  "channel": "governance-validation-channel",
+  "chaincode": "governance",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 2935,
+  "failed": 1065,
+  "sendRate": 199.7,
+  "throughput": 129.8,
+  "latAvg": 2.963,
+  "latMin": 1.023,
+  "latP50": 2.83,
+  "latP95": 5.112,
+  "latP99": 5.965,
+  "latMax": 7.678,
+  "startMs": 1795254043504.0195,
+  "endMs": 1795254066116.2346,
+  "errors": {
+    "ENDORSE_MISMATCH": 690,
+    "GATEWAY_OVERLOAD": 375
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 24.2,
+      "cpuPeakPct": 35.6,
+      "memAvgMB": 795.1,
+      "memPeakMB": 798.8,
+      "netRxMBps": 0.962,
+      "netTxMBps": 0.473
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 113.4,
+      "cpuPeakPct": 146.0,
+      "memAvgMB": 578.9,
+      "memPeakMB": 603.1,
+      "netRxMBps": 4.601,
+      "netTxMBps": 3.599
+    },
+    "couchdb": {
+      "cpuAvgPct": 111.6,
+      "cpuPeakPct": 176.2,
+      "memAvgMB": 213.0,
+      "memPeakMB": 242.2,
+      "netRxMBps": 0.358,
+      "netTxMBps": 0.265
+    },
+    "orderer": {
+      "cpuAvgPct": 10.7,
+      "cpuPeakPct": 19.5,
+      "memAvgMB": 71.7,
+      "memPeakMB": 91.5,
+      "netRxMBps": 0.614,
+      "netTxMBps": 1.807
+    },
+    "loadgen": {
+      "cpuAvgPct": 70.3,
+      "cpuPeakPct": 90.4,
+      "memAvgMB": 372.4,
+      "memPeakMB": 378.0,
+      "netRxMBps": 0.309,
+      "netTxMBps": 0.506
+    },
+    "host": {
+      "cpuAvgPct": 88.9,
+      "cpuPeakPct": 99.3,
+      "memUsedPeakMB": 2939.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "AND('ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_startup_200"
+}

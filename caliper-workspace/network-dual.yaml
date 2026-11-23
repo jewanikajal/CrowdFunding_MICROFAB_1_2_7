@@ -1,0 +1,66 @@
+name: crowdfunding-dual
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+  sutOptions:
+    diagnoseErrors: true
+
+channels:
+  - channelName: governance-validation-channel
+    contracts:
+    - id: governance
+      contractID: governance
+  - channelName: investment-execution-channel
+    contracts:
+    - id: investment
+      contractID: investment
+
+organizations:
+  - mspid: StartupOrgMSP
+    identities:
+      certificates:
+      - name: startuporgadmin
+        clientPrivateKey:
+          path: crypto/dual/StartupOrg/key.pem
+        clientSignedCert:
+          path: crypto/dual/StartupOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-dual-startuporg.json
+      discover: false
+
+  - mspid: InvestorOrgMSP
+    identities:
+      certificates:
+      - name: investororgadmin
+        clientPrivateKey:
+          path: crypto/dual/InvestorOrg/key.pem
+        clientSignedCert:
+          path: crypto/dual/InvestorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-dual-investororg.json
+      discover: false
+
+  - mspid: PlatformOrgMSP
+    identities:
+      certificates:
+      - name: platformorgadmin
+        clientPrivateKey:
+          path: crypto/dual/PlatformOrg/key.pem
+        clientSignedCert:
+          path: crypto/dual/PlatformOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-dual-platformorg.json
+      discover: false
+
+  - mspid: ValidatorOrgMSP
+    identities:
+      certificates:
+      - name: validatororgadmin
+        clientPrivateKey:
+          path: crypto/dual/ValidatorOrg/key.pem
+        clientSignedCert:
+          path: crypto/dual/ValidatorOrg/cert.pem
+    connectionProfile:
+      path: networks/connection-dual-validatororg.json
+      discover: false

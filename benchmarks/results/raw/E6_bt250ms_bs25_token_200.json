@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3562,
+  "failed": 438,
+  "sendRate": 198.1,
+  "throughput": 168.3,
+  "latAvg": 2.202,
+  "latMin": 0.145,
+  "latP50": 2.732,
+  "latP95": 3.465,
+  "latP99": 3.757,
+  "latMax": 3.933,
+  "startMs": 1795257174583.0232,
+  "endMs": 1795257195742.8362,
+  "errors": {
+    "GATEWAY_OVERLOAD": 438
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 8.5,
+      "cpuPeakPct": 17.3,
+      "memAvgMB": 554.1,
+      "memPeakMB": 554.2,
+      "netRxMBps": 0.31,
+      "netTxMBps": 0.137
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 94.3,
+      "cpuPeakPct": 113.4,
+      "memAvgMB": 358.4,
+      "memPeakMB": 373.3,
+      "netRxMBps": 3.887,
+      "netTxMBps": 1.926
+    },
+    "couchdb": {
+      "cpuAvgPct": 126.3,
+      "cpuPeakPct": 158.4,
+      "memAvgMB": 183.2,
+      "memPeakMB": 191.0,
+      "netRxMBps": 0.318,
+      "netTxMBps": 0.232
+    },
+    "orderer": {
+      "cpuAvgPct": 18.1,
+      "cpuPeakPct": 22.6,
+      "memAvgMB": 51.7,
+      "memPeakMB": 69.9,
+      "netRxMBps": 0.624,
+      "netTxMBps": 2.415
+    },
+    "loadgen": {
+      "cpuAvgPct": 86.0,
+      "cpuPeakPct": 107.9,
+      "memAvgMB": 374.7,
+      "memPeakMB": 377.8,
+      "netRxMBps": 0.347,
+      "netTxMBps": 0.576
+    },
+    "host": {
+      "cpuAvgPct": 88.3,
+      "cpuPeakPct": 98.5,
+      "memUsedPeakMB": 2434.3
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "250ms",
+    "batchSize": 25,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E6",
+  "name": "E6_bt250ms_bs25_token_200"
+}

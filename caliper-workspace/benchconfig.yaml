@@ -1,0 +1,45 @@
+# Default benchconfig points at single-channel.
+# Prefer explicit files: benchconfig-single.yaml | benchconfig-dual.yaml | benchconfig-multi.yaml
+---
+test:
+  name: crowdfunding-single-default
+  description: Default = single-channel CreateStartup rounds
+  workers:
+    number: 2
+  rounds:
+    - label: low-createStartup
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+    - label: medium-createStartup
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+    - label: stress-createStartup
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+monitor:
+  type:
+    - none

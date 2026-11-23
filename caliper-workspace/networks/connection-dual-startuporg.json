@@ -1,0 +1,69 @@
+{
+  "name": "dual-StartupOrg",
+  "version": "1.0.0",
+  "client": {
+    "organization": "StartupOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "organizations": {
+    "StartupOrg": {
+      "mspid": "StartupOrgMSP",
+      "peers": [
+        "validatororgpeer-api.127-0-0-1.nip.io:7070",
+        "platformorgpeer-api.127-0-0-1.nip.io:7070",
+        "startuporgpeer-api.127-0-0-1.nip.io:7070"
+      ],
+      "certificateAuthorities": [
+        "startuporgca-api.127-0-0-1.nip.io:7070"
+      ]
+    }
+  },
+  "peers": {
+    "startuporgpeer-api.127-0-0-1.nip.io:7070": {
+      "url": "grpc://startuporgpeer-api.127-0-0-1.nip.io:7070",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "startuporgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "startuporgpeer-api.127-0-0-1.nip.io"
+      }
+    },
+    "validatororgpeer-api.127-0-0-1.nip.io:7070": {
+      "url": "grpc://validatororgpeer-api.127-0-0-1.nip.io:7070",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "validatororgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "validatororgpeer-api.127-0-0-1.nip.io"
+      }
+    },
+    "platformorgpeer-api.127-0-0-1.nip.io:7070": {
+      "url": "grpc://platformorgpeer-api.127-0-0-1.nip.io:7070",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "platformorgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "platformorgpeer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "orderers": {
+    "orderer-api.127-0-0-1.nip.io:7070": {
+      "url": "grpc://orderer-api.127-0-0-1.nip.io:7070",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "orderer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "orderer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "startuporgca-api.127-0-0-1.nip.io:7070": {
+      "url": "http://startuporgca-api.127-0-0-1.nip.io:7070",
+      "httpOptions": {
+        "verify": false
+      },
+      "caName": "startuporgca"
+    }
+  }
+}

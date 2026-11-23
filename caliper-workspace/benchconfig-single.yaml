@@ -1,0 +1,262 @@
+---
+# Single-channel Microfab (port 9090) — all 6 existing workloads.
+# BEFORE dependent rounds (campaign / tokens / invest / dispute), run:
+#   bash scripts/seed-single.sh
+test:
+  name: crowdfunding-single
+  description: Single-channel Caliper — CreateStartup + CreateCampaign + RegisterInvestor + TransferTokens + MakeInvestment + CreateDispute
+  workers:
+    number: 2
+  rounds:
+    # ----- CreateStartup (standalone; no seed required) -----
+    - label: low-createStartup
+      description: Low load CreateStartup (10 TPS, 50 txs)
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+    - label: medium-createStartup
+      description: Medium load CreateStartup (25 TPS, 100 txs)
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+    - label: stress-createStartup
+      description: Stress CreateStartup (100 TPS, 1000 txs)
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createStartup.js
+        arguments:
+          arch: single
+
+    # ----- CreateCampaign (self-contained: creates startup+campaign; no STARTUP001 required) -----
+    - label: low-createCampaign
+      description: Low load CreateCampaign (self-contained)
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createCampaign.js
+        arguments:
+          arch: single
+
+    - label: medium-createCampaign
+      description: Medium load CreateCampaign (self-contained)
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createCampaign.js
+        arguments:
+          arch: single
+
+    - label: stress-createCampaign
+      description: Stress CreateCampaign (self-contained)
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createCampaign.js
+        arguments:
+          arch: single
+
+    # ----- RegisterInvestor (InvestorOrg + PDC) -----
+    - label: low-registerInvestor
+      description: Low load RegisterInvestor
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/registerInvestor.js
+        arguments:
+          arch: single
+
+    - label: medium-registerInvestor
+      description: Medium load RegisterInvestor
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/registerInvestor.js
+        arguments:
+          arch: single
+
+    - label: stress-registerInvestor
+      description: Stress RegisterInvestor
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/registerInvestor.js
+        arguments:
+          arch: single
+
+    # ----- TransferTokens (PlatformOrg; needs InitializeToken + PLATFORM balance) -----
+    - label: low-transferTokens
+      description: Low load TransferTokens PLATFORM → STARTUP001
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/transferTokens.js
+        arguments:
+          arch: single
+          recipient: STARTUP001
+          amount: "1"
+
+    - label: medium-transferTokens
+      description: Medium load TransferTokens
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/transferTokens.js
+        arguments:
+          arch: single
+          recipient: STARTUP001
+          amount: "1"
+
+    - label: stress-transferTokens
+      description: Stress TransferTokens
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/transferTokens.js
+        arguments:
+          arch: single
+          recipient: STARTUP001
+          amount: "1"
+
+    # ----- MakeInvestment (min amount 20,000,000; uses CAMP001 / INVESTOR001) -----
+    - label: low-makeInvestment
+      description: Low load MakeInvestment (2 Cr min)
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/makeInvestment.js
+        arguments:
+          arch: single
+          campaignId: CAMP001
+          investorId: INVESTOR001
+          amount: "20000000"
+
+    - label: medium-makeInvestment
+      description: Medium load MakeInvestment
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/makeInvestment.js
+        arguments:
+          arch: single
+          campaignId: CAMP001
+          investorId: INVESTOR001
+          amount: "20000000"
+
+    - label: stress-makeInvestment
+      description: Stress MakeInvestment
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/makeInvestment.js
+        arguments:
+          arch: single
+          campaignId: CAMP001
+          investorId: INVESTOR001
+          amount: "20000000"
+
+    # ----- CreateDispute (InvestorOrg; ~750 CFT fee from INVESTOR001) -----
+    - label: low-createDispute
+      description: Low load CreateDispute
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/createDispute.js
+        arguments:
+          arch: single
+          initiatorId: INVESTOR001
+          respondentId: STARTUP001
+          campaignId: CAMP001
+          claimAmount: "1000"
+
+    - label: medium-createDispute
+      description: Medium load CreateDispute
+      txNumber: 100
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workloads/createDispute.js
+        arguments:
+          arch: single
+          initiatorId: INVESTOR001
+          respondentId: STARTUP001
+          campaignId: CAMP001
+          claimAmount: "1000"
+
+    - label: stress-createDispute
+      description: Stress CreateDispute (ensure INVESTOR001 has enough CFT for fees)
+      txNumber: 1000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workloads/createDispute.js
+        arguments:
+          arch: single
+          initiatorId: INVESTOR001
+          respondentId: STARTUP001
+          campaignId: CAMP001
+          claimAmount: "1000"
+
+monitor:
+  type:
+    - none

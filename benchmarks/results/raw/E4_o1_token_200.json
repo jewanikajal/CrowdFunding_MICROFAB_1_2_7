@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3431,
+  "failed": 569,
+  "sendRate": 199.9,
+  "throughput": 166,
+  "latAvg": 1.945,
+  "latMin": 0.644,
+  "latP50": 1.907,
+  "latP95": 2.948,
+  "latP99": 3.129,
+  "latMax": 3.223,
+  "startMs": 1795255945818.017,
+  "endMs": 1795255966481.691,
+  "errors": {
+    "GATEWAY_OVERLOAD": 569
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 14.5,
+      "cpuPeakPct": 30.3,
+      "memAvgMB": 561.4,
+      "memPeakMB": 562.7,
+      "netRxMBps": 0.346,
+      "netTxMBps": 0.173
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 104.0,
+      "cpuPeakPct": 159.5,
+      "memAvgMB": 561.6,
+      "memPeakMB": 625.3,
+      "netRxMBps": 3.89,
+      "netTxMBps": 1.954
+    },
+    "couchdb": {
+      "cpuAvgPct": 77.3,
+      "cpuPeakPct": 162.2,
+      "memAvgMB": 195.3,
+      "memPeakMB": 206.7,
+      "netRxMBps": 0.269,
+      "netTxMBps": 0.181
+    },
+    "orderer": {
+      "cpuAvgPct": 20.9,
+      "cpuPeakPct": 31.8,
+      "memAvgMB": 63.2,
+      "memPeakMB": 83.7,
+      "netRxMBps": 0.624,
+      "netTxMBps": 2.371
+    },
+    "loadgen": {
+      "cpuAvgPct": 95.4,
+      "cpuPeakPct": 124.0,
+      "memAvgMB": 343.4,
+      "memPeakMB": 378.1,
+      "netRxMBps": 0.372,
+      "netTxMBps": 0.608
+    },
+    "host": {
+      "cpuAvgPct": 83.7,
+      "cpuPeakPct": 97.5,
+      "memUsedPeakMB": 2731.4
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E4",
+  "name": "E4_o1_token_200"
+}

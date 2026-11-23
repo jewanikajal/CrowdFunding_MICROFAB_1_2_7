@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3410,
+  "failed": 590,
+  "sendRate": 200,
+  "throughput": 164.8,
+  "latAvg": 1.947,
+  "latMin": 0.68,
+  "latP50": 1.903,
+  "latP95": 2.963,
+  "latP99": 3.103,
+  "latMax": 3.209,
+  "startMs": 1795256094955.0198,
+  "endMs": 1795256115644.7532,
+  "errors": {
+    "GATEWAY_OVERLOAD": 590
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 13.4,
+      "cpuPeakPct": 31.6,
+      "memAvgMB": 560.0,
+      "memPeakMB": 560.1,
+      "netRxMBps": 0.346,
+      "netTxMBps": 0.173
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 92.6,
+      "cpuPeakPct": 154.8,
+      "memAvgMB": 575.8,
+      "memPeakMB": 644.9,
+      "netRxMBps": 3.908,
+      "netTxMBps": 1.964
+    },
+    "couchdb": {
+      "cpuAvgPct": 71.7,
+      "cpuPeakPct": 144.8,
+      "memAvgMB": 198.3,
+      "memPeakMB": 207.5,
+      "netRxMBps": 0.269,
+      "netTxMBps": 0.181
+    },
+    "orderer": {
+      "cpuAvgPct": 26.1,
+      "cpuPeakPct": 42.2,
+      "memAvgMB": 181.7,
+      "memPeakMB": 224.3,
+      "netRxMBps": 2.232,
+      "netTxMBps": 3.984
+    },
+    "loadgen": {
+      "cpuAvgPct": 90.8,
+      "cpuPeakPct": 122.8,
+      "memAvgMB": 373.8,
+      "memPeakMB": 377.2,
+      "netRxMBps": 0.368,
+      "netTxMBps": 0.606
+    },
+    "host": {
+      "cpuAvgPct": 78.1,
+      "cpuPeakPct": 97.2,
+      "memUsedPeakMB": 2906.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 3,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E4",
+  "name": "E4_o3_token_200"
+}

@@ -1,0 +1,89 @@
+{
+  "workload": "invest",
+  "channel": "investment-execution-channel",
+  "chaincode": "investment",
+  "targetTps": 150,
+  "workers": 4,
+  "submitted": 3000,
+  "succeeded": 2886,
+  "failed": 114,
+  "sendRate": 149.3,
+  "throughput": 137.3,
+  "latAvg": 2.253,
+  "latMin": 0.896,
+  "latP50": 2.253,
+  "latP95": 3.298,
+  "latP99": 3.666,
+  "latMax": 3.854,
+  "startMs": 1795254191420.0215,
+  "endMs": 1795254212440.5046,
+  "errors": {
+    "GATEWAY_OVERLOAD": 114
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 12.8,
+      "cpuPeakPct": 28.5,
+      "memAvgMB": 794.7,
+      "memPeakMB": 794.8,
+      "netRxMBps": 0.291,
+      "netTxMBps": 0.204
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 94.7,
+      "cpuPeakPct": 152.3,
+      "memAvgMB": 744.2,
+      "memPeakMB": 789.5,
+      "netRxMBps": 3.518,
+      "netTxMBps": 1.89
+    },
+    "couchdb": {
+      "cpuAvgPct": 104.6,
+      "cpuPeakPct": 221.9,
+      "memAvgMB": 306.8,
+      "memPeakMB": 322.9,
+      "netRxMBps": 0.458,
+      "netTxMBps": 0.285
+    },
+    "orderer": {
+      "cpuAvgPct": 13.7,
+      "cpuPeakPct": 27.6,
+      "memAvgMB": 75.2,
+      "memPeakMB": 88.3,
+      "netRxMBps": 0.546,
+      "netTxMBps": 2.089
+    },
+    "loadgen": {
+      "cpuAvgPct": 78.6,
+      "cpuPeakPct": 112.2,
+      "memAvgMB": 365.4,
+      "memPeakMB": 380.8,
+      "netRxMBps": 0.303,
+      "netTxMBps": 0.496
+    },
+    "host": {
+      "cpuAvgPct": 80.9,
+      "cpuPeakPct": 99.0,
+      "memUsedPeakMB": 3154.9
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_invest_150"
+}

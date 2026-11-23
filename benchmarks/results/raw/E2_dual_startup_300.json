@@ -1,0 +1,90 @@
+{
+  "workload": "startup",
+  "channel": "governance-validation-channel",
+  "chaincode": "governance",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 2332,
+  "failed": 3668,
+  "sendRate": 291.2,
+  "throughput": 96.1,
+  "latAvg": 10.135,
+  "latMin": 2.938,
+  "latP50": 9.967,
+  "latP95": 17.326,
+  "latP99": 19.292,
+  "latMax": 20.425,
+  "startMs": 1795254073613.019,
+  "endMs": 1795254097874.5203,
+  "errors": {
+    "ENDORSE_MISMATCH": 2724,
+    "GATEWAY_OVERLOAD": 944
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 21.4,
+      "cpuPeakPct": 36.0,
+      "memAvgMB": 748.5,
+      "memPeakMB": 774.8,
+      "netRxMBps": 1.228,
+      "netTxMBps": 0.567
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 121.6,
+      "cpuPeakPct": 158.5,
+      "memAvgMB": 581.2,
+      "memPeakMB": 619.4,
+      "netRxMBps": 4.562,
+      "netTxMBps": 3.934
+    },
+    "couchdb": {
+      "cpuAvgPct": 127.3,
+      "cpuPeakPct": 171.3,
+      "memAvgMB": 259.5,
+      "memPeakMB": 279.8,
+      "netRxMBps": 0.395,
+      "netTxMBps": 0.325
+    },
+    "orderer": {
+      "cpuAvgPct": 7.6,
+      "cpuPeakPct": 25.8,
+      "memAvgMB": 71.5,
+      "memPeakMB": 86.2,
+      "netRxMBps": 0.468,
+      "netTxMBps": 1.376
+    },
+    "loadgen": {
+      "cpuAvgPct": 72.7,
+      "cpuPeakPct": 100.4,
+      "memAvgMB": 391.7,
+      "memPeakMB": 409.1,
+      "netRxMBps": 0.305,
+      "netTxMBps": 0.581
+    },
+    "host": {
+      "cpuAvgPct": 93.5,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 2912.5
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "dual",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "AND('ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E2",
+  "name": "E2_dual_startup_300"
+}

@@ -1,0 +1,89 @@
+{
+  "workload": "transfer_v2",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 1000,
+  "succeeded": 100,
+  "failed": 900,
+  "sendRate": 100.2,
+  "throughput": 10,
+  "latAvg": 0.117,
+  "latMin": 0.073,
+  "latP50": 0.121,
+  "latP95": 0.133,
+  "latP99": 0.216,
+  "latMax": 0.216,
+  "startMs": 1795367540472.0312,
+  "endMs": 1795367550492.5122,
+  "errors": {
+    "COMMIT_11": 900
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 10.2,
+      "cpuPeakPct": 12.2,
+      "memAvgMB": 564.1,
+      "memPeakMB": 569.0,
+      "netRxMBps": 0.306,
+      "netTxMBps": 0.22
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 64.7,
+      "cpuPeakPct": 78.6,
+      "memAvgMB": 324.6,
+      "memPeakMB": 330.5,
+      "netRxMBps": 2.656,
+      "netTxMBps": 1.292
+    },
+    "couchdb": {
+      "cpuAvgPct": 73.0,
+      "cpuPeakPct": 89.8,
+      "memAvgMB": 178.1,
+      "memPeakMB": 185.8,
+      "netRxMBps": 0.112,
+      "netTxMBps": 0.165
+    },
+    "orderer": {
+      "cpuAvgPct": 10.7,
+      "cpuPeakPct": 13.3,
+      "memAvgMB": 47.5,
+      "memPeakMB": 49.7,
+      "netRxMBps": 0.414,
+      "netTxMBps": 1.561
+    },
+    "loadgen": {
+      "cpuAvgPct": 43.7,
+      "cpuPeakPct": 43.7,
+      "memAvgMB": 264.8,
+      "memPeakMB": 264.8,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "host": {
+      "cpuAvgPct": 56.3,
+      "cpuPeakPct": 66.7,
+      "memUsedPeakMB": 2121.0
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "100ms",
+    "batchSize": 10,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "T4",
+  "name": "T4mf_transfer_v2_hot10_stress"
+}

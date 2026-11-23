@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 2563,
+  "failed": 1437,
+  "sendRate": 190,
+  "throughput": 30.1,
+  "latAvg": 52.703,
+  "latMin": 9.621,
+  "latP50": 58.6,
+  "latP95": 70.037,
+  "latP99": 74.713,
+  "latMax": 80.604,
+  "startMs": 1795255460565.0244,
+  "endMs": 1795255545643.0515,
+  "errors": {
+    "GATEWAY_OVERLOAD": 1437
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 2.9,
+      "cpuPeakPct": 71.5,
+      "memAvgMB": 1585.0,
+      "memPeakMB": 1608.6,
+      "netRxMBps": 0.065,
+      "netTxMBps": 0.038
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 178.1,
+      "cpuPeakPct": 340.5,
+      "memAvgMB": 1488.1,
+      "memPeakMB": 1701.8,
+      "netRxMBps": 5.531,
+      "netTxMBps": 4.241
+    },
+    "couchdb": {
+      "cpuAvgPct": 170.0,
+      "cpuPeakPct": 274.7,
+      "memAvgMB": 733.9,
+      "memPeakMB": 750.9,
+      "netRxMBps": 0.353,
+      "netTxMBps": 0.28
+    },
+    "orderer": {
+      "cpuAvgPct": 3.8,
+      "cpuPeakPct": 17.7,
+      "memAvgMB": 71.5,
+      "memPeakMB": 94.3,
+      "netRxMBps": 0.127,
+      "netTxMBps": 1.418
+    },
+    "loadgen": {
+      "cpuAvgPct": 20.3,
+      "cpuPeakPct": 63.7,
+      "memAvgMB": 358.9,
+      "memPeakMB": 399.2,
+      "netRxMBps": 0.113,
+      "netTxMBps": 0.201
+    },
+    "host": {
+      "cpuAvgPct": 97.6,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 5369.6
+    }
+  },
+  "network": {
+    "peersPerOrg": 3,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 12
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E3",
+  "name": "E3_p12_register_200"
+}

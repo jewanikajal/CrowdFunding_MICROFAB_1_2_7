@@ -1,0 +1,50 @@
+---
+test:
+  name: smoke-fixes-1-6
+  description: Smoke P06/P07/P12/P13/P14/P15/P17/P19/P21/P25 after workload fixes
+  workers:
+    number: 1
+  rounds:
+    - label: smoke-P06-share
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/shareCampaignToPlatform.js, arguments: { arch: single } }
+    - label: smoke-P07-publish
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/publishCampaignToPortal.js, arguments: { arch: single } }
+    - label: smoke-P12-respond
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/respondToInvestmentProposal.js, arguments: { arch: single } }
+    - label: smoke-P13-initToken
+      txNumber: 3
+      rateControl: { type: fixed-rate, opts: { tps: 2 } }
+      workload: { module: workloads/initializeToken.js, arguments: { arch: single } }
+    - label: smoke-P14-mint
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/mintTokens.js, arguments: { arch: single, amount: "100" } }
+    - label: smoke-P15-transfer
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/transferTokens.js, arguments: { arch: single, amount: "1" } }
+    - label: smoke-P17-verifyMilestone
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/verifyMilestoneCompletion.js, arguments: { arch: single } }
+    - label: smoke-P19-dispute
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/createDispute.js, arguments: { arch: single } }
+    - label: smoke-P21-feeTiers
+      txNumber: 3
+      rateControl: { type: fixed-rate, opts: { tps: 2 } }
+      workload: { module: workloads/setFeeTiers.js, arguments: { arch: single } }
+    - label: smoke-P25-close
+      txNumber: 2
+      rateControl: { type: fixed-rate, opts: { tps: 1 } }
+      workload: { module: workloads/closeCampaign.js, arguments: { arch: single } }
+monitor:
+  type:
+    - none

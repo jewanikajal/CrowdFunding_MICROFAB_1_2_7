@@ -1,0 +1,21 @@
+{
+  "tag": "v3_sync_10",
+  "tps": 10,
+  "submitted": 300,
+  "sourceCommitted": 300,
+  "sourceFailed": 0,
+  "sourceErrors": {},
+  "sourceThroughput": 9.6,
+  "sourceLatAvg": 1.119,
+  "sourceLatP95": 2.069,
+  "relayed": 300,
+  "targetPresent": 300,
+  "targetIntact": 300,
+  "missing": 0,
+  "endToEndThroughput": 9.5,
+  "syncLagAvg": 1.931,
+  "syncLagP50": 2.315,
+  "syncLagP95": 2.497,
+  "syncLagMax": 2.499,
+  "idempotentReplaysObserved": 0
+}

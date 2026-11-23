@@ -1,0 +1,23 @@
+{
+  "tag": "v3batch_sync_100",
+  "tps": 100,
+  "submitted": 3000,
+  "sourceCommitted": 2905,
+  "sourceFailed": 95,
+  "sourceErrors": {
+    "10 ABORTED: failed to collect enough transaction endorsement": 95
+  },
+  "sourceThroughput": 93.4,
+  "sourceLatAvg": 1.71,
+  "sourceLatP95": 2.647,
+  "relayed": 2905,
+  "targetPresent": 2905,
+  "targetIntact": 2905,
+  "missing": 0,
+  "endToEndThroughput": 75.1,
+  "syncLagAvg": 14.195,
+  "syncLagP50": 15.022,
+  "syncLagP95": 21.76,
+  "syncLagMax": 23.057,
+  "idempotentReplaysObserved": 0
+}

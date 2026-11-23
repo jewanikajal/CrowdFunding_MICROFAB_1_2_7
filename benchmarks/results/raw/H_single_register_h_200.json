@@ -1,0 +1,89 @@
+{
+  "workload": "register_h",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 2061,
+  "failed": 1939,
+  "sendRate": 199.2,
+  "throughput": 91.7,
+  "latAvg": 4.162,
+  "latMin": 1.185,
+  "latP50": 4.235,
+  "latP95": 5.427,
+  "latP99": 5.622,
+  "latMax": 6.713,
+  "startMs": 1795357793711.0159,
+  "endMs": 1795357816183.2896,
+  "errors": {
+    "GATEWAY_OVERLOAD": 1939
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 10.4,
+      "cpuPeakPct": 31.0,
+      "memAvgMB": 1039.4,
+      "memPeakMB": 1082.1,
+      "netRxMBps": 0.266,
+      "netTxMBps": 0.214
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 124.0,
+      "cpuPeakPct": 267.1,
+      "memAvgMB": 675.9,
+      "memPeakMB": 733.1,
+      "netRxMBps": 3.13,
+      "netTxMBps": 1.848
+    },
+    "couchdb": {
+      "cpuAvgPct": 128.9,
+      "cpuPeakPct": 330.8,
+      "memAvgMB": 325.2,
+      "memPeakMB": 363.1,
+      "netRxMBps": 0.578,
+      "netTxMBps": 0.372
+    },
+    "orderer": {
+      "cpuAvgPct": 9.4,
+      "cpuPeakPct": 23.1,
+      "memAvgMB": 75.7,
+      "memPeakMB": 86.6,
+      "netRxMBps": 0.413,
+      "netTxMBps": 1.588
+    },
+    "loadgen": {
+      "cpuAvgPct": 52.3,
+      "cpuPeakPct": 110.1,
+      "memAvgMB": 354.5,
+      "memPeakMB": 366.7,
+      "netRxMBps": 0.244,
+      "netTxMBps": 0.432
+    },
+    "host": {
+      "cpuAvgPct": 85.8,
+      "cpuPeakPct": 99.8,
+      "memUsedPeakMB": 3266.0
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "H",
+  "name": "H_single_register_h_200"
+}

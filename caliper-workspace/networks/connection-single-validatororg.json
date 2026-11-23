@@ -1,0 +1,53 @@
+{
+  "name": "single-ValidatorOrg",
+  "version": "1.0.0",
+  "client": {
+    "organization": "ValidatorOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "organizations": {
+    "ValidatorOrg": {
+      "mspid": "ValidatorOrgMSP",
+      "peers": [
+        "validatororgpeer-api.127-0-0-1.nip.io:9090"
+      ],
+      "certificateAuthorities": [
+        "validatororgca-api.127-0-0-1.nip.io:9090"
+      ]
+    }
+  },
+  "peers": {
+    "validatororgpeer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://validatororgpeer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "validatororgpeer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "validatororgpeer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "orderers": {
+    "orderer-api.127-0-0-1.nip.io:9090": {
+      "url": "grpc://orderer-api.127-0-0-1.nip.io:9090",
+      "grpcOptions": {
+        "grpc.ssl_target_name_override": "orderer-api.127-0-0-1.nip.io",
+        "hostnameOverride": "orderer-api.127-0-0-1.nip.io"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "validatororgca-api.127-0-0-1.nip.io:9090": {
+      "url": "http://validatororgca-api.127-0-0-1.nip.io:9090",
+      "httpOptions": {
+        "verify": false
+      },
+      "caName": "validatororgca"
+    }
+  }
+}

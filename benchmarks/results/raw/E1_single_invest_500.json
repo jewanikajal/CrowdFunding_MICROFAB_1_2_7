@@ -1,0 +1,89 @@
+{
+  "workload": "invest",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 500,
+  "workers": 4,
+  "submitted": 10000,
+  "succeeded": 1146,
+  "failed": 8854,
+  "sendRate": 493.6,
+  "throughput": 39.9,
+  "latAvg": 12.195,
+  "latMin": 7.046,
+  "latP50": 11.99,
+  "latP95": 16.647,
+  "latP99": 18.577,
+  "latMax": 19.678,
+  "startMs": 1795253279509.0195,
+  "endMs": 1795253308210.487,
+  "errors": {
+    "GATEWAY_OVERLOAD": 8854
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 4.8,
+      "cpuPeakPct": 17.9,
+      "memAvgMB": 561.5,
+      "memPeakMB": 593.0,
+      "netRxMBps": 0.257,
+      "netTxMBps": 0.167
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 131.3,
+      "cpuPeakPct": 303.0,
+      "memAvgMB": 616.6,
+      "memPeakMB": 658.3,
+      "netRxMBps": 2.859,
+      "netTxMBps": 1.602
+    },
+    "couchdb": {
+      "cpuAvgPct": 141.3,
+      "cpuPeakPct": 354.3,
+      "memAvgMB": 274.3,
+      "memPeakMB": 307.2,
+      "netRxMBps": 0.368,
+      "netTxMBps": 0.282
+    },
+    "orderer": {
+      "cpuAvgPct": 6.7,
+      "cpuPeakPct": 35.5,
+      "memAvgMB": 57.3,
+      "memPeakMB": 80.9,
+      "netRxMBps": 0.304,
+      "netTxMBps": 1.181
+    },
+    "loadgen": {
+      "cpuAvgPct": 69.9,
+      "cpuPeakPct": 149.7,
+      "memAvgMB": 439.3,
+      "memPeakMB": 506.2,
+      "netRxMBps": 0.394,
+      "netTxMBps": 0.734
+    },
+    "host": {
+      "cpuAvgPct": 94.6,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 2868.7
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_invest_500"
+}

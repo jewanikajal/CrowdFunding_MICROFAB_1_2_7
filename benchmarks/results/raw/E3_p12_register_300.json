@@ -1,0 +1,90 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 300,
+  "workers": 4,
+  "submitted": 6000,
+  "succeeded": 3024,
+  "failed": 2976,
+  "sendRate": 289.4,
+  "throughput": 28.4,
+  "latAvg": 74.303,
+  "latMin": 9.8,
+  "latP50": 79.25,
+  "latP95": 89.603,
+  "latP99": 92.112,
+  "latMax": 100.733,
+  "startMs": 1795255552952.0356,
+  "endMs": 1795255659345.508,
+  "errors": {
+    "GATEWAY_OVERLOAD": 2734,
+    "TIMEOUT": 242
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 2.5,
+      "cpuPeakPct": 87.7,
+      "memAvgMB": 1561.6,
+      "memPeakMB": 1591.5,
+      "netRxMBps": 0.072,
+      "netTxMBps": 0.043
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 179.9,
+      "cpuPeakPct": 352.2,
+      "memAvgMB": 1601.3,
+      "memPeakMB": 1822.6,
+      "netRxMBps": 5.842,
+      "netTxMBps": 4.494
+    },
+    "couchdb": {
+      "cpuAvgPct": 172.0,
+      "cpuPeakPct": 273.0,
+      "memAvgMB": 748.5,
+      "memPeakMB": 766.6,
+      "netRxMBps": 0.368,
+      "netTxMBps": 0.292
+    },
+    "orderer": {
+      "cpuAvgPct": 3.8,
+      "cpuPeakPct": 15.2,
+      "memAvgMB": 64.7,
+      "memPeakMB": 94.1,
+      "netRxMBps": 0.132,
+      "netTxMBps": 1.478
+    },
+    "loadgen": {
+      "cpuAvgPct": 20.5,
+      "cpuPeakPct": 82.1,
+      "memAvgMB": 406.2,
+      "memPeakMB": 485.5,
+      "netRxMBps": 0.13,
+      "netTxMBps": 0.221
+    },
+    "host": {
+      "cpuAvgPct": 98.5,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 5437.8
+    }
+  },
+  "network": {
+    "peersPerOrg": 3,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 12
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E3",
+  "name": "E3_p12_register_300"
+}

@@ -1,0 +1,89 @@
+{
+  "workload": "token",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 200,
+  "workers": 4,
+  "submitted": 4000,
+  "succeeded": 3249,
+  "failed": 751,
+  "sendRate": 198.6,
+  "throughput": 158,
+  "latAvg": 2.193,
+  "latMin": 0.405,
+  "latP50": 2.155,
+  "latP95": 3.263,
+  "latP99": 3.504,
+  "latMax": 3.729,
+  "startMs": 1795256246147.0164,
+  "endMs": 1795256266705.3706,
+  "errors": {
+    "GATEWAY_OVERLOAD": 751
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 14.1,
+      "cpuPeakPct": 34.7,
+      "memAvgMB": 585.8,
+      "memPeakMB": 586.0,
+      "netRxMBps": 0.333,
+      "netTxMBps": 0.162
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 102.3,
+      "cpuPeakPct": 172.4,
+      "memAvgMB": 560.4,
+      "memPeakMB": 614.7,
+      "netRxMBps": 3.812,
+      "netTxMBps": 1.913
+    },
+    "couchdb": {
+      "cpuAvgPct": 77.0,
+      "cpuPeakPct": 156.0,
+      "memAvgMB": 193.7,
+      "memPeakMB": 202.8,
+      "netRxMBps": 0.267,
+      "netTxMBps": 0.18
+    },
+    "orderer": {
+      "cpuAvgPct": 35.5,
+      "cpuPeakPct": 53.4,
+      "memAvgMB": 313.2,
+      "memPeakMB": 355.7,
+      "netRxMBps": 3.414,
+      "netTxMBps": 5.134
+    },
+    "loadgen": {
+      "cpuAvgPct": 106.4,
+      "cpuPeakPct": 124.9,
+      "memAvgMB": 376.0,
+      "memPeakMB": 380.6,
+      "netRxMBps": 0.338,
+      "netTxMBps": 0.556
+    },
+    "host": {
+      "cpuAvgPct": 87.8,
+      "cpuPeakPct": 99.2,
+      "memUsedPeakMB": 3045.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 5,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E4",
+  "name": "E4_o5_token_200"
+}

@@ -1,0 +1,19 @@
+{
+  "mode": "respond",
+  "iterations": 400,
+  "iterationsPerSecond": 100,
+  "steps": {
+    "createStartup": {
+      "VALID": 400
+    },
+    "createCampaign": {
+      "VALID": 400
+    },
+    "createInvestmentProposal": {
+      "VALID": 400
+    },
+    "respondToInvestmentProposal": {
+      "endorse: proposal not found": 400
+    }
+  }
+}

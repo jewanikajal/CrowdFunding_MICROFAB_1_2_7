@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 100,
+  "workers": 4,
+  "submitted": 2000,
+  "succeeded": 1914,
+  "failed": 86,
+  "sendRate": 97.8,
+  "throughput": 31.1,
+  "latAvg": 34.758,
+  "latMin": 6.173,
+  "latP50": 38.98,
+  "latP95": 45.747,
+  "latP99": 49.133,
+  "latMax": 53.363,
+  "startMs": 1795255391782.0193,
+  "endMs": 1795255453303.4426,
+  "errors": {
+    "GATEWAY_OVERLOAD": 86
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 2.0,
+      "cpuPeakPct": 20.1,
+      "memAvgMB": 1600.6,
+      "memPeakMB": 1603.5,
+      "netRxMBps": 0.064,
+      "netTxMBps": 0.039
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 172.9,
+      "cpuPeakPct": 350.1,
+      "memAvgMB": 1423.9,
+      "memPeakMB": 1575.0,
+      "netRxMBps": 5.571,
+      "netTxMBps": 4.284
+    },
+    "couchdb": {
+      "cpuAvgPct": 177.2,
+      "cpuPeakPct": 267.5,
+      "memAvgMB": 687.3,
+      "memPeakMB": 749.6,
+      "netRxMBps": 0.355,
+      "netTxMBps": 0.282
+    },
+    "orderer": {
+      "cpuAvgPct": 3.8,
+      "cpuPeakPct": 17.0,
+      "memAvgMB": 72.7,
+      "memPeakMB": 86.3,
+      "netRxMBps": 0.128,
+      "netTxMBps": 1.435
+    },
+    "loadgen": {
+      "cpuAvgPct": 16.5,
+      "cpuPeakPct": 79.1,
+      "memAvgMB": 347.0,
+      "memPeakMB": 379.9,
+      "netRxMBps": 0.096,
+      "netTxMBps": 0.15
+    },
+    "host": {
+      "cpuAvgPct": 97.3,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 5204.9
+    }
+  },
+  "network": {
+    "peersPerOrg": 3,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 12
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E3",
+  "name": "E3_p12_register_100"
+}

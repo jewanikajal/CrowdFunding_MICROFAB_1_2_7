@@ -1,0 +1,89 @@
+{
+  "workload": "register",
+  "channel": "crowdfunding-channel",
+  "chaincode": "crowdfunding",
+  "targetTps": 1000,
+  "workers": 4,
+  "submitted": 30000,
+  "succeeded": 2098,
+  "failed": 27902,
+  "sendRate": 987.7,
+  "throughput": 29.3,
+  "latAvg": 40.858,
+  "latMin": 12.034,
+  "latP50": 40.921,
+  "latP95": 49.013,
+  "latP99": 61.749,
+  "latMax": 65.5,
+  "startMs": 1795252955805.0166,
+  "endMs": 1795253027404.3154,
+  "errors": {
+    "GATEWAY_OVERLOAD": 27902
+  },
+  "resources": {
+    "chaincode": {
+      "cpuAvgPct": 3.5,
+      "cpuPeakPct": 27.4,
+      "memAvgMB": 539.8,
+      "memPeakMB": 550.7,
+      "netRxMBps": 0.2,
+      "netTxMBps": 0.116
+    },
+    "other": {
+      "cpuAvgPct": 0.0,
+      "cpuPeakPct": 0.0,
+      "memAvgMB": 0.1,
+      "memPeakMB": 0.1,
+      "netRxMBps": 0.0,
+      "netTxMBps": 0.0
+    },
+    "peer": {
+      "cpuAvgPct": 125.6,
+      "cpuPeakPct": 246.1,
+      "memAvgMB": 777.0,
+      "memPeakMB": 949.8,
+      "netRxMBps": 2.671,
+      "netTxMBps": 1.305
+    },
+    "couchdb": {
+      "cpuAvgPct": 149.9,
+      "cpuPeakPct": 343.9,
+      "memAvgMB": 335.0,
+      "memPeakMB": 379.0,
+      "netRxMBps": 0.313,
+      "netTxMBps": 0.252
+    },
+    "orderer": {
+      "cpuAvgPct": 8.1,
+      "cpuPeakPct": 47.9,
+      "memAvgMB": 61.6,
+      "memPeakMB": 88.7,
+      "netRxMBps": 0.299,
+      "netTxMBps": 1.164
+    },
+    "loadgen": {
+      "cpuAvgPct": 64.8,
+      "cpuPeakPct": 170.3,
+      "memAvgMB": 727.1,
+      "memPeakMB": 904.0,
+      "netRxMBps": 0.372,
+      "netTxMBps": 0.879
+    },
+    "host": {
+      "cpuAvgPct": 97.1,
+      "cpuPeakPct": 100.0,
+      "memUsedPeakMB": 3554.2
+    }
+  },
+  "network": {
+    "peersPerOrg": 1,
+    "orderers": 1,
+    "topology": "single",
+    "batchTimeout": "2s",
+    "batchSize": 500,
+    "totalPeers": 4
+  },
+  "endorsementPolicy": "OR('StartupOrgMSP.peer','InvestorOrgMSP.peer','ValidatorOrgMSP.peer','PlatformOrgMSP.peer')",
+  "tag": "E1",
+  "name": "E1_single_register_1000"
+}
